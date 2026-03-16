@@ -94,8 +94,10 @@ async function fetchFromBlogger<T>(path: string): Promise<T | null> {
 
   try {
     const res = await fetch(url, {
-      cache: "no-store",
       redirect: "follow",
+      next: {
+        revalidate: 900,
+      },
     });
 
     if (!res.ok) {

@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { BottomNav } from "@/app/components/BottomNav";
 import { SearchExperience } from "@/app/components/SearchExperience";
 import { getLandingData } from "@/app/lib/landing";
@@ -64,7 +65,9 @@ export default async function SearchPage() {
 
   return (
     <main className="mx-auto min-h-screen max-w-md bg-white pb-24 font-sans shadow-md">
-      <SearchExperience items={searchItems} categories={categories} />
+      <Suspense fallback={<div className="px-6 py-8 text-sm text-[#8b7763]">Memuat pencarian...</div>}>
+        <SearchExperience items={searchItems} categories={categories} />
+      </Suspense>
       <BottomNav />
     </main>
   );

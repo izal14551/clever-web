@@ -4,9 +4,9 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { signIn, useSession } from "next-auth/react";
 import { ArrowLeft } from "lucide-react";
-import { useEffect } from "react";
+import { Suspense, useEffect } from "react";
 
-export default function LoginPage() {
+function LoginContent() {
   const { status } = useSession();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -77,5 +77,19 @@ export default function LoginPage() {
         </button>
       </section>
     </main>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense
+      fallback={
+        <main className="max-w-md mx-auto bg-white min-h-screen flex items-center justify-center font-sans shadow-md p-6">
+          <p className="text-gray-500 font-semibold animate-pulse">Memuat...</p>
+        </main>
+      }
+    >
+      <LoginContent />
+    </Suspense>
   );
 }
