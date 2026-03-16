@@ -1,0 +1,28 @@
+id,category,title,description,duration,imageUrl,sortOrder
+svc2,Baby Treatment,Baby Massage Imun Booster & Relaksasi,"Mendukung relaksasi, meningkatkan kualitas tidur, melancarkan sirkulasi, dan membantu perkembangan motorik serta sensorik bayi.",30 Menit,,1
+svc3,Baby Treatment,Baby Pierce One Click + Salf,"Prosedur tindik cepat menggunakan alat tembak steril, termasuk salep antiseptik, dengan rasa yang minimal.",30 Menit,,2
+svc4,Baby Treatment,Pediatric Massage,"Teknik pijat pediatrik untuk membantu cold and flu, kembung, kolik, nafsu makan, konstipasi, diare, dan fase tumbuh gigi.",30 Menit,,3
+svc5,Baby Treatment,Haircut Full atau Non Full,"Layanan potong rambut bayi dan anak dengan teknik yang aman, lembut, dan dilakukan oleh tenaga berpengalaman.",30 Menit,,4
+svc6,Baby Treatment,Baby Swim + Gym,"Kombinasi aktivitas renang dan gym untuk membantu kekuatan otot, koordinasi, keseimbangan, dan stimulasi sensorik bayi.",30 Menit,,5
+svc7,Paket Baby Treatment,Little Raindrops,"Paket baby massage dan memandikan bayi untuk membuat bayi lebih rileks, bersih, dan nyaman dengan perawatan lembut.",90 Menit,,6
+svc8,Paket Baby Treatment,Comfort Breath,"Kombinasi nebulizer dan sinar infrared untuk membantu melegakan pernapasan dan mengurangi ketegangan pada dada.",30 Menit,,7
+svc9,Paket Baby Treatment,Serenity Package,"Kombinasi brain gym dan baby massage untuk stimulasi otak, relaksasi tubuh, dan dukungan perkembangan motorik serta fokus.",60 Menit,,8
+svc10,Paket Baby Treatment,Sugar Plum,"Kombinasi menipedi bayi dan baby massage untuk perawatan kuku dan relaksasi dalam satu sesi.",60 Menit,,9
+svc11,Paket Baby Treatment,Snuggle Soft,"Paket haircut, menipedi, dan baby massage untuk grooming lengkap agar bayi tetap rapi dan nyaman.",60 Menit,,10
+svc12,Paket Baby Treatment,Tiny Joy Spa,"Perpaduan baby gym, baby swim, dan baby massage untuk menunjang tumbuh kembang, aktivitas fisik, dan relaksasi.",60 Menit,,11
+svc13,Toddler Treatment,Toddler Massage Imun Booster & Relaksasi,"Membantu relaksasi toddler, kualitas tidur, sirkulasi darah, serta perkembangan motorik dan sensorik.",45 Menit,,12
+svc14,Toddler Treatment,Pediatric Massage Toddler,"Pijat pediatrik untuk membantu meredakan cold and flu, kembung, kolik, konstipasi, diare, dan teething pada toddler.",45 Menit,,13
+svc15,Paket Toddler Treatment,Little Splash,"Paket massage dan memandikan toddler untuk relaksasi, kualitas tidur yang lebih baik, dan kenyamanan saat mandi.",90 Menit,,14
+svc16,Paket Toddler Treatment,Bounce & Bright,"Kombinasi massage dan brain gym untuk stimulasi motorik, sensorik, fokus, konsentrasi, dan relaksasi toddler.",60 Menit,,15
+svc17,Kids Treatment,Kids Massage Imun Booster & Relaksasi,"Membantu meningkatkan daya tahan tubuh, relaksasi, kualitas tidur, sirkulasi, dan stimulasi motorik serta sensorik anak.",60 Menit,,16
+svc18,Kids Treatment,Pediatric Massage Kids,"Pijat pediatrik untuk membantu keluhan seperti cold and flu, kembung, kolik, gangguan makan, konstipasi, diare, dan tumbuh gigi.",60 Menit,,17
+svc19,Paket Kids Treatment,Fun & Fabulous,"Kombinasi body mask dan massage untuk kelembapan kulit, relaksasi tubuh, sirkulasi darah, dan kenyamanan anak.",90 Menit,,18
+svc20,Additional,Nebulizer,"Membantu melegakan pernapasan, mengencerkan dahak, mempercepat penyerapan obat, dan mendukung pemulihan gangguan napas.",20 Menit,,19
+svc21,Additional,Therapy Sinar Infrared,"Membantu meredakan nyeri otot dan sendi, melancarkan peredaran darah, mengurangi peradangan, dan mempercepat pemulihan.",15 Menit,,20
+svc22,Additional,Nailcut,"Membantu menjaga kebersihan kuku, mencegah kotoran menumpuk, dan meningkatkan kenyamanan jari tangan serta kaki anak.",30 Menit,,21
+svc23,Additional,Memandikan Bayi atau Toddler,"Membersihkan tubuh dengan aman, mendukung relaksasi, menjaga kesehatan kulit, dan memberi stimulasi sensorik melalui air hangat.",30 Menit,,22
+svc24,Additional,On Call Bidan Menjaga Bayi atau Anak per Jam,"Pengawasan langsung oleh bidan berpengalaman untuk membantu keamanan, kenyamanan, dan kebutuhan dasar bayi atau anak.",60 Menit,,23
+svc25,Additional,On Call Menjaga Bayi 0-11 Bulan Half Day 6 Jam,"Layanan menjaga bayi 6 jam termasuk memandikan 1 kali, baby massage 1 kali, nailcut, dan tummy time.",6 Jam,,24
+svc26,Additional,On Call Menjaga Bayi 0-11 Bulan per Hari 8 Jam,"Pendampingan harian 8 jam termasuk memandikan 2 kali, baby massage, nailcut, dan tummy time untuk stimulasi bayi.",8 Jam,,25
+svc27,Additional,On Call Bidan Menginap 12 Jam,"Pendampingan bidan dari malam sampai pagi termasuk memandikan 1 kali dan baby massage 1 kali di pagi hari.",12 Jam,,26
+svc28,Additional,On Call Bidan Menginap 24 Jam,"Pengasuhan dan pemantauan bayi 24 jam dengan sistem 3 shift termasuk memandikan, tummy time, baby massage, dan mencuci botol.",24 Jam,,27
