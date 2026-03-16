@@ -101,4 +101,3 @@ export interface LandingPageData {
   testimonials: TestimonialData[];
   featuredTreatments: TreatmentData[];
 }
-

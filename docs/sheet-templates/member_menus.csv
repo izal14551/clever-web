@@ -1,0 +1,5 @@
+key,label,href,sortOrder
+settings,Pengaturan,#,1
+help,Bantuan,/menu/bantuan,2
+about,Tentang clevermom.id,/menu/about,3
+terms,Syarat & ketentuan,/menu/terms,4
