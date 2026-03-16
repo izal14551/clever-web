@@ -17,12 +17,6 @@ var SHEETS = {
 };
 
 function doGet(e) {
-  var action = getParam_(e, "action");
-
-  if (action === "getMemberSummary") {
-    return jsonOutput_(getMemberSummary_(e));
-  }
-
   return jsonOutput_(buildSitePayload_());
 }
 
@@ -31,11 +25,18 @@ function doPost(e) {
     var body = parseJsonBody_(e);
     var action = body.action || "";
 
+    if (action === "getMemberSummary") {
+      requirePrivateAccess_(body);
+      return jsonOutput_(getMemberSummary_(body));
+    }
+
     if (action === "upsertMember") {
+      requirePrivateAccess_(body);
       return jsonOutput_(upsertMember_(body));
     }
 
     if (action === "updateMemberName") {
+      requirePrivateAccess_(body);
       return jsonOutput_(updateMemberName_(body));
     }
 
@@ -59,6 +60,7 @@ function buildSitePayload_() {
       return {
         id: row.id,
         label: row.label,
+        category: row.category || "",
         iconUrl: row.iconUrl || "",
       };
     }),
@@ -103,6 +105,7 @@ function buildSitePayload_() {
     serviceList: sortedRows_(SHEETS.SERVICE_LIST).map(function (row) {
       return {
         id: row.id,
+        category: row.category || "",
         title: row.title,
         description: row.description || "",
         duration: row.duration || "",
@@ -145,9 +148,9 @@ function buildSitePayload_() {
   };
 }
 
-function getMemberSummary_(e) {
-  var userId = getParam_(e, "userId");
-  var email = normalizeText_(getParam_(e, "email"));
+function getMemberSummary_(payload) {
+  var userId = normalizeText_(payload.userId);
+  var email = normalizeText_(payload.email);
   var rows = getSheetObjects_(SHEETS.MEMBER_SUMMARY);
   var menus = sortedRows_(SHEETS.MEMBER_MENUS).map(function (row) {
     return {
@@ -173,6 +176,10 @@ function getMemberSummary_(e) {
 }
 
 function upsertMember_(payload) {
+  validateRequiredText_(payload.userId, "userId");
+  validateEmail_(payload.email);
+  validateName_(payload.name);
+
   var sheet = getOrCreateSheet_(SHEETS.MEMBER_SUMMARY, [
     "userId",
     "email",
@@ -219,6 +226,10 @@ function upsertMember_(payload) {
 }
 
 function updateMemberName_(payload) {
+  validateRequiredText_(payload.userId, "userId");
+  validateEmail_(payload.email);
+  validateName_(payload.name);
+
   var sheet = getOrCreateSheet_(SHEETS.MEMBER_SUMMARY, [
     "userId",
     "email",
@@ -259,6 +270,19 @@ function updateMemberName_(payload) {
     ok: true,
     message: "Username created",
   };
+}
+
+function requirePrivateAccess_(payload) {
+  var apiKey = String(payload.apiKey || "");
+  var storedApiKey = PropertiesService.getScriptProperties().getProperty("APPS_SCRIPT_API_KEY");
+
+  if (!storedApiKey) {
+    throw new Error("APPS_SCRIPT_API_KEY belum diset di Script Properties.");
+  }
+
+  if (!apiKey || apiKey !== storedApiKey) {
+    throw new Error("Unauthorized");
+  }
 }
 
 function getSheetObjects_(sheetName) {
@@ -317,6 +341,29 @@ function parseJsonBody_(e) {
   }
 
   return JSON.parse(e.postData.contents);
+}
+
+function validateRequiredText_(value, fieldName) {
+  if (!String(value || "").trim()) {
+    throw new Error(fieldName + " wajib diisi.");
+  }
+}
+
+function validateEmail_(value) {
+  var email = String(value || "").trim();
+  if (!email || email.indexOf("@") === -1) {
+    throw new Error("Email tidak valid.");
+  }
+}
+
+function validateName_(value) {
+  var name = String(value || "").trim();
+  if (name.length < 3) {
+    throw new Error("Nama minimal 3 karakter.");
+  }
+  if (name.length > 80) {
+    throw new Error("Nama maksimal 80 karakter.");
+  }
 }
 
 function splitPipe_(value) {

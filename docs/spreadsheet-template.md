@@ -34,7 +34,16 @@ Buat file Google Spreadsheet dengan tab berikut:
 14. `member_summary`
 15. `member_menus`
 
-Template CSV untuk tiap tab sudah disiapkan di folder [sheet-templates](/c:/laragon/www/clevermom/clever-web/docs/sheet-templates).
+Template utama sekarang disiapkan dalam satu file CSV master di [sheet-template-master.csv](/c:/laragon/www/clevermom/clever-web/docs/sheet-template-master.csv).
+Selain itu, workbook siap pakai dengan banyak sheet juga tersedia di [spreadsheet-template.xlsx](/c:/laragon/www/clevermom/clever-web/docs/spreadsheet-template.xlsx).
+
+Cara pakainya:
+- Import CSV master ini ke spreadsheet sementara.
+- Gunakan kolom `sheetName` untuk memisahkan data ke tab akhir.
+- Atau copy baris per `sheetName` ke masing-masing tab manual.
+- Jika ingin langsung pakai versi yang lebih operasional, buka file `.xlsx` dan upload ke Google Sheets.
+
+Folder [sheet-templates](/c:/laragon/www/clevermom/clever-web/docs/sheet-templates) masih disimpan sebagai referensi per tab jika dibutuhkan.
 
 ## Struktur Kolom per Sheet
 
@@ -297,8 +306,9 @@ Apps Script paling aman mengembalikan satu JSON gabungan seperti ini:
 
 ## Saran Workflow
 
-1. Import semua file CSV template ke Google Spreadsheet.
-2. Isi data sesuai kebutuhan bisnis.
-3. Buat Apps Script yang membaca tiap tab dan menggabungkannya menjadi JSON.
-4. Publish Apps Script sebagai web app.
-5. Set `APPS_SCRIPT_URL` di `.env.local`.
+1. Import file [sheet-template-master.csv](/c:/laragon/www/clevermom/clever-web/docs/sheet-template-master.csv).
+2. Pecah data berdasarkan kolom `sheetName` ke tab akhir di Google Spreadsheet.
+3. Isi atau sesuaikan data sesuai kebutuhan bisnis.
+4. Buat Apps Script yang membaca tiap tab dan menggabungkannya menjadi JSON.
+5. Publish Apps Script sebagai web app.
+6. Set `APPS_SCRIPT_URL` di `.env.local`.

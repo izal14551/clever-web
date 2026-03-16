@@ -1,0 +1,56 @@
+sheetName,id,category,label,iconUrl,title,subtitle,description,details,duration,imageUrl,link,author,timeAgo,message,reactionCount,ctaLabel,name,address,mapUrl,contactTitle,contactDescription,contactButtonLabel,whatsappNumber,logoUrl,heroTitle,heroDescription,buttonText,key,href,email,memberLevel,points,sortOrder
+landing_hero,,,,,Spesialis Kebidanan,One Stop Solution Mom and Baby Care,Layanan Bidan Premium No. 1 Bergaransi,,,,,,,,,,,,,,,,/logo/LOGO_CLEVERMOM.png,,,,,,,,,1
+landing_consultation,,,,,Butuh Konsultasi Online?,,Konsultasi ibu dan bayi bersama bidan profesional langsung dari rumah.,,,,,,,,,,,,,,,,6281932618816,,,Hubungi Sekarang,,,,,1
+landing_services,1,,Baby Treatment,,,,,,,,,,,,,,,,,,,,,,,,,,,,,1
+landing_services,2,,Toddler Treatment,,,,,,,,,,,,,,,,,,,,,,,,,,,,,2
+landing_services,3,,Kids Treatment,,,,,,,,,,,,,,,,,,,,,,,,,,,,,3
+landing_services,4,,Pregnancy Treatment,,,,,,,,,,,,,,,,,,,,,,,,,,,,,4
+landing_services,5,,Konselor Laktasi,,,,,,,,,,,,,,,,,,,,,,,,,,,,,5
+landing_promos,p1,,,,Promo spesial CleverMom,,,,,,,,,,,,,,,,,,,,,,,,,,,,1
+landing_promos,p2,,,,Promo baby care,,,,,,,,,,,,,,,,,,,,,,,,,,,,2
+landing_packages,pkg1,,,,Little Raindrops,"(Baby Massage, Memandikan)",,"Baby massage|Memandikan bayi|Fokus untuk membuat bayi lebih rileks dan bersih dengan perawatan lembut",90 Menit,,,,,,,,,,,,,,,,,,,,,,1
+landing_packages,pkg2,,,,Comfort Breath,"(Nebulizer, Sinar Infrared)",,"Nebulizer|Sinar Infrared|Membantu melegakan pernapasan dan meredakan ketegangan pada dada",30 Menit,,,,,,,,,,,,,,,,,,,,,,2
+landing_testimonials,ts1,Baby Massage,,,Baby jadi lebih tenang setelah treatment,,,"",,,Mom Anisa,3 hari lalu,Terapisnya lembut banget dan penjelasannya jelas untuk saya sebagai ibu.,18,Bantu Mom lain,,,,,,,,,,,,,,,,1
+landing_testimonials,ts2,Postpartum Care,,,Pelayanannya hangat dan bikin recovery lebih nyaman,,,"",,,Mom Dita,1 minggu lalu,Terapis datang tepat waktu alat rapi dan treatment membuat badan terasa lebih ringan.,12,Bantu Mom lain,,,,,,,,,,,,,,,,2
+landing_featured_treatments,tr1,,,,,,,,,,Nama Treatment,,,,,,,,,,,,,,,,,,,,1
+landing_featured_treatments,tr2,,,,,,,,,,Nama Treatment,,,,,,,,,,,,,,,,,,,,2
+service_list,svc2,Baby Treatment,,,"Baby Massage Imun Booster & Relaksasi",,Mendukung relaksasi meningkatkan kualitas tidur melancarkan sirkulasi dan membantu perkembangan motorik serta sensorik bayi.,,30 Menit,,,,,,,,,,,,,,,,,,,,,,1
+service_list,svc3,Baby Treatment,,,"Baby Pierce One Click + Salf",,Prosedur tindik cepat menggunakan alat tembak steril termasuk salep antiseptik dengan rasa yang minimal.,,30 Menit,,,,,,,,,,,,,,,,,,,,,,2
+service_list,svc4,Baby Treatment,,,"Pediatric Massage",,Teknik pijat pediatrik untuk membantu cold and flu kembung kolik nafsu makan konstipasi diare dan fase tumbuh gigi.,,30 Menit,,,,,,,,,,,,,,,,,,,,,,3
+service_list,svc5,Baby Treatment,,,"Haircut Full atau Non Full",,Layanan potong rambut bayi dan anak dengan teknik yang aman lembut dan dilakukan oleh tenaga berpengalaman.,,30 Menit,,,,,,,,,,,,,,,,,,,,,,4
+service_list,svc6,Baby Treatment,,,"Baby Swim + Gym",,Kombinasi aktivitas renang dan gym untuk membantu kekuatan otot koordinasi keseimbangan dan stimulasi sensorik bayi.,,30 Menit,,,,,,,,,,,,,,,,,,,,,,5
+service_list,svc7,Paket Baby Treatment,,,"Little Raindrops",,Paket baby massage dan memandikan bayi untuk membuat bayi lebih rileks bersih dan nyaman dengan perawatan lembut.,,90 Menit,,,,,,,,,,,,,,,,,,,,,,6
+service_list,svc8,Paket Baby Treatment,,,"Comfort Breath",,Kombinasi nebulizer dan sinar infrared untuk membantu melegakan pernapasan dan mengurangi ketegangan pada dada.,,30 Menit,,,,,,,,,,,,,,,,,,,,,,7
+service_list,svc9,Paket Baby Treatment,,,"Serenity Package",,Kombinasi brain gym dan baby massage untuk stimulasi otak relaksasi tubuh dan dukungan perkembangan motorik serta fokus.,,60 Menit,,,,,,,,,,,,,,,,,,,,,,8
+service_list,svc10,Paket Baby Treatment,,,"Sugar Plum",,Kombinasi menipedi bayi dan baby massage untuk perawatan kuku dan relaksasi dalam satu sesi.,,60 Menit,,,,,,,,,,,,,,,,,,,,,,9
+service_list,svc11,Paket Baby Treatment,,,"Snuggle Soft",,Paket haircut menipedi dan baby massage untuk grooming lengkap agar bayi tetap rapi dan nyaman.,,60 Menit,,,,,,,,,,,,,,,,,,,,,,10
+service_list,svc12,Paket Baby Treatment,,,"Tiny Joy Spa",,Perpaduan baby gym baby swim dan baby massage untuk menunjang tumbuh kembang aktivitas fisik dan relaksasi.,,60 Menit,,,,,,,,,,,,,,,,,,,,,,11
+service_list,svc13,Toddler Treatment,,,"Toddler Massage Imun Booster & Relaksasi",,Membantu relaksasi toddler kualitas tidur sirkulasi darah serta perkembangan motorik dan sensorik.,,45 Menit,,,,,,,,,,,,,,,,,,,,,,12
+service_list,svc14,Toddler Treatment,,,"Pediatric Massage Toddler",,Pijat pediatrik untuk membantu meredakan cold and flu kembung kolik konstipasi diare dan teething pada toddler.,,45 Menit,,,,,,,,,,,,,,,,,,,,,,13
+service_list,svc15,Paket Toddler Treatment,,,"Little Splash",,Paket massage dan memandikan toddler untuk relaksasi kualitas tidur yang lebih baik dan kenyamanan saat mandi.,,90 Menit,,,,,,,,,,,,,,,,,,,,,,14
+service_list,svc16,Paket Toddler Treatment,,,"Bounce & Bright",,Kombinasi massage dan brain gym untuk stimulasi motorik sensorik fokus konsentrasi dan relaksasi toddler.,,60 Menit,,,,,,,,,,,,,,,,,,,,,,15
+service_list,svc17,Kids Treatment,,,"Kids Massage Imun Booster & Relaksasi",,Membantu meningkatkan daya tahan tubuh relaksasi kualitas tidur sirkulasi dan stimulasi motorik serta sensorik anak.,,60 Menit,,,,,,,,,,,,,,,,,,,,,,16
+service_list,svc18,Kids Treatment,,,"Pediatric Massage Kids",,Pijat pediatrik untuk membantu keluhan seperti cold and flu kembung kolik gangguan makan konstipasi diare dan tumbuh gigi.,,60 Menit,,,,,,,,,,,,,,,,,,,,,,17
+service_list,svc19,Paket Kids Treatment,,,"Fun & Fabulous",,Kombinasi body mask dan massage untuk kelembapan kulit relaksasi tubuh sirkulasi darah dan kenyamanan anak.,,90 Menit,,,,,,,,,,,,,,,,,,,,,,18
+service_list,svc20,Additional,,,"Nebulizer",,Membantu melegakan pernapasan mengencerkan dahak mempercepat penyerapan obat dan mendukung pemulihan gangguan napas.,,20 Menit,,,,,,,,,,,,,,,,,,,,,,19
+service_list,svc21,Additional,,,"Therapy Sinar Infrared",,Membantu meredakan nyeri otot dan sendi melancarkan peredaran darah mengurangi peradangan dan mempercepat pemulihan.,,15 Menit,,,,,,,,,,,,,,,,,,,,,,20
+service_list,svc22,Additional,,,"Nailcut",,Membantu menjaga kebersihan kuku mencegah kotoran menumpuk dan meningkatkan kenyamanan jari tangan serta kaki anak.,,30 Menit,,,,,,,,,,,,,,,,,,,,,,21
+service_list,svc23,Additional,,,"Memandikan Bayi atau Toddler",,Membersihkan tubuh dengan aman mendukung relaksasi menjaga kesehatan kulit dan memberi stimulasi sensorik melalui air hangat.,,30 Menit,,,,,,,,,,,,,,,,,,,,,,22
+service_list,svc24,Additional,,,"On Call Bidan Menjaga Bayi atau Anak per Jam",,Pengawasan langsung oleh bidan berpengalaman untuk membantu keamanan kenyamanan dan kebutuhan dasar bayi atau anak.,,60 Menit,,,,,,,,,,,,,,,,,,,,,,23
+service_list,svc25,Additional,,,"On Call Menjaga Bayi 0-11 Bulan Half Day 6 Jam",,Layanan menjaga bayi 6 jam termasuk memandikan 1 kali baby massage 1 kali nailcut dan tummy time.,,6 Jam,,,,,,,,,,,,,,,,,,,,,,24
+service_list,svc26,Additional,,,"On Call Menjaga Bayi 0-11 Bulan per Hari 8 Jam",,Pendampingan harian 8 jam termasuk memandikan 2 kali baby massage nailcut dan tummy time untuk stimulasi bayi.,,8 Jam,,,,,,,,,,,,,,,,,,,,,,25
+service_list,svc27,Additional,,,"On Call Bidan Menginap 12 Jam",,Pendampingan bidan dari malam sampai pagi termasuk memandikan 1 kali dan baby massage 1 kali di pagi hari.,,12 Jam,,,,,,,,,,,,,,,,,,,,,,26
+service_list,svc28,Additional,,,"On Call Bidan Menginap 24 Jam",,Pengasuhan dan pemantauan bayi 24 jam dengan sistem 3 shift termasuk memandikan tummy time baby massage dan mencuci botol.,,24 Jam,,,,,,,,,,,,,,,,,,,,,,27
+about_page,,,,,,,,,,,,,,,,,,,,,,,,,Platform pendamping untuk ibu dan keluarga.,clevermom.id membantu pengguna mengakses informasi layanan membership dan pengalaman perawatan yang lebih terstruktur.,,,,,,,1
+about_values,,,,,Pendampingan yang hangat,,Clevermom hadir untuk membantu ibu memahami kebutuhan tumbuh kembang anak dengan pendekatan yang dekat jelas dan praktis.,,,,,,,,,,,,,,,,,,,,,,,,1
+about_values,,,,,Akses layanan yang mudah,,Kami merancang pengalaman yang sederhana agar konsultasi treatment dan informasi membership bisa diakses dengan cepat dari satu tempat.,,,,,,,,,,,,,,,,,,,,,,,,2
+about_locations,branch-bintaro,,,,,,,,,,,,,,Clevermom Bintaro,"Bintaro, Tangerang Selatan",https://www.google.com/maps/search/?api=1&query=Clevermom+Bintaro,,,,,,,,,,,,1
+help_page,,,,,,,,,,,,,,,,,,,,Butuh bantuan langsung?,Hubungi admin CleverMom melalui WhatsApp untuk mendapatkan respon yang lebih cepat.,Hubungi via WhatsApp,6281932618816,,Customer bisa melihat bantuan dan menghubungi tim dengan cepat.,Halaman ini merangkum topik bantuan utama yang paling sering dibutuhkan oleh Mom saat menggunakan layanan CleverMom.,,,,,,1
+help_topics,help-1,,,,Konsultasi layanan,,Tanyakan rekomendasi treatment jadwal atau kebutuhan perawatan ibu dan bayi.,,,,,,,,,,,,,,,,,,,,,,,,1
+help_topics,help-2,,,,Informasi promo,,Mom bisa meminta detail promo yang sedang berjalan sebelum melakukan booking.,,,,,,,,,,,,,,,,,,,,,,,,2
+help_topics,help-3,,,,Bantuan akun,,Jika ada kendala akses atau pertanyaan umum seputar penggunaan website tim kami siap membantu.,,,,,,,,,,,,,,,,,,,,,,,,3
+member_summary,user-001,,,,,,,,,,,,,,,,,,,,,,,,,,,,,mom@example.com,-,120,1
+member_menus,,,,,,,,,,,,,,,,,,,,,,,,,,,,settings,#,,,1
+member_menus,,,,,,,,,,,,,,,,,,,,,,,,,,,,help,/menu/bantuan,,,2
+member_menus,,,,,,,,,,,,,,,,,,,,,,,,,,,,about,/menu/about,,,3
+member_menus,,,,,,,,,,,,,,,,,,,,,,,,,,,,terms,/menu/terms,,,4
