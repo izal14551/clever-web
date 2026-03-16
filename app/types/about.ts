@@ -1,18 +1,13 @@
 export interface AboutValue {
-  id?: number;
-  slug?: string;
   title: string;
   description: string;
-  sortOrder?: number;
 }
 
 export interface BranchLocation {
-  id: number;
-  slug?: string;
+  id: string;
   name: string;
   address?: string;
   mapUrl?: string;
-  sortOrder?: number;
 }
 
 export interface AboutPageData {

@@ -1,6 +1,6 @@
+import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { BottomNav } from "@/app/components/BottomNav";
-import { ProgressLink as Link } from "@/app/components/RouteProgress";
 import { getArticleList } from "@/app/lib/blogger";
 
 function formatDate(dateString: string) {
@@ -23,6 +23,9 @@ export default async function ArtikelPage() {
           </Link>
           <div>
             <h1 className="text-xl font-bold">Artikel Clevermom</h1>
+            <p className="text-xs text-white/80">
+              Customer dapat melihat daftar artikel terbaru.
+            </p>
           </div>
         </div>
       </header>
@@ -32,7 +35,7 @@ export default async function ArtikelPage() {
           articles.map((article) => (
             <Link
               key={article.id}
-              href={`/artikel/${article.slug || article.id}`}
+              href={`/artikel/${article.id}`}
               className="block overflow-hidden rounded-3xl border border-orange-100 bg-white shadow-sm transition-colors hover:bg-[#fffaf5]"
             >
               <div className="h-44 bg-[#f4ede4]">

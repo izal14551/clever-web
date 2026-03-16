@@ -1,58 +1,19 @@
 import { HeartHandshake, Quote } from "lucide-react";
-import { getServerSession } from "next-auth";
 import { BottomNav } from "../components/BottomNav";
 import { ProfileSubpageHeader } from "../components/ProfileSubpageHeader";
 import { TestimonialCard } from "../components/TestimonialCard";
-import { formatCommentTimeAgo } from "../lib/commentTime";
-import { getServiceListData } from "../services/serviceData";
-import { getAllServiceComments } from "../lib/serviceComments";
-import { authOptions } from "../lib/auth";
-import type { TestimonialData } from "../types/landing";
-
-export const dynamic = "force-dynamic";
+import { getLandingData } from "../lib/landing";
 
 export default async function TestimonialPage() {
-  const session = await getServerSession(authOptions);
-  const [services, storedComments] = await Promise.all([
-    getServiceListData(),
-    getAllServiceComments(session?.user?.id),
-  ]);
-  const serviceMap = new Map(
-    services.map((service) => [String(service.id), service]),
-  );
-  const serviceSlugMap = new Map(
-    services
-      .filter((service) => service.slug)
-      .map((service) => [service.slug as string, service]),
-  );
-
-  const testimonials: TestimonialData[] = storedComments.map((comment) => {
-    const service =
-      serviceMap.get(comment.serviceId) ||
-      serviceSlugMap.get(comment.serviceId);
-
-    return {
-      id: comment.id,
-      serviceId: service?.id,
-      serviceSlug: service?.slug,
-      author: comment.author,
-      timeAgo: formatCommentTimeAgo(comment.createdAt),
-      category: service?.category || "Layanan CleverMom",
-      title: service?.title || "Komentar Mom",
-      message: comment.message,
-      reactionCount: comment.likeCount,
-      persistedReactionCount: comment.likeCount,
-      reactedByCurrentUser: comment.likedByCurrentUser,
-      ctaLabel: "Bantu Mom lain",
-    };
-  });
+  const data = await getLandingData();
+  const testimonials = data.testimonials ?? [];
 
   return (
     <main className="relative mx-auto min-h-screen max-w-md bg-white pb-24 font-sans shadow-md">
       <ProfileSubpageHeader title="Testimonial Mom" backHref="/" />
 
-      <section className="bg-linear-to-b from-[#fffaf5] to-[#f8ecde] px-6 pb-8 pt-6">
-        <div className="relative rounded-[28px] border border-[#ecd8c3] bg-[linear-gradient(180deg,#fffefb_0%,#fff4e8_55%,#f8e4cd_100%)] p-5 shadow-[0_14px_34px_rgba(166,139,109,0.14)]">
+      <section className="bg-gradient-to-b from-[#fffaf5] to-[#f8ecde] px-6 pb-8 pt-6">
+        <div className="relative rounded-[28px] border border-[#ecd8c3] bg-[linear-gradient(180deg,_#fffefb_0%,_#fff4e8_55%,_#f8e4cd_100%)] p-5 shadow-[0_14px_34px_rgba(166,139,109,0.14)]">
           <Quote
             size={148}
             className="pointer-events-none absolute right-2 top-2 z-0 text-[#f2ddc5]"
@@ -65,8 +26,7 @@ export default async function TestimonialPage() {
             Cerita hangat dari Mom yang sudah ditemani CleverMom
           </h1>
           <p className="relative z-10 mt-3 text-sm leading-6 text-[#7d6a57]">
-            Kumpulan pengalaman dari ibu yang sudah mencoba layanan treatment,
-            konsultasi, dan pendampingan kami di rumah.
+            Kumpulan pengalaman dari ibu yang sudah mencoba layanan treatment, konsultasi, dan pendampingan kami di rumah.
           </p>
           <div className="relative z-10 mt-4 inline-flex items-center rounded-full bg-white/80 px-3 py-1.5 text-xs font-semibold text-[#a68b6d]">
             {testimonials.length} testimonial pilihan
@@ -93,8 +53,7 @@ export default async function TestimonialPage() {
             Setiap cerita jadi pengingat bahwa ibu juga perlu ditemani
           </h2>
           <p className="relative z-10 mt-2 text-sm leading-6 text-[#7d6a57]">
-            Karena itu kami berusaha menjaga setiap layanan tetap hangat,
-            tenang, dan nyaman untuk Mom serta si kecil.
+            Karena itu kami berusaha menjaga setiap layanan tetap hangat, tenang, dan nyaman untuk Mom serta si kecil.
           </p>
         </div>
       </section>

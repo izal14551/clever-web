@@ -1,4 +1,3 @@
-import { Suspense } from "react";
 import { BottomNav } from "@/app/components/BottomNav";
 import { SearchExperience } from "@/app/components/SearchExperience";
 import { getLandingData } from "@/app/lib/landing";
@@ -17,7 +16,7 @@ export default async function SearchPage() {
       id: `service-${service.id}`,
       title: service.title,
       description: service.description,
-      href: `/services/${service.slug || service.id}`,
+      href: `/services/${service.id}`,
       type: "service" as const,
       badge: service.duration,
     })),
@@ -25,7 +24,7 @@ export default async function SearchPage() {
       id: `article-${article.id}`,
       title: article.title,
       description: article.excerpt,
-      href: `/artikel/${article.slug || article.id}`,
+      href: `/artikel/${article.id}`,
       type: "article" as const,
       badge: "Artikel terbaru",
     })),
@@ -65,9 +64,7 @@ export default async function SearchPage() {
 
   return (
     <main className="mx-auto min-h-screen max-w-md bg-white pb-24 font-sans shadow-md">
-      <Suspense fallback={<div className="px-6 py-8 text-sm text-[#8b7763]">Memuat pencarian...</div>}>
-        <SearchExperience items={searchItems} categories={categories} />
-      </Suspense>
+      <SearchExperience items={searchItems} categories={categories} />
       <BottomNav />
     </main>
   );

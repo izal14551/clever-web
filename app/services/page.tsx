@@ -1,19 +1,11 @@
-﻿import { ChevronLeft } from "lucide-react";
+import Link from "next/link";
+import { ChevronLeft } from "lucide-react";
 import { BottomNav } from "../components/BottomNav";
-import { ProgressLink as Link } from "../components/RouteProgress";
 import { ServicesExplorer } from "../components/ServicesExplorer";
 import { getServiceListData } from "./serviceData";
 
-interface ServicesPageProps {
-  searchParams?: Promise<{
-    category?: string;
-  }>;
-}
-
-export default async function ServicesPage({ searchParams }: ServicesPageProps) {
+export default async function ServicesPage() {
   const services = await getServiceListData();
-  const params = searchParams ? await searchParams : undefined;
-  const initialCategory = params?.category;
 
   return (
     <main className="max-w-md mx-auto bg-white min-h-screen pb-24 font-sans shadow-md relative">
@@ -26,7 +18,7 @@ export default async function ServicesPage({ searchParams }: ServicesPageProps) 
         </div>
       </header>
 
-      <ServicesExplorer services={services} initialCategory={initialCategory} />
+      <ServicesExplorer services={services} />
 
       <BottomNav />
     </main>

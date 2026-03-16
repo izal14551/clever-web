@@ -1,8 +1,8 @@
 import React from "react";
+import Link from "next/link";
 import { HeartHandshake, Quote } from "lucide-react";
 import { TestimonialCard } from "./TestimonialCard";
 import { TestimonialData } from "../types/landing";
-import { ProgressLink as Link } from "./RouteProgress";
 
 interface TestimonialShowcaseProps {
   testimonials: TestimonialData[];

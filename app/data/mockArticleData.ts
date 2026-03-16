@@ -8,7 +8,7 @@ export const mockArticleData: ArticleDetail[] = [
       "Langkah dasar yang bisa dilakukan orang tua untuk menjaga kenyamanan dan kebersihan bayi baru lahir di rumah.",
     publishedAt: "2026-03-01T09:00:00.000Z",
     updatedAt: "2026-03-01T09:00:00.000Z",
-    imageUrl: "/logo/LOGO_CLEVERMOM.PNG",
+    imageUrl: "/logo/LOGO_CLEVERMOM.png",
     authorName: "Tim Clevermom",
     contentHtml: `
       <p>Minggu pertama setelah persalinan biasanya menjadi masa adaptasi untuk ibu dan bayi. Orang tua perlu fokus pada kebutuhan dasar bayi seperti menyusu, tidur, dan kebersihan.</p>
@@ -28,7 +28,7 @@ export const mockArticleData: ArticleDetail[] = [
       "Panduan singkat untuk memahami kapan perlu konsultasi, treatment relaksasi, atau pendampingan perawatan di rumah.",
     publishedAt: "2026-03-05T08:30:00.000Z",
     updatedAt: "2026-03-06T03:15:00.000Z",
-    imageUrl: "/logo/LOGO_CLEVERMOM.PNG",
+    imageUrl: "/logo/LOGO_CLEVERMOM.png",
     authorName: "Admin Clevermom",
     contentHtml: `
       <p>Setiap ibu dan bayi memiliki kebutuhan yang berbeda. Karena itu, treatment yang dipilih sebaiknya disesuaikan dengan kondisi saat ini.</p>

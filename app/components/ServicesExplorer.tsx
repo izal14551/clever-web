@@ -1,9 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useSearchParams } from "next/navigation";
 import { ArrowDownUp, Funnel, SlidersHorizontal } from "lucide-react";
-import { useProgressRouter } from "./RouteProgress";
 import { ServiceList } from "./ServiceList";
 import { ServiceListItemData } from "../types/landing";
 
@@ -13,7 +11,6 @@ type PanelType = "category" | "sort" | "filter" | null;
 
 interface ServicesExplorerProps {
   services: ServiceListItemData[];
-  initialCategory?: string;
 }
 
 function extractMinutes(duration: string): number {
@@ -22,55 +19,37 @@ function extractMinutes(duration: string): number {
 }
 
 function deriveCategory(service: ServiceListItemData): string {
-  return (service.category || "").trim() || "Lainnya";
+  if (service.category?.trim()) {
+    return service.category.trim();
+  }
+
+  const text = `${service.title} ${service.description}`.toLowerCase();
+
+  if (text.includes("bayi") || text.includes("baby") || text.includes("newborn")) {
+    return "Bayi";
+  }
+
+  if (text.includes("laktasi") || text.includes("menyusui")) {
+    return "Laktasi";
+  }
+
+  if (text.includes("nifas") || text.includes("postpartum") || text.includes("ibu")) {
+    return "Ibu";
+  }
+
+  return "Perawatan";
 }
 
-function isPackageService(service: ServiceListItemData): boolean {
-  return deriveCategory(service).toLowerCase().includes("paket");
-}
-
-export function ServicesExplorer({
-  services,
-  initialCategory = "Semua",
-}: ServicesExplorerProps) {
-  const router = useProgressRouter();
-  const searchParams = useSearchParams();
+export function ServicesExplorer({ services }: ServicesExplorerProps) {
   const [activePanel, setActivePanel] = useState<PanelType>(null);
+  const [category, setCategory] = useState("Semua");
   const [sort, setSort] = useState<SortOption>("default");
   const [durationFilter, setDurationFilter] = useState<DurationFilter>("all");
 
-  const serviceCategories = Array.from(new Set(services.map(deriveCategory)));
-  const categories = [
-    "Semua",
-    ...(services.some(isPackageService) ? ["Paket"] : []),
-    ...serviceCategories,
-  ];
-  const category = resolveInitialCategory(initialCategory, categories);
-
-  function updateCategory(nextCategory: string) {
-    const params = new URLSearchParams(searchParams.toString());
-    if (nextCategory === "Semua") {
-      params.delete("category");
-    } else {
-      params.set("category", nextCategory);
-    }
-
-    const query = params.toString();
-    router.replace(query ? `/services?${query}` : "/services", {
-      scroll: false,
-    });
-  }
+  const categories = ["Semua", ...Array.from(new Set(services.map(deriveCategory)))];
 
   let visibleServices = services.filter((service) => {
-    if (category === "Paket" && !isPackageService(service)) {
-      return false;
-    }
-
-    if (
-      category !== "Semua" &&
-      category !== "Paket" &&
-      deriveCategory(service) !== category
-    ) {
+    if (category !== "Semua" && deriveCategory(service) !== category) {
       return false;
     }
 
@@ -101,9 +80,7 @@ export function ServicesExplorer({
         <button
           type="button"
           onClick={() =>
-            setActivePanel((current) =>
-              current === "category" ? null : "category",
-            )
+            setActivePanel((current) => (current === "category" ? null : "category"))
           }
           className="flex items-center justify-center gap-2 border-r border-orange-100 py-3 text-sm font-semibold text-[#6f5a40]"
         >
@@ -112,9 +89,7 @@ export function ServicesExplorer({
         </button>
         <button
           type="button"
-          onClick={() =>
-            setActivePanel((current) => (current === "sort" ? null : "sort"))
-          }
+          onClick={() => setActivePanel((current) => (current === "sort" ? null : "sort"))}
           className="flex items-center justify-center gap-2 border-r border-orange-100 py-3 text-sm font-semibold text-[#6f5a40]"
         >
           <ArrowDownUp size={16} className="text-[#a68b6d]" />
@@ -123,9 +98,7 @@ export function ServicesExplorer({
         <button
           type="button"
           onClick={() =>
-            setActivePanel((current) =>
-              current === "filter" ? null : "filter",
-            )
+            setActivePanel((current) => (current === "filter" ? null : "filter"))
           }
           className="flex items-center justify-center gap-2 py-3 text-sm font-semibold text-[#6f5a40]"
         >
@@ -143,7 +116,7 @@ export function ServicesExplorer({
                   key={item}
                   type="button"
                   onClick={() => {
-                    updateCategory(item);
+                    setCategory(item);
                     setActivePanel(null);
                   }}
                   className={`rounded-full border px-3 py-2 text-sm font-medium ${
@@ -236,42 +209,12 @@ export function ServicesExplorer({
       {visibleServices.length > 0 ? (
         <ServiceList services={visibleServices} />
       ) : (
-        <section className="bg-linear-to-b from-orange-50 to-orange-100/70 px-4 py-6">
+        <section className="bg-gradient-to-b from-orange-50 to-orange-100/70 px-4 py-6">
           <div className="rounded-2xl border border-dashed border-orange-200 bg-white p-5 text-sm text-[#6f6255]">
-            Belum ada layanan yang cocok dengan kategori, urutan, dan filter
-            yang dipilih.
+            Belum ada layanan yang cocok dengan kategori, urutan, dan filter yang dipilih.
           </div>
         </section>
       )}
     </>
   );
-}
-
-function resolveInitialCategory(input: string, categories: string[]): string {
-  if (!input || input === "Semua") return "Semua";
-
-  // Exact match first
-  if (categories.includes(input)) return input;
-
-  // Case-insensitive match
-  const lowerInput = input.toLowerCase();
-  const match = categories.find(
-    (category) => category.toLowerCase() === lowerInput,
-  );
-  if (match) return match;
-
-  // Partial match: "Paket" should activate the virtual "Paket" category
-  if (lowerInput === "paket" && categories.includes("Paket")) {
-    return "Paket";
-  }
-
-  // Substring match: try to find a category that contains the input
-  const partialMatch = categories.find(
-    (category) =>
-      category.toLowerCase().includes(lowerInput) ||
-      lowerInput.includes(category.toLowerCase()),
-  );
-  if (partialMatch) return partialMatch;
-
-  return "Semua";
 }

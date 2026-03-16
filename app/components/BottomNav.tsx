@@ -1,47 +1,38 @@
 "use client";
 
+import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Home, Grid, Newspaper, BadgePercent, User } from "lucide-react";
-import { ProgressLink as Link } from "./RouteProgress";
 
-interface BottomNavProps {
-  fixed?: boolean;
-}
-
-export function BottomNav({ fixed = true }: BottomNavProps) {
-  const currentPathname = usePathname() || "";
-  const navClassName = fixed
-    ? "fixed bottom-0 left-1/2 -translate-x-1/2 z-50"
-    : "relative z-10";
+export function BottomNav() {
+  const pathname = usePathname();
 
   return (
-    <nav
-      className={`${navClassName} w-full max-w-md bg-white border-t border-[#eadbc9] px-6 py-3 flex justify-between items-center`}
-    >
-      <NavItem icon={<Home size={22} />} label="Home" href="/" active={currentPathname === "/"} />
+    <nav className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md bg-white border-t border-gray-100 px-6 py-3 flex justify-between items-center z-50">
+      <NavItem icon={<Home size={22} />} label="Home" href="/" active={pathname === "/"} />
       <NavItem
         icon={<Grid size={22} />}
         label="Layanan"
         href="/services"
-        active={currentPathname.startsWith("/services")}
+        active={pathname.startsWith("/services")}
       />
       <NavItem
         icon={<Newspaper size={22} />}
         label="Artikel"
         href="/artikel"
-        active={currentPathname.startsWith("/artikel")}
+        active={pathname.startsWith("/artikel")}
       />
       <NavItem
         icon={<BadgePercent size={22} />}
         label="Promo"
         href="/promo"
-        active={currentPathname.startsWith("/promo")}
+        active={pathname.startsWith("/promo")}
       />
       <NavItem
         icon={<User size={22} />}
         label="Akun Saya"
         href="/menu"
-        active={currentPathname.startsWith("/menu")}
+        active={pathname.startsWith("/menu")}
       />
     </nav>
   );

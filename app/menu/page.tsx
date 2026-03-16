@@ -1,11 +1,11 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getServerSession } from "next-auth";
 import { ChevronRight, Star, CircleHelp, CircleUserRound, Settings } from "lucide-react";
 import { BottomNav } from "../components/BottomNav";
 import { LogoutButton } from "../components/LogoutButton";
-import { ProgressLink as Link } from "../components/RouteProgress";
 import { mockMenuData } from "../data/mockMenuData";
-import { getAppsScriptApiKey, getAppsScriptUrl } from "../lib/appsScript";
+import { buildAppsScriptUrl } from "../lib/appsScript";
 import { authOptions } from "../lib/auth";
 import type { AccountMenuData, MenuItem } from "../types/menu";
 
@@ -70,40 +70,23 @@ async function getMenuData(params?: {
   userId?: string;
   email?: string | null;
 }): Promise<AccountMenuData> {
-  const scriptUrl = getAppsScriptUrl();
-  const apiKey = getAppsScriptApiKey();
+  const url = buildAppsScriptUrl({
+    action: "getMemberSummary",
+    userId: params?.userId,
+    email: params?.email,
+  });
 
-  if (!scriptUrl || !scriptUrl.startsWith("http") || !apiKey) {
+  if (!url) {
     return normalizeMenuData(mockMenuData);
   }
 
   try {
-    const res = await fetch(scriptUrl, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      cache: "no-store",
-      body: JSON.stringify({
-        action: "getMemberSummary",
-        apiKey,
-        userId: params?.userId,
-        email: params?.email,
-      }),
-    });
+    const res = await fetch(url, { cache: "no-store" });
     if (!res.ok) {
       return normalizeMenuData(mockMenuData);
     }
 
     const rawData: unknown = await res.json();
-    if (
-      rawData &&
-      typeof rawData === "object" &&
-      "ok" in rawData &&
-      (rawData as { ok?: boolean }).ok === false
-    ) {
-      return normalizeMenuData(mockMenuData);
-    }
     return normalizeMenuData(rawData);
   } catch {
     return normalizeMenuData(mockMenuData);
@@ -161,12 +144,12 @@ export default async function MenuPage() {
         <div className="bg-white rounded-2xl border border-orange-100 p-4 shadow-sm">
           <div className="flex justify-between items-center text-sm">
             <span className="text-gray-500">Tingkat member</span>
-            <span className="font-semibold text-[#1f1f1f]">{data.summary.memberLevel}</span>
+            <span className="font-semibold text-[#1f1f1f]">-</span>
           </div>
           <div className="h-px bg-gray-100 my-3" />
           <div className="flex justify-between items-center text-sm">
             <span className="text-gray-500">Point kamu</span>
-            <span className="font-semibold text-[#1f1f1f]">{data.summary.points}</span>
+            <span className="font-semibold text-[#1f1f1f]">-</span>
           </div>
         </div>
       </section>

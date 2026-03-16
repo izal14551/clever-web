@@ -1,6 +1,5 @@
 export interface ArticleListItem {
   id: string;
-  slug?: string;
   title: string;
   excerpt: string;
   publishedAt: string;
