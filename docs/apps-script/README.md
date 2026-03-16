@@ -17,9 +17,22 @@ Mengembalikan payload gabungan untuk:
 - about page
 - help page
 
-### `GET /exec?action=getMemberSummary&userId=...&email=...`
+### `POST /exec`
+
+Untuk mengambil member summary secara privat:
 
 Mengembalikan:
+
+```json
+{
+  "action": "getMemberSummary",
+  "apiKey": "your-shared-secret",
+  "userId": "google-user-id",
+  "email": "mom@example.com"
+}
+```
+
+Response:
 
 ```json
 {
@@ -38,6 +51,7 @@ Untuk sinkronisasi member saat login Google:
 ```json
 {
   "action": "upsertMember",
+  "apiKey": "your-shared-secret",
   "userId": "google-user-id",
   "name": "Mom Example",
   "email": "mom@example.com",
@@ -51,6 +65,7 @@ Atau untuk update username:
 ```json
 {
   "action": "updateMemberName",
+  "apiKey": "your-shared-secret",
   "userId": "google-user-id",
   "email": "mom@example.com",
   "name": "Mom Baru",
@@ -66,14 +81,20 @@ Atau untuk update username:
 4. Simpan project.
 5. Klik `Deploy` -> `New deployment`.
 6. Pilih type `Web app`.
-7. Set:
+7. Tambahkan Script Property:
+   - Key: `APPS_SCRIPT_API_KEY`
+   - Value: secret yang sama dengan `APPS_SCRIPT_API_KEY` di `.env.local`
+8. Set:
    - Execute as: `Me`
    - Who has access: `Anyone`
-8. Copy URL deployment.
-9. Set URL itu ke `APPS_SCRIPT_URL` pada `.env.local`.
+9. Copy URL deployment.
+10. Set URL itu ke `APPS_SCRIPT_URL` pada `.env.local`.
+11. Set `APPS_SCRIPT_API_KEY` pada `.env.local`.
 
 ## Catatan
 
 - Jika struktur sheet berubah, update nama tab di konstanta `SHEETS`.
 - Jika ingin menambah endpoint lain, tambahkan cabang di `doGet()` atau `doPost()`.
 - Untuk field array seperti `details`, gunakan pemisah `|` di spreadsheet.
+- `GET /exec` dibiarkan publik hanya untuk konten website yang memang public.
+- Semua action member sekarang wajib lewat `POST` + `apiKey`.

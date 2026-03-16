@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { ArrowDownUp, Funnel, SlidersHorizontal } from "lucide-react";
 import { ServiceList } from "./ServiceList";
 import { ServiceListItemData } from "../types/landing";
@@ -11,6 +12,7 @@ type PanelType = "category" | "sort" | "filter" | null;
 
 interface ServicesExplorerProps {
   services: ServiceListItemData[];
+  initialCategory?: string;
 }
 
 function extractMinutes(duration: string): number {
@@ -40,13 +42,30 @@ function deriveCategory(service: ServiceListItemData): string {
   return "Perawatan";
 }
 
-export function ServicesExplorer({ services }: ServicesExplorerProps) {
+export function ServicesExplorer({
+  services,
+  initialCategory = "Semua",
+}: ServicesExplorerProps) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const [activePanel, setActivePanel] = useState<PanelType>(null);
-  const [category, setCategory] = useState("Semua");
   const [sort, setSort] = useState<SortOption>("default");
   const [durationFilter, setDurationFilter] = useState<DurationFilter>("all");
 
   const categories = ["Semua", ...Array.from(new Set(services.map(deriveCategory)))];
+  const category = categories.includes(initialCategory) ? initialCategory : "Semua";
+
+  function updateCategory(nextCategory: string) {
+    const params = new URLSearchParams(searchParams.toString());
+    if (nextCategory === "Semua") {
+      params.delete("category");
+    } else {
+      params.set("category", nextCategory);
+    }
+
+    const query = params.toString();
+    router.replace(query ? `/services?${query}` : "/services", { scroll: false });
+  }
 
   let visibleServices = services.filter((service) => {
     if (category !== "Semua" && deriveCategory(service) !== category) {
@@ -116,7 +135,7 @@ export function ServicesExplorer({ services }: ServicesExplorerProps) {
                   key={item}
                   type="button"
                   onClick={() => {
-                    setCategory(item);
+                    updateCategory(item);
                     setActivePanel(null);
                   }}
                   className={`rounded-full border px-3 py-2 text-sm font-medium ${

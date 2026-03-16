@@ -2,6 +2,10 @@ export function getAppsScriptUrl(): string {
   return process.env.APPS_SCRIPT_URL ?? "";
 }
 
+export function getAppsScriptApiKey(): string {
+  return process.env.APPS_SCRIPT_API_KEY ?? "";
+}
+
 export function hasAppsScriptUrl(): boolean {
   return getAppsScriptUrl().startsWith("http");
 }

@@ -4,8 +4,16 @@ import { BottomNav } from "../components/BottomNav";
 import { ServicesExplorer } from "../components/ServicesExplorer";
 import { getServiceListData } from "./serviceData";
 
-export default async function ServicesPage() {
+interface ServicesPageProps {
+  searchParams?: Promise<{
+    category?: string;
+  }>;
+}
+
+export default async function ServicesPage({ searchParams }: ServicesPageProps) {
   const services = await getServiceListData();
+  const params = searchParams ? await searchParams : undefined;
+  const initialCategory = params?.category;
 
   return (
     <main className="max-w-md mx-auto bg-white min-h-screen pb-24 font-sans shadow-md relative">
@@ -18,7 +26,7 @@ export default async function ServicesPage() {
         </div>
       </header>
 
-      <ServicesExplorer services={services} />
+      <ServicesExplorer services={services} initialCategory={initialCategory} />
 
       <BottomNav />
     </main>

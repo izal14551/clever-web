@@ -15,6 +15,7 @@ export interface ConsultationData {
 export interface ServiceData {
   id: string;
   label: string;
+  category?: string;
   iconUrl?: string;
 }
 

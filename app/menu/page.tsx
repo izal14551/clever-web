@@ -5,7 +5,7 @@ import { ChevronRight, Star, CircleHelp, CircleUserRound, Settings } from "lucid
 import { BottomNav } from "../components/BottomNav";
 import { LogoutButton } from "../components/LogoutButton";
 import { mockMenuData } from "../data/mockMenuData";
-import { buildAppsScriptUrl } from "../lib/appsScript";
+import { getAppsScriptApiKey, getAppsScriptUrl } from "../lib/appsScript";
 import { authOptions } from "../lib/auth";
 import type { AccountMenuData, MenuItem } from "../types/menu";
 
@@ -70,23 +70,40 @@ async function getMenuData(params?: {
   userId?: string;
   email?: string | null;
 }): Promise<AccountMenuData> {
-  const url = buildAppsScriptUrl({
-    action: "getMemberSummary",
-    userId: params?.userId,
-    email: params?.email,
-  });
+  const scriptUrl = getAppsScriptUrl();
+  const apiKey = getAppsScriptApiKey();
 
-  if (!url) {
+  if (!scriptUrl || !scriptUrl.startsWith("http") || !apiKey) {
     return normalizeMenuData(mockMenuData);
   }
 
   try {
-    const res = await fetch(url, { cache: "no-store" });
+    const res = await fetch(scriptUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      cache: "no-store",
+      body: JSON.stringify({
+        action: "getMemberSummary",
+        apiKey,
+        userId: params?.userId,
+        email: params?.email,
+      }),
+    });
     if (!res.ok) {
       return normalizeMenuData(mockMenuData);
     }
 
     const rawData: unknown = await res.json();
+    if (
+      rawData &&
+      typeof rawData === "object" &&
+      "ok" in rawData &&
+      (rawData as { ok?: boolean }).ok === false
+    ) {
+      return normalizeMenuData(mockMenuData);
+    }
     return normalizeMenuData(rawData);
   } catch {
     return normalizeMenuData(mockMenuData);
