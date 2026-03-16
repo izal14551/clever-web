@@ -45,7 +45,7 @@ export default async function LandingPage() {
         <ConsultationCard data={consultation} />
       </section>
 
-      <ServiceGrid services={services} />
+      <ServiceGrid services={services} collapsed />
 
       <PromoCarousel promos={promos} />
 
