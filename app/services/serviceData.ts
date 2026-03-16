@@ -12,8 +12,10 @@ export async function getServiceListData(): Promise<ServiceListItemData[]> {
     }
 
     const res = await fetch(scriptUrl, {
-      cache: "no-store",
       redirect: "follow",
+      next: {
+        revalidate: 900,
+      },
     });
 
     if (!res.ok) {
