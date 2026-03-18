@@ -15,7 +15,7 @@ export async function getLandingData(): Promise<LandingPageData> {
     const res = await fetch(scriptUrl, {
       redirect: "follow",
       next: {
-        revalidate: 900,
+        revalidate: 60,
       },
     });
 
