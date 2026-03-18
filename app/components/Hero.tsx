@@ -27,7 +27,7 @@ export function Hero({ data }: HeroProps) {
       <h1 className="text-[#a68b6d] font-bold text-2xl uppercase tracking-wide">
         {data.title}
       </h1>
-      <h2 className="text-[#a68b6d] font-bold text-lg tracking-wide mb-3 opacity-90 text-center">
+      <h2 className="text-[#a68b6d] font-bold text-md tracking-wide mb-3 opacity-90 text-center">
         {data.subtitle}
       </h2>
       <p className="text-gray-600 text-md font-medium">{data.description}</p>
