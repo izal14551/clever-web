@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { ArrowDownUp, Funnel, SlidersHorizontal } from "lucide-react";
+import { useProgressRouter } from "./RouteProgress";
 import { ServiceList } from "./ServiceList";
 import { ServiceListItemData } from "../types/landing";
 
@@ -46,7 +47,7 @@ export function ServicesExplorer({
   services,
   initialCategory = "Semua",
 }: ServicesExplorerProps) {
-  const router = useRouter();
+  const router = useProgressRouter();
   const searchParams = useSearchParams();
   const [activePanel, setActivePanel] = useState<PanelType>(null);
   const [sort, setSort] = useState<SortOption>("default");

@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import {
   Facebook,
   Instagram,
@@ -10,6 +9,7 @@ import {
   Send,
   Youtube,
 } from "lucide-react";
+import { ProgressLink as Link } from "./RouteProgress";
 
 const footerLinks = [
   { label: "Tentang CleverMom", href: "/menu/about" },

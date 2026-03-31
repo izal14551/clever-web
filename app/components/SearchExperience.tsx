@@ -1,8 +1,7 @@
 "use client";
 
-import Link from "next/link";
 import { type FormEvent, useEffect, useMemo, useState } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import {
   ArrowLeft,
   Info,
@@ -11,6 +10,7 @@ import {
   Tag,
   X,
 } from "lucide-react";
+import { ProgressLink as Link, useProgressRouter } from "./RouteProgress";
 
 interface SearchItem {
   id: string;
@@ -45,7 +45,7 @@ export function SearchExperience({
   items,
   categories,
 }: SearchExperienceProps) {
-  const router = useRouter();
+  const router = useProgressRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const initialQuery = searchParams.get("q") ?? "";

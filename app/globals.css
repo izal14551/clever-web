@@ -26,6 +26,13 @@ body {
   margin: 0;
 }
 
+.route-progress-bar {
+  background: linear-gradient(90deg, #d58b45 0%, #f1b16e 55%, #ffe2bb 100%);
+  box-shadow: 0 0 18px rgba(213, 139, 69, 0.45);
+  transform-origin: left center;
+  transition: transform 180ms ease-out;
+}
+
 .article-content {
   max-width: 100%;
   overflow-x: hidden;

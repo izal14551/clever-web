@@ -1,5 +1,5 @@
-import Link from "next/link";
 import { ChevronLeft } from "lucide-react";
+import { ProgressLink as Link } from "./RouteProgress";
 
 export function ProfileSubpageHeader({
   title,

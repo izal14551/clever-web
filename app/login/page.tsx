@@ -1,15 +1,15 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { signIn, useSession } from "next-auth/react";
 import { ArrowLeft } from "lucide-react";
 import { Suspense, useEffect } from "react";
+import { ProgressLink as Link, useProgressRouter } from "@/app/components/RouteProgress";
 
 function LoginContent() {
   const { status } = useSession();
-  const router = useRouter();
+  const router = useProgressRouter();
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl") || "/menu";
 

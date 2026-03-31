@@ -1,6 +1,6 @@
-import Link from "next/link";
 import { BottomNav } from "@/app/components/BottomNav";
 import { ProfileSubpageHeader } from "@/app/components/ProfileSubpageHeader";
+import { ProgressLink as Link } from "@/app/components/RouteProgress";
 import { getLandingData } from "@/app/lib/landing";
 
 export default async function PromoPage() {

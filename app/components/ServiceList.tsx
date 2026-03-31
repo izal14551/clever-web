@@ -1,5 +1,5 @@
-import Link from "next/link";
 import { ServiceListItemData } from "../types/landing";
+import { ProgressLink as Link } from "./RouteProgress";
 
 interface ServiceListProps {
   services: ServiceListItemData[];
@@ -9,7 +9,7 @@ export function ServiceList({ services }: ServiceListProps) {
   if (!services || services.length === 0) return null;
 
   return (
-    <section className="bg-gradient-to-b from-orange-50 to-orange-100/70 py-2">
+    <section className="bg-white py-2">
       <div className="overflow-hidden border border-orange-100/80">
         {services.map((service) => (
           <Link

@@ -1,8 +1,8 @@
 "use client";
 
-import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Home, Grid, Newspaper, BadgePercent, User } from "lucide-react";
+import { ProgressLink as Link } from "./RouteProgress";
 
 interface BottomNavProps {
   fixed?: boolean;
