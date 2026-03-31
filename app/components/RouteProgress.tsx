@@ -12,7 +12,7 @@ import {
   type AnchorHTMLAttributes,
   type ReactNode,
 } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
 type ProgressContextValue = {
   isLoading: boolean;
@@ -44,7 +44,6 @@ function hrefToString(href: LinkProps["href"]) {
 
 export function RouteProgressProvider({ children }: { children: ReactNode }) {
   const pathname = usePathname();
-  const searchParams = useSearchParams();
   const [isLoading, setIsLoading] = useState(false);
   const [progress, setProgress] = useState(0);
   const intervalRef = useRef<number | null>(null);
@@ -77,6 +76,7 @@ export function RouteProgressProvider({ children }: { children: ReactNode }) {
     if (isLoading) return;
 
     clearTimers();
+    currentUrlRef.current = window.location.pathname + window.location.search;
     setIsLoading(true);
     setProgress(12);
 
@@ -89,17 +89,23 @@ export function RouteProgressProvider({ children }: { children: ReactNode }) {
   }, [clearTimers, isLoading]);
 
   useEffect(() => {
-    const nextUrl = `${pathname}${searchParams.toString() ? `?${searchParams}` : ""}`;
+    currentUrlRef.current = window.location.pathname + window.location.search;
+  }, [pathname]);
 
-    if (currentUrlRef.current && currentUrlRef.current !== nextUrl) {
-      const frame = window.requestAnimationFrame(() => finish());
-      currentUrlRef.current = nextUrl;
+  useEffect(() => {
+    if (!isLoading) return;
 
-      return () => window.cancelAnimationFrame(frame);
-    }
+    const interval = window.setInterval(() => {
+      const nextUrl = window.location.pathname + window.location.search;
 
-    currentUrlRef.current = nextUrl;
-  }, [finish, pathname, searchParams]);
+      if (currentUrlRef.current && currentUrlRef.current !== nextUrl) {
+        currentUrlRef.current = nextUrl;
+        finish();
+      }
+    }, 50);
+
+    return () => window.clearInterval(interval);
+  }, [finish, isLoading]);
 
   useEffect(() => () => clearTimers(), [clearTimers]);
 
@@ -136,8 +142,6 @@ type ProgressLinkProps = LinkProps &
 
 export const ProgressLink = forwardRef<HTMLAnchorElement, ProgressLinkProps>(
   function ProgressLink({ href, onClick, target, children, ...props }, ref) {
-    const pathname = usePathname();
-    const searchParams = useSearchParams();
     const { start } = useRouteProgressContext();
     const hrefString = hrefToString(href);
 
@@ -157,7 +161,7 @@ export const ProgressLink = forwardRef<HTMLAnchorElement, ProgressLinkProps>(
         return;
       }
 
-      const currentUrl = `${pathname}${searchParams.toString() ? `?${searchParams}` : ""}`;
+      const currentUrl = window.location.pathname + window.location.search;
       if (hrefString !== currentUrl) {
         start();
       }
