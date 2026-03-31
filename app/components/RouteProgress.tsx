@@ -12,13 +12,12 @@ import {
   type AnchorHTMLAttributes,
   type ReactNode,
 } from "react";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 type ProgressContextValue = {
   isLoading: boolean;
   progress: number;
   start: () => void;
-  finish: () => void;
 };
 
 const RouteProgressContext = createContext<ProgressContextValue | null>(null);
@@ -45,13 +44,12 @@ function hrefToString(href: LinkProps["href"]) {
 
 export function RouteProgressProvider({ children }: { children: ReactNode }) {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const [isLoading, setIsLoading] = useState(false);
   const [progress, setProgress] = useState(0);
   const intervalRef = useRef<number | null>(null);
   const finishTimeoutRef = useRef<number | null>(null);
-  const fallbackTimeoutRef = useRef<number | null>(null);
   const currentUrlRef = useRef("");
-  const isLoadingRef = useRef(false);
 
   const clearTimers = useCallback(() => {
     if (intervalRef.current !== null) {
@@ -63,11 +61,6 @@ export function RouteProgressProvider({ children }: { children: ReactNode }) {
       window.clearTimeout(finishTimeoutRef.current);
       finishTimeoutRef.current = null;
     }
-
-    if (fallbackTimeoutRef.current !== null) {
-      window.clearTimeout(fallbackTimeoutRef.current);
-      fallbackTimeoutRef.current = null;
-    }
   }, []);
 
   const finish = useCallback(() => {
@@ -75,18 +68,15 @@ export function RouteProgressProvider({ children }: { children: ReactNode }) {
     setProgress(100);
 
     finishTimeoutRef.current = window.setTimeout(() => {
-      isLoadingRef.current = false;
       setIsLoading(false);
       setProgress(0);
     }, 180);
   }, [clearTimers]);
 
   const start = useCallback(() => {
-    if (isLoadingRef.current) return;
+    if (isLoading) return;
 
     clearTimers();
-    isLoadingRef.current = true;
-    currentUrlRef.current = window.location.pathname + window.location.search;
     setIsLoading(true);
     setProgress(12);
 
@@ -96,94 +86,29 @@ export function RouteProgressProvider({ children }: { children: ReactNode }) {
         return Math.min(value + Math.random() * 14, 88);
       });
     }, 140);
-
-    fallbackTimeoutRef.current = window.setTimeout(() => {
-      finish();
-    }, 8000);
-  }, [clearTimers, finish]);
+  }, [clearTimers, isLoading]);
 
   useEffect(() => {
-    if (!isLoading) {
-      currentUrlRef.current = window.location.pathname + window.location.search;
-    }
-  }, [isLoading, pathname]);
+    const nextUrl = `${pathname}${searchParams.toString() ? `?${searchParams}` : ""}`;
 
-  useEffect(() => {
-    function handleDocumentClick(event: MouseEvent) {
-      if (
-        event.defaultPrevented ||
-        event.button !== 0 ||
-        event.metaKey ||
-        event.ctrlKey ||
-        event.shiftKey ||
-        event.altKey
-      ) {
-        return;
-      }
+    if (currentUrlRef.current && currentUrlRef.current !== nextUrl) {
+      const frame = window.requestAnimationFrame(() => finish());
+      currentUrlRef.current = nextUrl;
 
-      const target = event.target;
-      if (!(target instanceof Element)) return;
-
-      const anchor = target.closest("a[href]");
-      if (!(anchor instanceof HTMLAnchorElement)) return;
-
-      const nextUrl = new URL(anchor.href);
-      const currentUrl = new URL(window.location.href);
-
-      if (
-        anchor.target === "_blank" ||
-        anchor.hasAttribute("download") ||
-        nextUrl.origin !== currentUrl.origin ||
-        nextUrl.pathname + nextUrl.search === currentUrl.pathname + currentUrl.search
-      ) {
-        return;
-      }
-
-      start();
+      return () => window.cancelAnimationFrame(frame);
     }
 
-    function handlePopState() {
-      start();
-    }
-
-    document.addEventListener("click", handleDocumentClick, true);
-    window.addEventListener("popstate", handlePopState);
-
-    return () => {
-      document.removeEventListener("click", handleDocumentClick, true);
-      window.removeEventListener("popstate", handlePopState);
-    };
-  }, [start]);
-
-  useEffect(() => {
-    if (!isLoading) return;
-
-    const interval = window.setInterval(() => {
-      const nextUrl = window.location.pathname + window.location.search;
-
-      if (currentUrlRef.current && currentUrlRef.current !== nextUrl) {
-        currentUrlRef.current = nextUrl;
-        finish();
-      }
-    }, 50);
-
-    return () => window.clearInterval(interval);
-  }, [finish, isLoading]);
+    currentUrlRef.current = nextUrl;
+  }, [finish, pathname, searchParams]);
 
   useEffect(() => () => clearTimers(), [clearTimers]);
 
   return (
-    <RouteProgressContext.Provider value={{ isLoading, progress, start, finish }}>
+    <RouteProgressContext.Provider value={{ isLoading, progress, start }}>
       {children}
       <RouteProgressBar />
     </RouteProgressContext.Provider>
   );
-}
-
-export function useRouteProgress() {
-  const { start, finish } = useRouteProgressContext();
-
-  return { start, finish };
 }
 
 function RouteProgressBar() {
@@ -211,6 +136,8 @@ type ProgressLinkProps = LinkProps &
 
 export const ProgressLink = forwardRef<HTMLAnchorElement, ProgressLinkProps>(
   function ProgressLink({ href, onClick, target, children, ...props }, ref) {
+    const pathname = usePathname();
+    const searchParams = useSearchParams();
     const { start } = useRouteProgressContext();
     const hrefString = hrefToString(href);
 
@@ -230,7 +157,7 @@ export const ProgressLink = forwardRef<HTMLAnchorElement, ProgressLinkProps>(
         return;
       }
 
-      const currentUrl = window.location.pathname + window.location.search;
+      const currentUrl = `${pathname}${searchParams.toString() ? `?${searchParams}` : ""}`;
       if (hrefString !== currentUrl) {
         start();
       }

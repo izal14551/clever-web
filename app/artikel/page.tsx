@@ -1,6 +1,6 @@
-import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { BottomNav } from "@/app/components/BottomNav";
+import { ProgressLink as Link } from "@/app/components/RouteProgress";
 import { getArticleList } from "@/app/lib/blogger";
 
 function formatDate(dateString: string) {

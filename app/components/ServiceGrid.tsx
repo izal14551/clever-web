@@ -1,6 +1,6 @@
 import React from "react";
-import Link from "next/link";
 import { ServiceData } from "../types/landing";
+import { ProgressLink as Link } from "./RouteProgress";
 
 interface ServiceGridProps {
   services: ServiceData[];

@@ -1,9 +1,9 @@
-import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getServerSession } from "next-auth";
 import { ChevronRight, Star, CircleHelp, CircleUserRound, Settings } from "lucide-react";
 import { BottomNav } from "../components/BottomNav";
 import { LogoutButton } from "../components/LogoutButton";
+import { ProgressLink as Link } from "../components/RouteProgress";
 import { mockMenuData } from "../data/mockMenuData";
 import { getAppsScriptApiKey, getAppsScriptUrl } from "../lib/appsScript";
 import { authOptions } from "../lib/auth";
