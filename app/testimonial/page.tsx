@@ -2,11 +2,37 @@ import { HeartHandshake, Quote } from "lucide-react";
 import { BottomNav } from "../components/BottomNav";
 import { ProfileSubpageHeader } from "../components/ProfileSubpageHeader";
 import { TestimonialCard } from "../components/TestimonialCard";
+import { formatCommentTimeAgo } from "../lib/commentTime";
 import { getLandingData } from "../lib/landing";
+import { getServiceListData } from "../services/serviceData";
+import { getAllServiceComments } from "../lib/serviceComments";
+import type { TestimonialData } from "../types/landing";
 
 export default async function TestimonialPage() {
-  const data = await getLandingData();
-  const testimonials = data.testimonials ?? [];
+  const [data, services, storedComments] = await Promise.all([
+    getLandingData(),
+    getServiceListData(),
+    getAllServiceComments(),
+  ]);
+  const serviceMap = new Map(services.map((service) => [service.id, service]));
+  const testimonials: TestimonialData[] = [
+    ...storedComments.map((comment) => {
+      const service = serviceMap.get(comment.serviceId);
+
+      return {
+        id: `comment-${comment.id}`,
+        serviceId: comment.serviceId,
+        author: comment.author,
+        timeAgo: formatCommentTimeAgo(comment.createdAt),
+        category: service?.category || "Layanan CleverMom",
+        title: service?.title || "Komentar Mom",
+        message: comment.message,
+        reactionCount: 0,
+        ctaLabel: "Komentar Mom",
+      };
+    }),
+    ...(data.testimonials ?? []),
+  ];
 
   return (
     <main className="relative mx-auto min-h-screen max-w-md bg-white pb-24 font-sans shadow-md">

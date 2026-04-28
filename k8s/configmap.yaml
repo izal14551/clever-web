@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: clever-web-config
+  namespace: clevermom
+data:
+  NEXTAUTH_URL: "http://localhost:30080"
+  BLOGGER_BLOG_ID: "3463777721460412292"
+  APPS_SCRIPT_URL: "https://script.google.com/macros/s/AKfycby3VTTjPd3jWtrKu_Gshb6c8r6ip5FvStW7mnDM9GcbVFgY7TAQ4z_mUwwVhiZ-7JM0/exec"

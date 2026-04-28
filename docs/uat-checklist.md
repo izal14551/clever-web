@@ -23,11 +23,11 @@ Gunakan salah satu status berikut saat pengujian:
 
 | No | Skenario Uji | Expected Result | Status | Catatan |
 | --- | --- | --- | --- | --- |
-| 1.1 | Customer membuka homepage | Homepage tampil tanpa error |  |  |
-| 1.2 | Search bar ditampilkan | Search bar terlihat di bagian atas homepage |  |  |
-| 1.3 | Customer klik search bar | User diarahkan ke halaman search |  |  |
-| 1.4 | Banner / hero tampil | Banner tampil dengan konten utama |  |  |
-| 1.5 | Icon menu layanan tampil | Semua icon menu layanan tampil |  |  |
+| 1.1 | Customer membuka homepage | Homepage tampil tanpa error | Pass |  |
+| 1.2 | Search bar ditampilkan | Search bar terlihat di bagian atas homepage | Pass |  |
+| 1.3 | Customer klik search bar | User diarahkan ke halaman search | Pass |  |
+| 1.4 | Banner / hero tampil | Banner tampil dengan konten utama | Pass |  |
+| 1.5 | Icon menu layanan tampil | Semua icon menu layanan tampil | Pass |  |
 | 1.6 | Section promo tampil | Promo tampil di homepage |  |  |
 | 1.7 | Section testimonial tampil | Testimonial tampil di homepage |  |  |
 | 1.8 | Footer tampil | Footer homepage tampil lengkap |  |  |

@@ -14,7 +14,7 @@ export function Hero({ data }: HeroProps) {
         <div className="w-50 h-50 flex items-center justify-center">
           <Image
             draggable={false}
-            src={data.logoUrl || "/logo/LOGO_CLEVERMOM.png"}
+            src={data.logoUrl || "/logo/LOGO_CLEVERMOM.PNG"}
             alt="Logo"
             width={256}
             height={256}

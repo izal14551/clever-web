@@ -2,7 +2,7 @@ import { LandingPageData } from "../types/landing";
 
 export const mockLandingData: LandingPageData = {
   hero: {
-    logoUrl: "/logo/LOGO_CLEVERMOM.png",
+    logoUrl: "/logo/LOGO_CLEVERMOM.PNG",
     title: "Spesialis Kebidanan",
     subtitle: "One Stop Solution Mom and Baby Care",
     description: "Layanan Bidan Premium No. 1 Bergaransi",
@@ -63,6 +63,7 @@ export const mockLandingData: LandingPageData = {
   testimonials: [
     {
       id: "ts1",
+      serviceId: "svc2",
       author: "Mom Anisa",
       timeAgo: "3 hari lalu",
       category: "Baby Massage",
@@ -74,23 +75,25 @@ export const mockLandingData: LandingPageData = {
     },
     {
       id: "ts2",
+      serviceId: "svc8",
       author: "Mom Dita",
       timeAgo: "1 minggu lalu",
-      category: "Postpartum Care",
-      title: "Pelayanannya hangat dan bikin recovery lebih nyaman",
+      category: "Paket Baby Treatment",
+      title: "Napas si kecil lebih lega setelah sesi treatment",
       message:
-        "Saya ambil layanan postpartum di rumah dan pengalaman saya menyenangkan. Terapis datang tepat waktu, alatnya rapi, dan treatment-nya bikin badan lebih ringan. Yang paling saya suka, saya merasa didampingi tanpa dihakimi selama masa pemulihan.",
+        "Saya ambil paket Comfort Breath saat anak lagi pilek dan tidurnya mulai terganggu. Terapis datang tepat waktu, alatnya rapi, dan prosesnya tenang. Setelah sesi selesai, napas anak terasa lebih lega dan saya jadi lebih tenang juga.",
       reactionCount: 12,
       ctaLabel: "Bantu Mom lain",
     },
     {
       id: "ts3",
+      serviceId: "svc18",
       author: "Mom Rara",
       timeAgo: "2 minggu lalu",
-      category: "Konselor Laktasi",
-      title: "Penjelasannya sabar dan mudah dipahami",
+      category: "Kids Treatment",
+      title: "Anak lebih nyaman setelah pediatric massage",
       message:
-        "Awalnya saya bingung soal pelekatan dan stok ASI, tapi setelah konsultasi saya jadi lebih paham langkah-langkah yang harus dilakukan. Cara menjelaskannya enak, tidak terburu-buru, dan benar-benar menenangkan untuk ibu baru seperti saya.",
+        "Awalnya saya khawatir karena anak lagi susah tidur dan perutnya sering tidak nyaman. Setelah pediatric massage, badannya lebih rileks dan malamnya tidur lebih panjang. Terapisnya juga sabar menjelaskan apa yang dilakukan selama sesi.",
       reactionCount: 9,
       ctaLabel: "Bantu Mom lain",
     },

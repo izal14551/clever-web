@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
-import { revalidatePath } from "next/cache";
 import { authOptions } from "../../lib/auth";
 import { addServiceComment } from "../../lib/serviceComments";
 
@@ -57,20 +56,11 @@ export async function POST(request: Request) {
       authorMode,
     });
 
-    revalidatePath("/");
-    revalidatePath("/testimonial");
-    revalidatePath(`/services/${serviceId}`);
-
     return NextResponse.json({ comment }, { status: 201 });
   } catch (error) {
     console.error("Gagal menyimpan komentar service:", error);
-    const message =
-      error instanceof Error && error.message === "Comment storage is not configured."
-        ? "Penyimpanan komentar belum dikonfigurasi di server."
-        : "Komentar belum bisa disimpan. Coba lagi nanti.";
-
     return NextResponse.json(
-      { message },
+      { message: "Komentar belum bisa disimpan. Coba lagi nanti." },
       { status: 500 },
     );
   }

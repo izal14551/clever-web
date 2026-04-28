@@ -60,7 +60,10 @@ export async function getLandingData(): Promise<LandingPageData> {
         imageUrl: getDirectImageUrl(pkg.imageUrl),
       })),
       testimonials: fetchedData.testimonials && fetchedData.testimonials.length > 0
-        ? fetchedData.testimonials
+        ? fetchedData.testimonials.map((testimonial) => ({
+          ...testimonial,
+          serviceId: testimonial.serviceId,
+        }))
         : mockLandingData.testimonials,
       featuredTreatments: (fetchedData.featuredTreatments &&
       fetchedData.featuredTreatments.length > 0

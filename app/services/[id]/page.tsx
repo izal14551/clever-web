@@ -1,12 +1,14 @@
 import Link from "next/link";
-import { ArrowLeft, Heart } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { notFound } from "next/navigation";
 import { BottomNav } from "../../components/BottomNav";
 import { getServiceById } from "../serviceData";
 import { ReadMoreText } from "../../components/ReadMoreText";
 import { ServiceActionButtons } from "../../components/ServiceActionButtons";
+import { ServiceComments } from "../../components/ServiceComments";
 import { getLandingData } from "../../lib/landing";
 import { getArticleList } from "../../lib/blogger";
+import { getServiceComments } from "../../lib/serviceComments";
 import type { ArticleListItem } from "../../types/article";
 import type { TestimonialData } from "../../types/landing";
 
@@ -18,10 +20,11 @@ export default async function ServiceDetailPage({
   params,
 }: ServiceDetailPageProps) {
   const { id } = await params;
-  const [service, landingData, articles] = await Promise.all([
+  const [service, landingData, articles, comments] = await Promise.all([
     getServiceById(id),
     getLandingData(),
     getArticleList(),
+    getServiceComments(id),
   ]);
 
   if (!service) {
@@ -29,6 +32,7 @@ export default async function ServiceDetailPage({
   }
 
   const relatedTestimonials = getRelatedTestimonials(
+    service.id,
     service.title,
     service.category,
     landingData.testimonials,
@@ -81,43 +85,11 @@ export default async function ServiceDetailPage({
         />
       </section>
 
-      <section className="bg-[#fff7ee] px-4 py-5 border-b border-[#f1e5d8]">
-        <h2 className="text-xl font-bold text-[#1f1f1f] mb-3">Komentar Mom</h2>
-        <div className="space-y-3">
-          {relatedTestimonials.map((testimonial) => (
-            <article
-              key={testimonial.id}
-              className="rounded-[24px] border border-[#eadbc9] bg-white p-4 shadow-[0_10px_28px_rgba(166,139,109,0.08)]"
-            >
-              <div className="flex items-start justify-between mb-2 gap-3">
-                <div className="flex items-center gap-2 min-w-0">
-                  <div className="w-8 h-8 rounded-full bg-[#f3e6d6] flex items-center justify-center text-[#a68b6d] font-bold shrink-0">
-                    {testimonial.author.charAt(0).toUpperCase()}
-                  </div>
-                  <div className="min-w-0">
-                    <p className="font-semibold text-[#3f3228] truncate">
-                      {testimonial.author}
-                    </p>
-                    <p className="text-xs text-[#9b8977]">{testimonial.timeAgo}</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-1 text-[#d27a6a] shrink-0">
-                  <Heart size={16} className="fill-red-500" />
-                  <span className="text-xs font-semibold">
-                    {testimonial.reactionCount}
-                  </span>
-                </div>
-              </div>
-              <p className="text-sm font-semibold text-[#6f6255] mb-2">
-                {testimonial.title}
-              </p>
-              <p className="text-sm text-[#5f4c39] leading-7">
-                {testimonial.message}
-              </p>
-            </article>
-          ))}
-        </div>
-      </section>
+      <ServiceComments
+        serviceId={service.id}
+        testimonials={relatedTestimonials}
+        comments={comments}
+      />
 
       <section className="bg-[#fffdf9] px-4 py-5">
         <div className="flex items-center justify-between gap-3 mb-4">
@@ -169,10 +141,19 @@ export default async function ServiceDetailPage({
 }
 
 function getRelatedTestimonials(
+  serviceId: string,
   serviceTitle: string,
   serviceCategory: string | undefined,
   testimonials: TestimonialData[],
 ) {
+  const exactMatch = testimonials.filter(
+    (testimonial) => testimonial.serviceId === serviceId,
+  );
+
+  if (exactMatch.length > 0) {
+    return exactMatch.slice(0, 10);
+  }
+
   const keywords = buildKeywords(serviceTitle, serviceCategory);
 
   const matched = testimonials.filter((testimonial) => {
@@ -180,7 +161,7 @@ function getRelatedTestimonials(
     return keywords.some((keyword) => haystack.includes(keyword));
   });
 
-  return (matched.length > 0 ? matched : testimonials).slice(0, 3);
+  return matched.slice(0, 10);
 }
 
 function getRecommendedArticles(

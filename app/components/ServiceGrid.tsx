@@ -1,9 +1,15 @@
 import React from "react";
-import { ServiceData } from "../types/landing";
 import { ProgressLink as Link } from "./RouteProgress";
 
+interface ServiceGridItem {
+  id: string;
+  label?: string;
+  title?: string;
+  category?: string;
+}
+
 interface ServiceGridProps {
-  services: ServiceData[];
+  services: ServiceGridItem[];
   collapsed?: boolean;
   showMoreHref?: string;
   className?: string;
@@ -17,8 +23,9 @@ export function ServiceGrid({
 }: ServiceGridProps) {
   if (!services) return null;
 
-  const shouldCollapse = collapsed && services.length > 9;
-  const visibleServices = shouldCollapse ? services.slice(0, 8) : services;
+  const categories = getServiceCategories(services);
+  const shouldCollapse = collapsed && categories.length > 9;
+  const visibleCategories = shouldCollapse ? categories.slice(0, 8) : categories;
 
   return (
     <section className={className}>
@@ -26,15 +33,11 @@ export function ServiceGrid({
         Butuh Layanan Apa Hari Ini?
       </h2>
       <div className="grid grid-cols-3 gap-y-10 gap-x-2 text-center">
-        {visibleServices.map((service) => (
+        {visibleCategories.map((category) => (
           <ServiceItem
-            key={service.id}
-            label={service.label}
-            href={
-              resolveServiceCategory(service)
-                ? `/services?category=${encodeURIComponent(resolveServiceCategory(service))}`
-                : "/services"
-            }
+            key={category}
+            label={category}
+            href={`/services?category=${encodeURIComponent(category)}`}
           />
         ))}
         {shouldCollapse ? (
@@ -55,12 +58,28 @@ export function ServiceGrid({
   );
 }
 
-function resolveServiceCategory(service: ServiceData): string {
+function getServiceCategories(services: ServiceGridItem[]): string[] {
+  const categories = services
+    .map((service) => resolveServiceCategory(service) || getServiceLabel(service))
+    .map((category) => category.trim())
+    .filter(Boolean);
+
+  return Array.from(new Set(categories));
+}
+
+function getServiceLabel(service: ServiceGridItem): string {
+  return service.label || service.title || "Layanan";
+}
+
+function resolveServiceCategory(service: ServiceGridItem): string {
   if (service.category?.trim()) {
     return service.category.trim();
   }
 
-  const normalizedLabel = service.label.replace(/\s+/g, " ").trim().toLowerCase();
+  const normalizedLabel = getServiceLabel(service)
+    .replace(/\s+/g, " ")
+    .trim()
+    .toLowerCase();
 
   if (normalizedLabel.includes("paket baby")) return "Paket Baby Treatment";
   if (normalizedLabel.includes("baby")) return "Baby Treatment";
