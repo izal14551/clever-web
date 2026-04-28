@@ -103,6 +103,28 @@ export default async function LandingPage() {
       imageUrl: service.imageUrl,
     }));
 
+  const serviceMap = new Map(
+    serviceItems.map((service) => [service.id, service]),
+  );
+  const allFeedback: TestimonialData[] = [
+    ...storedComments.map((comment) => {
+      const service = serviceMap.get(comment.serviceId);
+
+      return {
+        id: `comment-${comment.id}`,
+        serviceId: comment.serviceId,
+        author: comment.author,
+        timeAgo: formatCommentTimeAgo(comment.createdAt),
+        category: service?.category || "Layanan CleverMom",
+        title: service?.title || "Komentar Mom",
+        message: comment.message,
+        reactionCount: 0,
+        ctaLabel: "Komentar Mom",
+      };
+    }),
+    ...testimonials,
+  ];
+
   return (
     <main className="max-w-md mx-auto bg-white min-h-screen pb-10 font-sans shadow-md relative">
       <section className="bg-gradient-to-b from-orange-50 to-orange-100 pt-10 pb-24 px-6 rounded-b-[40px] relative">
