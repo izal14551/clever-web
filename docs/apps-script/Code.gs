@@ -85,6 +85,7 @@ function buildSitePayload_() {
     testimonials: sortedRows_(SHEETS.LANDING_TESTIMONIALS).map(function (row) {
       return {
         id: row.id,
+        serviceId: row.serviceId || "",
         author: row.author,
         timeAgo: row.timeAgo,
         category: row.category,

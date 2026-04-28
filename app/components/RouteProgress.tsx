@@ -89,8 +89,10 @@ export function RouteProgressProvider({ children }: { children: ReactNode }) {
   }, [clearTimers, isLoading]);
 
   useEffect(() => {
-    currentUrlRef.current = window.location.pathname + window.location.search;
-  }, [pathname]);
+    if (!isLoading) {
+      currentUrlRef.current = window.location.pathname + window.location.search;
+    }
+  }, [isLoading, pathname]);
 
   useEffect(() => {
     if (!isLoading) return;

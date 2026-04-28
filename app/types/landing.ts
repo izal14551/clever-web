@@ -53,6 +53,7 @@ export interface TreatmentData {
 
 export interface TestimonialData {
   id: string;
+  serviceId?: string;
   author: string;
   timeAgo: string;
   category: string;

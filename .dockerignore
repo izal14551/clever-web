@@ -1,0 +1,10 @@
+.git
+.gitignore
+.next
+node_modules
+npm-debug.log*
+.env*
+docs
+k8s
+response.html
+response.txt

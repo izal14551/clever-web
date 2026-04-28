@@ -11,9 +11,17 @@ import { FeaturedTreatments } from "./components/FeaturedTreatments";
 import { DashboardFooter } from "./components/DashboardFooter";
 import { BottomNav } from "./components/BottomNav";
 import { getLandingData } from "./lib/landing";
+import { formatCommentTimeAgo } from "./lib/commentTime";
+import { getServiceListData } from "./services/serviceData";
+import { getAllServiceComments } from "./lib/serviceComments";
+import type { TestimonialData } from "./types/landing";
 
 export default async function LandingPage() {
-  const data = await getLandingData();
+  const [data, serviceItems, storedComments] = await Promise.all([
+    getLandingData(),
+    getServiceListData(),
+    getAllServiceComments(),
+  ]);
 
   const {
     hero,
@@ -25,6 +33,28 @@ export default async function LandingPage() {
     featuredTreatments,
   } =
     data;
+
+  const serviceMap = new Map(
+    serviceItems.map((service) => [service.id, service]),
+  );
+  const allFeedback: TestimonialData[] = [
+    ...storedComments.map((comment) => {
+      const service = serviceMap.get(comment.serviceId);
+
+      return {
+        id: `comment-${comment.id}`,
+        serviceId: comment.serviceId,
+        author: comment.author,
+        timeAgo: formatCommentTimeAgo(comment.createdAt),
+        category: service?.category || "Layanan CleverMom",
+        title: service?.title || "Komentar Mom",
+        message: comment.message,
+        reactionCount: 0,
+        ctaLabel: "Komentar Mom",
+      };
+    }),
+    ...testimonials,
+  ];
 
   return (
     <main className="max-w-md mx-auto bg-white min-h-screen pb-10 font-sans shadow-md relative">
@@ -74,7 +104,7 @@ export default async function LandingPage() {
 
       <FeaturedTreatments treatments={featuredTreatments} />
       
-      <TestimonialShowcase testimonials={testimonials} />
+      <TestimonialShowcase testimonials={allFeedback} />
 
       <DashboardFooter />
 

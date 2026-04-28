@@ -118,6 +118,7 @@ Satu baris per testimonial.
 | Kolom | Wajib | Keterangan |
 | --- | --- | --- |
 | `id` | Ya | ID testimonial |
+| `serviceId` | Ya | ID layanan yang diberi komentar, harus cocok dengan `service_list.id` |
 | `author` | Ya | Nama author |
 | `timeAgo` | Ya | Teks waktu |
 | `category` | Ya | Kategori layanan |
