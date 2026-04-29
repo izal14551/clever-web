@@ -37,6 +37,7 @@ yarn-error.log*
 
 # kubernetes local secrets
 k8s/secret.yaml
+k8s/configmap.yaml
 
 # vercel
 .vercel

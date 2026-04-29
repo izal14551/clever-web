@@ -15,9 +15,13 @@ Manifest ini disiapkan untuk deploy aplikasi `clever-web` ke Kubernetes.
 ## Hal yang perlu diganti
 
 1. Ganti `your-registry/clever-web:latest` di `deployment.yaml` dengan image aplikasi yang valid.
-2. Ganti host `clevermom.example.com` di `ingress.yaml` dan `NEXTAUTH_URL` di `configmap.yaml` dengan domain production.
-3. Isi semua nilai placeholder di `secret.example.yaml`.
-4. Jika namespace berbeda, sesuaikan `namespace.yaml` dan referensinya.
+2. Ganti host `clevermom.example.com` di `ingress.yaml` dengan domain production.
+3. Isi nilai placeholder di `configmap.yaml` untuk environment deploy:
+   - `NEXTAUTH_URL`
+   - `BLOGGER_BLOG_ID`
+   - `APPS_SCRIPT_URL`
+4. Isi semua nilai placeholder di `secret.example.yaml`.
+5. Jika namespace berbeda, sesuaikan `namespace.yaml` dan referensinya.
 
 ## Apply
 
@@ -33,3 +37,4 @@ kubectl apply -k k8s
 - Pastikan OAuth redirect URI Google juga memakai domain production:
   `https://your-domain/api/auth/callback/google`
 - Sebaiknya copy `secret.example.yaml` menjadi file secret environment-specific sebelum apply.
+- Jangan commit nilai asli `BLOGGER_BLOG_ID`, `APPS_SCRIPT_URL`, atau secret lain. Netlify akan menggagalkan build jika nilai environment variable ditemukan di file repo atau build output.
