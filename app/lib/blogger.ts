@@ -130,14 +130,14 @@ export async function getArticleList(): Promise<ArticleListItem[]> {
     "/posts?fetchBodies=true&status=LIVE",
   );
 
+  if (!payload) {
+    return mockArticleData.map(toListItem);
+  }
+
   const items =
     payload?.items
       ?.map((post, index) => normalizePost(post, index))
       .filter((post): post is ArticleDetail => post !== null) || [];
-
-  if (items.length === 0) {
-    return mockArticleData.map(toListItem);
-  }
 
   return items.map(toListItem);
 }

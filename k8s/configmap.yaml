@@ -4,6 +4,6 @@ metadata:
   name: clever-web-config
   namespace: clevermom
 data:
-  NEXTAUTH_URL: "http://localhost:30080"
-  BLOGGER_BLOG_ID: "3463777721460412292"
-  APPS_SCRIPT_URL: "https://script.google.com/macros/s/AKfycby3VTTjPd3jWtrKu_Gshb6c8r6ip5FvStW7mnDM9GcbVFgY7TAQ4z_mUwwVhiZ-7JM0/exec"
+  NEXTAUTH_URL: "https://your-domain.example.com"
+  BLOGGER_BLOG_ID: "your-blogger-blog-id"
+  APPS_SCRIPT_URL: "your-apps-script-url"
