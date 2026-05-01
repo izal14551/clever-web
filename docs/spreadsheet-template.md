@@ -13,6 +13,7 @@ Spreadsheet ini dipakai sebagai source data untuk:
 - About / Tentang CleverMom
 - Bantuan
 - Profile summary member
+- Komentar layanan
 
 ## Struktur Sheet yang Disarankan
 
@@ -33,6 +34,7 @@ Buat file Google Spreadsheet dengan tab berikut:
 13. `help_topics`
 14. `member_summary`
 15. `member_menus`
+16. `service_comments`
 
 Template utama sekarang disiapkan dalam satu file CSV master di [sheet-template-master.csv](/c:/laragon/www/clevermom/clever-web/docs/sheet-template-master.csv).
 Selain itu, workbook siap pakai dengan banyak sheet juga tersedia di [spreadsheet-template.xlsx](/c:/laragon/www/clevermom/clever-web/docs/spreadsheet-template.xlsx).
@@ -236,6 +238,20 @@ Satu baris per item menu akun.
 | `label` | Ya | Label menu |
 | `href` | Ya | URL tujuan |
 | `sortOrder` | Tidak | Urutan tampil |
+
+### 16. `service_comments`
+
+Satu baris per komentar layanan yang dikirim user dari halaman detail layanan.
+
+| Kolom | Wajib | Keterangan |
+| --- | --- | --- |
+| `id` | Ya | ID unik komentar |
+| `serviceId` | Ya | ID layanan, harus cocok dengan `service_list.id` |
+| `author` | Ya | Nama yang ditampilkan |
+| `message` | Ya | Isi komentar |
+| `createdAt` | Ya | Timestamp ISO |
+| `userId` | Tidak | ID user dari login |
+| `authorMode` | Tidak | `account` atau `anonymous` |
 
 ## Bentuk JSON Output yang Disarankan
 

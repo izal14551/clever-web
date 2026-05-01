@@ -14,6 +14,7 @@ var SHEETS = {
   HELP_TOPICS: "help_topics",
   MEMBER_SUMMARY: "member_summary",
   MEMBER_MENUS: "member_menus",
+  SERVICE_COMMENTS: "service_comments",
 };
 
 function doGet(e) {
@@ -38,6 +39,21 @@ function doPost(e) {
     if (action === "updateMemberName") {
       requirePrivateAccess_(body);
       return jsonOutput_(updateMemberName_(body));
+    }
+
+    if (action === "getServiceComments") {
+      requirePrivateAccess_(body);
+      return jsonOutput_(getServiceComments_(body));
+    }
+
+    if (action === "getAllServiceComments") {
+      requirePrivateAccess_(body);
+      return jsonOutput_(getAllServiceComments_());
+    }
+
+    if (action === "addServiceComment") {
+      requirePrivateAccess_(body);
+      return jsonOutput_(addServiceComment_(body));
     }
 
     return jsonOutput_({
@@ -271,6 +287,84 @@ function updateMemberName_(payload) {
     ok: true,
     message: "Username created",
   };
+}
+
+function getServiceComments_(payload) {
+  validateRequiredText_(payload.serviceId, "serviceId");
+
+  return {
+    ok: true,
+    comments: getServiceCommentRows_().filter(function (comment) {
+      return comment.serviceId === String(payload.serviceId || "").trim();
+    }),
+  };
+}
+
+function getAllServiceComments_() {
+  return {
+    ok: true,
+    comments: getServiceCommentRows_(),
+  };
+}
+
+function addServiceComment_(payload) {
+  var comment = payload.comment || {};
+  validateRequiredText_(comment.id, "comment.id");
+  validateRequiredText_(comment.serviceId, "comment.serviceId");
+  validateRequiredText_(comment.author, "comment.author");
+  validateRequiredText_(comment.message, "comment.message");
+  validateRequiredText_(comment.createdAt, "comment.createdAt");
+
+  var sheet = getOrCreateSheet_(SHEETS.SERVICE_COMMENTS, [
+    "id",
+    "serviceId",
+    "author",
+    "message",
+    "createdAt",
+    "userId",
+    "authorMode",
+  ]);
+
+  var row = [
+    String(comment.id || "").trim(),
+    String(comment.serviceId || "").trim().slice(0, 80),
+    String(comment.author || "").trim().slice(0, 60),
+    String(comment.message || "").trim().slice(0, 600),
+    String(comment.createdAt || "").trim(),
+    String(comment.userId || "").trim(),
+    comment.authorMode === "anonymous" ? "anonymous" : "account",
+  ];
+
+  sheet.appendRow(row);
+
+  return {
+    ok: true,
+    comment: {
+      id: row[0],
+      serviceId: row[1],
+      author: row[2],
+      message: row[3],
+      createdAt: row[4],
+      userId: row[5] || undefined,
+      authorMode: row[6],
+    },
+  };
+}
+
+function getServiceCommentRows_() {
+  return getSheetObjects_(SHEETS.SERVICE_COMMENTS).map(function (row) {
+    return {
+      id: String(row.id || ""),
+      serviceId: String(row.serviceId || ""),
+      author: String(row.author || ""),
+      message: String(row.message || ""),
+      createdAt: String(row.createdAt || ""),
+      userId: row.userId ? String(row.userId) : undefined,
+      authorMode: row.authorMode === "anonymous" ? "anonymous" : "account",
+    };
+  }).filter(function (comment) {
+    return comment.id && comment.serviceId && comment.author && comment.message && comment.createdAt;
+  });
 }
 
 function requirePrivateAccess_(payload) {

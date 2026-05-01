@@ -45,3 +45,5 @@ k8s/configmap.yaml
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+AGENTS.md

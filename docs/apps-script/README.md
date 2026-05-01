@@ -73,6 +73,39 @@ Atau untuk update username:
 }
 ```
 
+Untuk komentar layanan, web memakai action privat berikut:
+
+```json
+{
+  "action": "getServiceComments",
+  "apiKey": "your-shared-secret",
+  "serviceId": "baby-spa"
+}
+```
+
+```json
+{
+  "action": "getAllServiceComments",
+  "apiKey": "your-shared-secret"
+}
+```
+
+```json
+{
+  "action": "addServiceComment",
+  "apiKey": "your-shared-secret",
+  "comment": {
+    "id": "uuid",
+    "serviceId": "baby-spa",
+    "author": "Anonymous",
+    "message": "Layanannya nyaman.",
+    "createdAt": "2026-04-30T10:00:00.000Z",
+    "userId": "google-user-id",
+    "authorMode": "anonymous"
+  }
+}
+```
+
 ## Cara Pakai
 
 1. Buat Google Spreadsheet dan import semua CSV di folder `docs/sheet-templates`.
@@ -97,4 +130,4 @@ Atau untuk update username:
 - Jika ingin menambah endpoint lain, tambahkan cabang di `doGet()` atau `doPost()`.
 - Untuk field array seperti `details`, gunakan pemisah `|` di spreadsheet.
 - `GET /exec` dibiarkan publik hanya untuk konten website yang memang public.
-- Semua action member sekarang wajib lewat `POST` + `apiKey`.
+- Semua action member dan komentar layanan wajib lewat `POST` + `apiKey`.

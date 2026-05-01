@@ -1,6 +1,7 @@
 import { randomUUID } from "crypto";
 import { mkdir, readFile, writeFile } from "fs/promises";
 import path from "path";
+import { getAppsScriptApiKey, getAppsScriptUrl } from "@/app/lib/appsScript";
 
 export interface ServiceComment {
   id: string;
@@ -24,22 +25,26 @@ const COMMENTS_FILE = path.join(
 export async function getServiceComments(
   serviceId: string,
 ): Promise<ServiceComment[]> {
+  const remoteComments = await fetchRemoteComments("getServiceComments", {
+    serviceId,
+  });
+  if (remoteComments) {
+    return sortComments(remoteComments);
+  }
+
   const store = await readCommentStore();
-  return (store[serviceId] || []).sort(
-    (a, b) =>
-      new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
-  );
+  return sortComments(store[serviceId] || []);
 }
 
 export async function getAllServiceComments(): Promise<ServiceComment[]> {
+  const remoteComments = await fetchRemoteComments("getAllServiceComments");
+  if (remoteComments) {
+    return sortComments(remoteComments);
+  }
+
   const store = await readCommentStore();
 
-  return Object.values(store)
-    .flat()
-    .sort(
-      (a, b) =>
-        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
-    );
+  return sortComments(Object.values(store).flat());
 }
 
 export async function addServiceComment(input: {
@@ -61,10 +66,112 @@ export async function addServiceComment(input: {
     authorMode: input.authorMode,
   };
 
+  const remoteComment = await addRemoteComment(comment);
+  if (remoteComment) {
+    return remoteComment;
+  }
+
+  if (isReadOnlyDeployment()) {
+    throw new Error("Comment storage is not configured.");
+  }
+
   store[input.serviceId] = [comment, ...serviceComments].slice(0, 100);
   await writeCommentStore(store);
 
   return comment;
+}
+
+function sortComments(comments: ServiceComment[]): ServiceComment[] {
+  return comments.sort(
+    (a, b) =>
+      new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+  );
+}
+
+function hasRemoteCommentStore() {
+  const scriptUrl = getAppsScriptUrl();
+  const apiKey = getAppsScriptApiKey();
+  return scriptUrl.startsWith("http") && Boolean(apiKey);
+}
+
+async function fetchRemoteComments(
+  action: "getServiceComments" | "getAllServiceComments",
+  params?: { serviceId?: string },
+): Promise<ServiceComment[] | null> {
+  if (!hasRemoteCommentStore()) {
+    return null;
+  }
+
+  try {
+    const response = await postToAppsScript(
+      {
+        action,
+        serviceId: params?.serviceId,
+      },
+      { noStore: false },
+    );
+
+    return Array.isArray(response.comments)
+      ? response.comments.filter(isServiceComment)
+      : [];
+  } catch (error) {
+    if (error instanceof Error && error.message === "Unsupported action") {
+      return null;
+    }
+
+    console.error("Gagal mengambil komentar service dari spreadsheet:", error);
+    return null;
+  }
+}
+
+async function addRemoteComment(
+  comment: ServiceComment,
+): Promise<ServiceComment | null> {
+  if (!hasRemoteCommentStore()) {
+    return null;
+  }
+
+  const response = await postToAppsScript(
+    {
+      action: "addServiceComment",
+      comment,
+    },
+    { noStore: true },
+  );
+
+  return isServiceComment(response.comment) ? response.comment : comment;
+}
+
+async function postToAppsScript(
+  payload: Record<string, unknown>,
+  options: { noStore: boolean },
+): Promise<Record<string, unknown>> {
+  const res = await fetch(getAppsScriptUrl(), {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    cache: options.noStore ? "no-store" : "force-cache",
+    body: JSON.stringify({
+      apiKey: getAppsScriptApiKey(),
+      ...payload,
+    }),
+  });
+
+  const response = (await res.json()) as Record<string, unknown>;
+  if (!res.ok || response.ok !== true) {
+    throw new Error(
+      typeof response.message === "string"
+        ? response.message
+        : "Apps Script comment request failed.",
+    );
+  }
+
+  return response;
+}
+
+function isReadOnlyDeployment() {
+  return process.env.NETLIFY === "true" || process.env.VERCEL === "1";
 }
 
 async function readCommentStore(): Promise<ServiceCommentStore> {
