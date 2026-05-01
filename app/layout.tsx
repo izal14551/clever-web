@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./components/Providers";
@@ -21,6 +21,11 @@ export const metadata: Metadata = {
     shortcut: "/logo/LOGO_CLEVERMOM.PNG",
     apple: "/logo/LOGO_CLEVERMOM.PNG",
   },
+};
+
+export const viewport: Viewport = {
+  colorScheme: "light",
+  themeColor: "#f3f4f6",
 };
 
 export default function RootLayout({
