@@ -1,9 +1,9 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
   --background: #f3f4f6; /* Changed to gray-100 for desktop frame */
   --foreground: #171717;
+  color-scheme: only light;
 }
 @theme inline {
   --color-background: var(--background);
@@ -11,12 +11,11 @@
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
-/* Remove dark preference if we want it to stay gray */
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --background: #f3f4f6; /* Force gray background even in dark mode */
-    --foreground: #ededed;
+    --background: #f3f4f6;
+    --foreground: #171717;
+    color-scheme: only light;
   }
 }
 body {
