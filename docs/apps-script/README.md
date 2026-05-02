@@ -79,7 +79,8 @@ Untuk komentar layanan, web memakai action privat berikut:
 {
   "action": "getServiceComments",
   "apiKey": "your-shared-secret",
-  "serviceId": "baby-spa"
+  "serviceId": "baby-spa",
+  "viewerUserId": "google-user-id"
 }
 ```
 
@@ -101,8 +102,21 @@ Untuk komentar layanan, web memakai action privat berikut:
     "message": "Layanannya nyaman.",
     "createdAt": "2026-04-30T10:00:00.000Z",
     "userId": "google-user-id",
-    "authorMode": "anonymous"
+    "authorMode": "anonymous",
+    "likeCount": 0,
+    "likedByCurrentUser": false
   }
+}
+```
+
+Untuk like komentar layanan, web memakai action berikut. Action ini idempotent: jika akun yang sama sudah pernah like komentar yang sama, jumlah like tidak bertambah lagi.
+
+```json
+{
+  "action": "addServiceCommentLike",
+  "apiKey": "your-shared-secret",
+  "commentId": "uuid-komentar",
+  "userId": "google-user-id"
 }
 ```
 

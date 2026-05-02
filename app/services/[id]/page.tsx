@@ -1,11 +1,13 @@
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { notFound } from "next/navigation";
+import { getServerSession } from "next-auth";
 import { BottomNav } from "../../components/BottomNav";
 import { getServiceById } from "../serviceData";
 import { ReadMoreText } from "../../components/ReadMoreText";
 import { ServiceActionButtons } from "../../components/ServiceActionButtons";
 import { ServiceComments } from "../../components/ServiceComments";
+import { authOptions } from "../../lib/auth";
 import { getLandingData } from "../../lib/landing";
 import { getArticleList } from "../../lib/blogger";
 import { getServiceComments } from "../../lib/serviceComments";
@@ -20,11 +22,12 @@ export default async function ServiceDetailPage({
   params,
 }: ServiceDetailPageProps) {
   const { id } = await params;
+  const session = await getServerSession(authOptions);
   const [service, landingData, articles, comments] = await Promise.all([
     getServiceById(id),
     getLandingData(),
     getArticleList(),
-    getServiceComments(id),
+    getServiceComments(id, session?.user?.id),
   ]);
 
   if (!service) {

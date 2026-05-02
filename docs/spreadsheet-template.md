@@ -35,6 +35,7 @@ Buat file Google Spreadsheet dengan tab berikut:
 14. `member_summary`
 15. `member_menus`
 16. `service_comments`
+17. `service_comment_likes`
 
 Template utama sekarang disiapkan dalam satu file CSV master di [sheet-template-master.csv](/c:/laragon/www/clevermom/clever-web/docs/sheet-template-master.csv).
 Selain itu, workbook siap pakai dengan banyak sheet juga tersedia di [spreadsheet-template.xlsx](/c:/laragon/www/clevermom/clever-web/docs/spreadsheet-template.xlsx).
@@ -252,6 +253,20 @@ Satu baris per komentar layanan yang dikirim user dari halaman detail layanan.
 | `createdAt` | Ya | Timestamp ISO |
 | `userId` | Tidak | ID user dari login |
 | `authorMode` | Tidak | `account` atau `anonymous` |
+
+### 17. `service_comment_likes`
+
+Satu baris per akun yang memberi like pada satu komentar layanan.
+
+| Kolom | Wajib | Keterangan |
+| --- | --- | --- |
+| `commentId` | Ya | ID komentar dari `service_comments.id` |
+| `userId` | Ya | ID user dari login |
+| `createdAt` | Ya | Timestamp ISO saat like dibuat |
+
+Catatan:
+- Kombinasi `commentId` + `userId` harus dianggap unik.
+- Apps Script akan menolak penambahan angka like dari akun yang sama dengan cara mengecek baris existing terlebih dahulu.
 
 ## Bentuk JSON Output yang Disarankan
 
