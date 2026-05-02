@@ -15,6 +15,7 @@ var SHEETS = {
   MEMBER_SUMMARY: "member_summary",
   MEMBER_MENUS: "member_menus",
   SERVICE_COMMENTS: "service_comments",
+  SERVICE_COMMENT_LIKES: "service_comment_likes",
 };
 
 function doGet(e) {
@@ -54,6 +55,11 @@ function doPost(e) {
     if (action === "addServiceComment") {
       requirePrivateAccess_(body);
       return jsonOutput_(addServiceComment_(body));
+    }
+
+    if (action === "addServiceCommentLike") {
+      requirePrivateAccess_(body);
+      return jsonOutput_(addServiceCommentLike_(body));
     }
 
     return jsonOutput_({
@@ -294,7 +300,7 @@ function getServiceComments_(payload) {
 
   return {
     ok: true,
-    comments: getServiceCommentRows_().filter(function (comment) {
+    comments: getServiceCommentRows_(payload.viewerUserId).filter(function (comment) {
       return comment.serviceId === String(payload.serviceId || "").trim();
     }),
   };
@@ -347,24 +353,101 @@ function addServiceComment_(payload) {
       createdAt: row[4],
       userId: row[5] || undefined,
       authorMode: row[6],
+      likeCount: 0,
+      likedByCurrentUser: false,
     },
   };
 }
 
-function getServiceCommentRows_() {
-  return getSheetObjects_(SHEETS.SERVICE_COMMENTS).map(function (row) {
+function addServiceCommentLike_(payload) {
+  validateRequiredText_(payload.commentId, "commentId");
+  validateRequiredText_(payload.userId, "userId");
+
+  var lock = LockService.getScriptLock();
+  lock.waitLock(10000);
+
+  try {
+    var commentId = String(payload.commentId || "").trim();
+    var userId = String(payload.userId || "").trim();
+    var sheet = getOrCreateSheet_(SHEETS.SERVICE_COMMENT_LIKES, [
+      "commentId",
+      "userId",
+      "createdAt",
+    ]);
+    var likes = getServiceCommentLikeRows_();
+    var alreadyLiked = likes.some(function (like) {
+      return like.commentId === commentId && like.userId === userId;
+    });
+
+    if (!alreadyLiked) {
+      sheet.appendRow([commentId, userId, new Date().toISOString()]);
+      likes.push({
+        commentId: commentId,
+        userId: userId,
+      });
+    }
+
     return {
-      id: String(row.id || ""),
+      ok: true,
+      like: {
+        commentId: commentId,
+        likeCount: countLikes_(likes, commentId),
+        likedByCurrentUser: true,
+      },
+    };
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+function getServiceCommentRows_(viewerUserId) {
+  var normalizedViewerUserId = String(viewerUserId || "").trim();
+  var likes = getServiceCommentLikeRows_();
+
+  return getSheetObjects_(SHEETS.SERVICE_COMMENTS).map(function (row) {
+    var commentId = String(row.id || "");
+
+    return {
+      id: commentId,
       serviceId: String(row.serviceId || ""),
       author: String(row.author || ""),
       message: String(row.message || ""),
       createdAt: String(row.createdAt || ""),
       userId: row.userId ? String(row.userId) : undefined,
       authorMode: row.authorMode === "anonymous" ? "anonymous" : "account",
+      likeCount: countLikes_(likes, commentId),
+      likedByCurrentUser: normalizedViewerUserId
+        ? likes.some(function (like) {
+            return like.commentId === commentId && like.userId === normalizedViewerUserId;
+          })
+        : false,
     };
   }).filter(function (comment) {
     return comment.id && comment.serviceId && comment.author && comment.message && comment.createdAt;
   });
+}
+
+function getServiceCommentLikeRows_() {
+  return getSheetObjects_(SHEETS.SERVICE_COMMENT_LIKES).map(function (row) {
+    return {
+      commentId: String(row.commentId || "").trim(),
+      userId: String(row.userId || "").trim(),
+    };
+  }).filter(function (like) {
+    return like.commentId && like.userId;
+  });
+}
+
+function countLikes_(likes, commentId) {
+  var uniqueUserIds = {};
+
+  likes.forEach(function (like) {
+    if (like.commentId === commentId && like.userId) {
+      uniqueUserIds[like.userId] = true;
+    }
+  });
+
+  return Object.keys(uniqueUserIds).length;
 }
 
 function requirePrivateAccess_(payload) {

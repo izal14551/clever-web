@@ -49,7 +49,7 @@ export default async function LandingPage() {
         category: service?.category || "Layanan CleverMom",
         title: service?.title || "Komentar Mom",
         message: comment.message,
-        reactionCount: 0,
+        reactionCount: comment.likeCount,
         ctaLabel: "Komentar Mom",
       };
     }),

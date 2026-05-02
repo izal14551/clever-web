@@ -32,6 +32,7 @@ type CommentCardItem =
       title: string;
       message: string;
       reactionCount: number;
+      likedByCurrentUser: boolean;
       source: "comment";
     };
 
@@ -47,6 +48,7 @@ export function ServiceComments({
     "account",
   );
   const [localComments, setLocalComments] = useState<ServiceComment[]>(comments);
+  const [likingCommentId, setLikingCommentId] = useState<string | null>(null);
   const [status, setStatus] = useState<{
     type: "idle" | "success" | "error";
     message: string;
@@ -60,7 +62,8 @@ export function ServiceComments({
       timeAgo: formatCommentTimeAgo(comment.createdAt),
       title: "Komentar Mom",
       message: comment.message,
-      reactionCount: 0,
+      reactionCount: comment.likeCount,
+      likedByCurrentUser: comment.likedByCurrentUser,
       source: "comment" as const,
     }));
 
@@ -138,6 +141,67 @@ export function ServiceComments({
       });
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const handleLike = async (commentId: string) => {
+    if (sessionStatus !== "authenticated") {
+      setStatus({
+        type: "error",
+        message: "Silakan login terlebih dahulu untuk memberi like.",
+      });
+      return;
+    }
+
+    const targetComment = localComments.find(
+      (comment) => comment.id === commentId,
+    );
+    if (!targetComment || targetComment.likedByCurrentUser) {
+      return;
+    }
+
+    setLikingCommentId(commentId);
+    setStatus({ type: "idle", message: "" });
+
+    try {
+      const response = await fetch("/api/service-comments/like", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ commentId }),
+      });
+      const payload: unknown = await response.json();
+
+      if (!response.ok || !isLikePayload(payload)) {
+        const errorMessage =
+          isMessagePayload(payload) && payload.message
+            ? payload.message
+            : "Like belum bisa disimpan.";
+        throw new Error(errorMessage);
+      }
+
+      setLocalComments((current) =>
+        current.map((comment) =>
+          comment.id === payload.like.commentId
+            ? {
+                ...comment,
+                likeCount: payload.like.likeCount,
+                likedByCurrentUser: payload.like.likedByCurrentUser,
+              }
+            : comment,
+        ),
+      );
+    } catch (error) {
+      setStatus({
+        type: "error",
+        message:
+          error instanceof Error
+            ? error.message
+            : "Like belum bisa disimpan.",
+      });
+    } finally {
+      setLikingCommentId(null);
     }
   };
 
@@ -273,6 +337,36 @@ export function ServiceComments({
               {item.title}
             </p>
             <p className="text-sm leading-7 text-[#5f4c39]">{item.message}</p>
+            {item.source === "comment" ? (
+              <div className="mt-3 flex justify-end">
+                <button
+                  type="button"
+                  onClick={() => handleLike(item.id)}
+                  disabled={
+                    item.likedByCurrentUser || likingCommentId === item.id
+                  }
+                  className={`inline-flex h-9 items-center justify-center gap-1.5 rounded-md border px-3 text-xs font-semibold transition disabled:cursor-not-allowed ${
+                    item.likedByCurrentUser
+                      ? "border-[#f1c8c1] bg-[#fff2ef] text-[#c65f51]"
+                      : "border-[#eadbc9] bg-[#fffdf9] text-[#7b6b5b] hover:border-[#d27a6a] hover:text-[#c65f51]"
+                  }`}
+                  aria-pressed={item.likedByCurrentUser}
+                  aria-label={
+                    item.likedByCurrentUser
+                      ? "Komentar sudah disukai"
+                      : "Sukai komentar"
+                  }
+                >
+                  <Heart
+                    size={15}
+                    className={
+                      item.likedByCurrentUser ? "fill-current" : undefined
+                    }
+                  />
+                  <span>{item.reactionCount}</span>
+                </button>
+              </div>
+            ) : null}
           </article>
         ))}
       </div>
@@ -288,7 +382,25 @@ function isCommentPayload(value: unknown): value is { comment: ServiceComment } 
     typeof value.comment.serviceId === "string" &&
     typeof value.comment.author === "string" &&
     typeof value.comment.message === "string" &&
-    typeof value.comment.createdAt === "string"
+    typeof value.comment.createdAt === "string" &&
+    typeof value.comment.likeCount === "number" &&
+    typeof value.comment.likedByCurrentUser === "boolean"
+  );
+}
+
+function isLikePayload(value: unknown): value is {
+  like: {
+    commentId: string;
+    likeCount: number;
+    likedByCurrentUser: boolean;
+  };
+} {
+  return (
+    isRecord(value) &&
+    isRecord(value.like) &&
+    typeof value.like.commentId === "string" &&
+    typeof value.like.likeCount === "number" &&
+    typeof value.like.likedByCurrentUser === "boolean"
   );
 }
 
