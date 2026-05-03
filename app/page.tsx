@@ -119,11 +119,31 @@ export default async function LandingPage() {
         title: service?.title || "Komentar Mom",
         message: comment.message,
         reactionCount: comment.likeCount,
-        ctaLabel: "Komentar Mom",
+        ctaLabel: "Setuju",
       };
     }),
-    ...testimonials,
+    ...testimonials.map((testimonial) => ({
+      ...testimonial,
+      ctaLabel: "Setuju",
+    })),
   ];
+  const recommendationMap = new Map(
+    serviceRecommendations.map((recommendation) => [
+      recommendation.serviceId,
+      recommendation.recommendationCount,
+    ]),
+  );
+  const favoriteTreatments = serviceItems
+    .map((service) => ({
+      id: service.id,
+      name: service.title,
+      description: service.category || service.description,
+      imageUrl: service.imageUrl,
+      href: `/services/${service.id}`,
+      recommendationCount: recommendationMap.get(service.id) || 0,
+    }))
+    .sort((a, b) => b.recommendationCount - a.recommendationCount)
+    .slice(0, 5);
 
   return (
     <main className="max-w-md mx-auto bg-white min-h-screen pb-10 font-sans shadow-md relative">
