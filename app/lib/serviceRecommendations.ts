@@ -154,18 +154,27 @@ async function addRemoteServiceRecommendation(input: {
     return null;
   }
 
-  const response = await postToAppsScript(
-    {
-      action: "addServiceRecommendation",
-      serviceId: input.serviceId,
-      userId: input.userId,
-    },
-    { noStore: true },
-  );
+  try {
+    const response = await postToAppsScript(
+      {
+        action: "addServiceRecommendation",
+        serviceId: input.serviceId,
+        userId: input.userId,
+      },
+      { noStore: true },
+    );
 
-  return isServiceRecommendationSummary(response.recommendation)
-    ? response.recommendation
-    : null;
+    return isServiceRecommendationSummary(response.recommendation)
+      ? response.recommendation
+      : null;
+  } catch (error) {
+    if (error instanceof Error && error.message === "Unsupported action") {
+      return null;
+    }
+
+    console.error("Gagal menyimpan rekomendasi service ke spreadsheet:", error);
+    return null;
+  }
 }
 
 async function postToAppsScript(
