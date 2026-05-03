@@ -28,12 +28,12 @@ export default async function TestimonialPage() {
         title: service?.title || "Komentar Mom",
         message: comment.message,
         reactionCount: comment.likeCount,
-        ctaLabel: "Setuju",
+        ctaLabel: "Bantu Mom lain",
       };
     }),
     ...(data.testimonials ?? []).map((testimonial) => ({
       ...testimonial,
-      ctaLabel: "Setuju",
+      ctaLabel: "Bantu Mom lain",
     })),
   ];
 

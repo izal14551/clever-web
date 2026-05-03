@@ -211,7 +211,7 @@ export function ServiceComments({
         <div>
           <h2 className="text-xl font-bold text-[#1f1f1f]">Komentar Mom</h2>
           <p className="mt-1 text-sm text-[#7b6b5b]">
-            Bagikan pengalaman Mom. Like berarti setuju dengan komentar itu.
+            Bagikan pengalaman Mom. Like berarti bantu Mom lain memahami komentar itu.
           </p>
         </div>
         <span className="shrink-0 text-sm font-semibold text-[#a68b6d]">
@@ -353,8 +353,8 @@ export function ServiceComments({
                   aria-pressed={item.likedByCurrentUser}
                   aria-label={
                     item.likedByCurrentUser
-                      ? "Sudah setuju dengan komentar"
-                      : "Setuju dengan komentar"
+                      ? "Sudah bantu Mom lain dengan komentar ini"
+                      : "Bantu Mom lain dengan komentar ini"
                   }
                 >
                   <Heart
@@ -364,7 +364,7 @@ export function ServiceComments({
                     }
                   />
                   <span>{item.reactionCount}</span>
-                  <span>Setuju</span>
+                  <span>Bantu Mom lain</span>
                 </button>
               </div>
             ) : null}

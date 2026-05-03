@@ -53,12 +53,12 @@ export default async function LandingPage() {
         title: service?.title || "Komentar Mom",
         message: comment.message,
         reactionCount: comment.likeCount,
-        ctaLabel: "Setuju",
+        ctaLabel: "Bantu Mom lain",
       };
     }),
     ...testimonials.map((testimonial) => ({
       ...testimonial,
-      ctaLabel: "Setuju",
+      ctaLabel: "Bantu Mom lain",
     })),
   ];
   const recommendationMap = new Map(
