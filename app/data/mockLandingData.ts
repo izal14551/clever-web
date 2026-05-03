@@ -71,7 +71,7 @@ export const mockLandingData: LandingPageData = {
       message:
         "Terapisnya lembut banget, cara pegang bayinya juga bikin saya tenang. Setelah sesi selesai, anak saya tidurnya lebih nyenyak dan badan terasa lebih rileks. Saya suka karena semua dijelaskan pelan-pelan ke saya sebagai ibunya.",
       reactionCount: 18,
-      ctaLabel: "Bantu Mom lain",
+      ctaLabel: "Setuju",
     },
     {
       id: "ts2",
@@ -83,7 +83,7 @@ export const mockLandingData: LandingPageData = {
       message:
         "Saya ambil paket Comfort Breath saat anak lagi pilek dan tidurnya mulai terganggu. Terapis datang tepat waktu, alatnya rapi, dan prosesnya tenang. Setelah sesi selesai, napas anak terasa lebih lega dan saya jadi lebih tenang juga.",
       reactionCount: 12,
-      ctaLabel: "Bantu Mom lain",
+      ctaLabel: "Setuju",
     },
     {
       id: "ts3",
@@ -95,7 +95,7 @@ export const mockLandingData: LandingPageData = {
       message:
         "Awalnya saya khawatir karena anak lagi susah tidur dan perutnya sering tidak nyaman. Setelah pediatric massage, badannya lebih rileks dan malamnya tidur lebih panjang. Terapisnya juga sabar menjelaskan apa yang dilakukan selama sesi.",
       reactionCount: 9,
-      ctaLabel: "Bantu Mom lain",
+      ctaLabel: "Setuju",
     },
   ],
   featuredTreatments: [

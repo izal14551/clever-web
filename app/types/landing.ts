@@ -49,6 +49,8 @@ export interface TreatmentData {
   name: string;
   description: string;
   imageUrl?: string;
+  href?: string;
+  recommendationCount?: number;
 }
 
 export interface TestimonialData {

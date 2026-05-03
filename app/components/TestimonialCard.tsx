@@ -47,7 +47,7 @@ export function TestimonialCard({
         />
 
         <p className="mt-4 text-xs text-[#9a856f]">
-          Direkomendasikan oleh {testimonial.reactionCount} Mom
+          Disetujui oleh {testimonial.reactionCount} Mom
         </p>
       </div>
 
@@ -57,7 +57,7 @@ export function TestimonialCard({
           className="flex w-full items-center justify-center gap-2 text-base font-medium text-[#a68b6d]"
         >
           <Heart size={18} className="fill-current" />
-          <span>{testimonial.ctaLabel}</span>
+          <span>{testimonial.ctaLabel || "Setuju"}</span>
         </button>
       </div>
     </article>
