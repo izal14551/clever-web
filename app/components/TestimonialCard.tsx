@@ -1,3 +1,6 @@
+"use client";
+
+import { useState } from "react";
 import { Ellipsis, Heart, UserCircle2 } from "lucide-react";
 import { ReadMoreText } from "./ReadMoreText";
 import { TestimonialData } from "../types/landing";
@@ -11,6 +14,18 @@ export function TestimonialCard({
   testimonial,
   compact = false,
 }: TestimonialCardProps) {
+  const [reactionCount, setReactionCount] = useState(testimonial.reactionCount);
+  const [hasHelped, setHasHelped] = useState(false);
+
+  const handleHelpMom = () => {
+    if (hasHelped) {
+      return;
+    }
+
+    setHasHelped(true);
+    setReactionCount((current) => current + 1);
+  };
+
   return (
     <article
       className={`flex flex-col rounded-[20px] border border-[#f0e1cf] bg-white shadow-[0_14px_34px_rgba(166,139,109,0.14)] ${compact ? "w-[248px] shrink-0" : "w-full"}`}
@@ -47,16 +62,26 @@ export function TestimonialCard({
         />
 
         <p className="mt-4 text-xs text-[#9a856f]">
-          Dibantu oleh {testimonial.reactionCount} Mom
+          Dibantu oleh {reactionCount} Mom
         </p>
       </div>
 
       <div className="border-t border-[#f3e7d9] px-4 py-3">
         <button
           type="button"
-          className="flex w-full items-center justify-center gap-2 text-base font-medium text-[#a68b6d]"
+          onClick={handleHelpMom}
+          disabled={hasHelped}
+          className={`flex w-full items-center justify-center gap-2 text-base font-medium transition disabled:cursor-not-allowed ${
+            hasHelped ? "text-[#c65f51]" : "text-[#a68b6d] hover:text-[#c65f51]"
+          }`}
+          aria-pressed={hasHelped}
+          aria-label={
+            hasHelped
+              ? "Sudah bantu Mom lain"
+              : "Bantu Mom lain dengan cerita ini"
+          }
         >
-          <Heart size={18} className="fill-current" />
+          <Heart size={18} className={hasHelped ? "fill-current" : undefined} />
           <span>{testimonial.ctaLabel || "Bantu Mom lain"}</span>
         </button>
       </div>
