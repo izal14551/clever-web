@@ -2,9 +2,9 @@
 
 import { useState } from "react";
 import { Heart } from "lucide-react";
+import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSession } from "next-auth/react";
-import { ProgressLink as Link, useRouteProgress } from "./RouteProgress";
 import type { ServiceRecommendationSummary } from "../lib/serviceRecommendations";
 
 interface ServiceRecommendationButtonProps {
@@ -18,24 +18,24 @@ export function ServiceRecommendationButton({
 }: ServiceRecommendationButtonProps) {
   const pathname = usePathname();
   const { status: sessionStatus } = useSession();
-  const routeProgress = useRouteProgress();
   const [recommendation, setRecommendation] = useState(initialRecommendation);
   const [isSaving, setIsSaving] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
   const handleRecommend = async () => {
-    if (sessionStatus !== "authenticated") {
+    if (
+      sessionStatus !== "authenticated" ||
+      recommendation.recommendedByCurrentUser
+    ) {
       return;
     }
 
-    const willRecommend = !recommendation.recommendedByCurrentUser;
-    routeProgress.start();
     setIsSaving(true);
     setErrorMessage("");
 
     try {
       const response = await fetch("/api/service-recommendations", {
-        method: willRecommend ? "POST" : "DELETE",
+        method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
@@ -47,9 +47,7 @@ export function ServiceRecommendationButton({
         const message =
           isMessagePayload(payload) && payload.message
             ? payload.message
-            : willRecommend
-              ? "Rekomendasi belum bisa disimpan."
-              : "Rekomendasi belum bisa dibatalkan.";
+            : "Rekomendasi belum bisa disimpan.";
         throw new Error(message);
       }
 
@@ -58,13 +56,10 @@ export function ServiceRecommendationButton({
       setErrorMessage(
         error instanceof Error
           ? error.message
-          : willRecommend
-            ? "Rekomendasi belum bisa disimpan."
-            : "Rekomendasi belum bisa dibatalkan.",
+          : "Rekomendasi belum bisa disimpan.",
       );
     } finally {
       setIsSaving(false);
-      routeProgress.finish();
     }
   };
 
@@ -90,17 +85,17 @@ export function ServiceRecommendationButton({
       <button
         type="button"
         onClick={handleRecommend}
-        disabled={isSaving}
-        className={`inline-flex h-10 cursor-pointer items-center justify-center gap-2 rounded-md border px-3 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-70 ${
+        disabled={recommendation.recommendedByCurrentUser || isSaving}
+        className={`inline-flex h-10 items-center justify-center gap-2 rounded-md border px-3 text-sm font-semibold transition disabled:cursor-not-allowed ${
           recommendation.recommendedByCurrentUser
-            ? "border-[#f1c8c1] bg-[#fff2ef] text-[#c65f51] hover:border-[#d27a6a] hover:bg-[#ffe8e3]"
+            ? "border-[#f1c8c1] bg-[#fff2ef] text-[#c65f51]"
             : "border-[#eadbc9] bg-white text-[#7b6b5b] hover:border-[#d27a6a] hover:text-[#c65f51]"
         }`}
         aria-pressed={recommendation.recommendedByCurrentUser}
         aria-label={
           recommendation.recommendedByCurrentUser
-            ? "Direkomendasikan"
-            : "Rekomendasikan"
+            ? "Layanan sudah direkomendasikan"
+            : "Rekomendasikan layanan"
         }
       >
         <Heart
@@ -110,11 +105,9 @@ export function ServiceRecommendationButton({
           }
         />
         <span>
-          {isSaving
-            ? "Memproses"
-            : recommendation.recommendedByCurrentUser
-              ? "Direkomendasikan"
-              : "Rekomendasikan"}
+          {recommendation.recommendedByCurrentUser
+            ? "Direkomendasikan"
+            : "Rekomendasikan"}
         </span>
         <span>{recommendation.recommendationCount}</span>
       </button>

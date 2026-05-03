@@ -67,28 +67,6 @@ export async function addServiceRecommendation(input: {
   return buildSummary(input.serviceId, store, input.userId);
 }
 
-export async function removeServiceRecommendation(input: {
-  serviceId: string;
-  userId: string;
-}): Promise<ServiceRecommendationSummary> {
-  const remoteSummary = await removeRemoteServiceRecommendation(input);
-  if (remoteSummary) {
-    return remoteSummary;
-  }
-
-  if (isReadOnlyDeployment()) {
-    throw new Error("Service recommendation storage is not configured.");
-  }
-
-  const store = await readRecommendationStore();
-  const recommendedUserIds = new Set(store[input.serviceId] || []);
-  recommendedUserIds.delete(input.userId);
-  store[input.serviceId] = Array.from(recommendedUserIds);
-  await writeRecommendationStore(store);
-
-  return buildSummary(input.serviceId, store, input.userId);
-}
-
 function buildSummary(
   serviceId: string,
   store: ServiceRecommendationStore,
@@ -124,7 +102,7 @@ async function fetchRemoteServiceRecommendation(params: {
         serviceId: params.serviceId,
         viewerUserId: params.viewerUserId,
       },
-      { noStore: true },
+      { noStore: false },
     );
 
     return isServiceRecommendationSummary(response.recommendation)
@@ -152,7 +130,7 @@ async function fetchRemoteServiceRecommendations(): Promise<
       {
         action: "getAllServiceRecommendations",
       },
-      { noStore: true },
+      { noStore: false },
     );
 
     return Array.isArray(response.recommendations)
@@ -176,79 +154,35 @@ async function addRemoteServiceRecommendation(input: {
     return null;
   }
 
-  try {
-    const response = await postToAppsScript(
-      {
-        action: "addServiceRecommendation",
-        serviceId: input.serviceId,
-        userId: input.userId,
-      },
-      { noStore: true },
-    );
+  const response = await postToAppsScript(
+    {
+      action: "addServiceRecommendation",
+      serviceId: input.serviceId,
+      userId: input.userId,
+    },
+    { noStore: true },
+  );
 
-    return isServiceRecommendationSummary(response.recommendation)
-      ? response.recommendation
-      : null;
-  } catch (error) {
-    if (error instanceof Error && error.message === "Unsupported action") {
-      return null;
-    }
-
-    console.error("Gagal menyimpan rekomendasi service ke spreadsheet:", error);
-    throw error;
-  }
-}
-
-async function removeRemoteServiceRecommendation(input: {
-  serviceId: string;
-  userId: string;
-}): Promise<ServiceRecommendationSummary | null> {
-  if (!hasRemoteRecommendationStore()) {
-    return null;
-  }
-
-  try {
-    const response = await postToAppsScript(
-      {
-        action: "removeServiceRecommendation",
-        serviceId: input.serviceId,
-        userId: input.userId,
-      },
-      { noStore: true },
-    );
-
-    return isServiceRecommendationSummary(response.recommendation)
-      ? response.recommendation
-      : null;
-  } catch (error) {
-    if (error instanceof Error && error.message === "Unsupported action") {
-      return null;
-    }
-
-    console.error("Gagal menghapus rekomendasi service dari spreadsheet:", error);
-    throw error;
-  }
+  return isServiceRecommendationSummary(response.recommendation)
+    ? response.recommendation
+    : null;
 }
 
 async function postToAppsScript(
   payload: Record<string, unknown>,
   options: { noStore: boolean },
 ): Promise<Record<string, unknown>> {
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 15000);
-
   const res = await fetch(getAppsScriptUrl(), {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
-    signal: controller.signal,
     cache: options.noStore ? "no-store" : "force-cache",
     body: JSON.stringify({
       apiKey: getAppsScriptApiKey(),
       ...payload,
     }),
-  }).finally(() => clearTimeout(timeout));
+  });
 
   const response = (await res.json()) as Record<string, unknown>;
   if (!res.ok || response.ok !== true) {

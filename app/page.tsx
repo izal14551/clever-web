@@ -14,14 +14,17 @@ import { getLandingData } from "./lib/landing";
 import { formatCommentTimeAgo } from "./lib/commentTime";
 import { getServiceListData } from "./services/serviceData";
 import { getAllServiceComments } from "./lib/serviceComments";
+import { getAllServiceRecommendations } from "./lib/serviceRecommendations";
 import type { TestimonialData } from "./types/landing";
 
 export default async function LandingPage() {
-  const [data, serviceItems, storedComments] = await Promise.all([
-    getLandingData(),
-    getServiceListData(),
-    getAllServiceComments(),
-  ]);
+  const [data, serviceItems, storedComments, serviceRecommendations] =
+    await Promise.all([
+      getLandingData(),
+      getServiceListData(),
+      getAllServiceComments(),
+      getAllServiceRecommendations(),
+    ]);
 
   const {
     hero,
@@ -50,11 +53,31 @@ export default async function LandingPage() {
         title: service?.title || "Komentar Mom",
         message: comment.message,
         reactionCount: comment.likeCount,
-        ctaLabel: "Komentar Mom",
+        ctaLabel: "Setuju",
       };
     }),
-    ...testimonials,
+    ...testimonials.map((testimonial) => ({
+      ...testimonial,
+      ctaLabel: "Setuju",
+    })),
   ];
+  const recommendationMap = new Map(
+    serviceRecommendations.map((recommendation) => [
+      recommendation.serviceId,
+      recommendation.recommendationCount,
+    ]),
+  );
+  const favoriteTreatments = serviceItems
+    .map((service) => ({
+      id: service.id,
+      name: service.title,
+      description: service.category || service.description,
+      imageUrl: service.imageUrl,
+      href: `/services/${service.id}`,
+      recommendationCount: recommendationMap.get(service.id) || 0,
+    }))
+    .sort((a, b) => b.recommendationCount - a.recommendationCount)
+    .slice(0, 5);
 
   return (
     <main className="max-w-md mx-auto bg-white min-h-screen pb-10 font-sans shadow-md relative">
@@ -102,7 +125,11 @@ export default async function LandingPage() {
         </div>
       </section>
 
-      <FeaturedTreatments treatments={featuredTreatments} />
+      <FeaturedTreatments
+        treatments={
+          favoriteTreatments.length > 0 ? favoriteTreatments : featuredTreatments
+        }
+      />
       
       <TestimonialShowcase testimonials={allFeedback} />
 
