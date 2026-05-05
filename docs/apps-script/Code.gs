@@ -17,6 +17,7 @@ var SHEETS = {
   SERVICE_COMMENTS: "service_comments",
   SERVICE_COMMENT_LIKES: "service_comment_likes",
   SERVICE_RECOMMENDATIONS: "service_recommendations",
+  TESTIMONIAL_REACTIONS: "testimonial_reactions",
 };
 
 function doGet(e) {
@@ -86,6 +87,21 @@ function doPost(e) {
     if (action === "removeServiceRecommendation") {
       requirePrivateAccess_(body);
       return jsonOutput_(removeServiceRecommendation_(body));
+    }
+
+    if (action === "getTestimonialReaction") {
+      requirePrivateAccess_(body);
+      return jsonOutput_(getTestimonialReaction_(body));
+    }
+
+    if (action === "addTestimonialReaction") {
+      requirePrivateAccess_(body);
+      return jsonOutput_(addTestimonialReaction_(body));
+    }
+
+    if (action === "removeTestimonialReaction") {
+      requirePrivateAccess_(body);
+      return jsonOutput_(removeTestimonialReaction_(body));
     }
 
     return jsonOutput_({
@@ -559,6 +575,89 @@ function removeServiceRecommendation_(payload) {
   }
 }
 
+function getTestimonialReaction_(payload) {
+  validateRequiredText_(payload.testimonialId, "testimonialId");
+
+  return {
+    ok: true,
+    reaction: buildTestimonialReactionSummary_(
+      String(payload.testimonialId || "").trim(),
+      payload.viewerUserId,
+    ),
+  };
+}
+
+function addTestimonialReaction_(payload) {
+  validateRequiredText_(payload.testimonialId, "testimonialId");
+  validateRequiredText_(payload.userId, "userId");
+
+  var lock = LockService.getScriptLock();
+  lock.waitLock(10000);
+
+  try {
+    var testimonialId = String(payload.testimonialId || "").trim().slice(0, 160);
+    var userId = String(payload.userId || "").trim();
+    var sheet = getOrCreateSheet_(SHEETS.TESTIMONIAL_REACTIONS, [
+      "testimonialId",
+      "userId",
+      "createdAt",
+    ]);
+    var reactions = getTestimonialReactionRows_();
+    var alreadyReacted = reactions.some(function (reaction) {
+      return reaction.testimonialId === testimonialId && reaction.userId === userId;
+    });
+
+    if (!alreadyReacted) {
+      sheet.appendRow([testimonialId, userId, new Date().toISOString()]);
+      reactions.push({
+        testimonialId: testimonialId,
+        userId: userId,
+      });
+    }
+
+    return {
+      ok: true,
+      reaction: buildTestimonialReactionSummaryFromRows_(
+        testimonialId,
+        userId,
+        reactions,
+      ),
+    };
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+function removeTestimonialReaction_(payload) {
+  validateRequiredText_(payload.testimonialId, "testimonialId");
+  validateRequiredText_(payload.userId, "userId");
+
+  var lock = LockService.getScriptLock();
+  lock.waitLock(10000);
+
+  try {
+    var testimonialId = String(payload.testimonialId || "").trim().slice(0, 160);
+    var userId = String(payload.userId || "").trim();
+    deleteMatchingRows_(
+      SHEETS.TESTIMONIAL_REACTIONS,
+      ["testimonialId", "userId", "createdAt"],
+      function (row) {
+        return (
+          String(row.testimonialId || "").trim() === testimonialId &&
+          String(row.userId || "").trim() === userId
+        );
+      },
+    );
+
+    return {
+      ok: true,
+      reaction: buildTestimonialReactionSummary_(testimonialId, userId),
+    };
+  } finally {
+    lock.releaseLock();
+  }
+}
+
 function getServiceCommentRows_(viewerUserId) {
   var normalizedViewerUserId = String(viewerUserId || "").trim();
   var likes = getServiceCommentLikeRows_();
@@ -634,6 +733,45 @@ function getServiceCommentLikeRows_() {
   }).filter(function (like) {
     return like.commentId && like.userId;
   });
+}
+
+function getTestimonialReactionRows_() {
+  return getSheetObjects_(SHEETS.TESTIMONIAL_REACTIONS).map(function (row) {
+    return {
+      testimonialId: String(row.testimonialId || "").trim(),
+      userId: String(row.userId || "").trim(),
+    };
+  }).filter(function (reaction) {
+    return reaction.testimonialId && reaction.userId;
+  });
+}
+
+function buildTestimonialReactionSummary_(testimonialId, viewerUserId) {
+  return buildTestimonialReactionSummaryFromRows_(
+    testimonialId,
+    viewerUserId,
+    getTestimonialReactionRows_(),
+  );
+}
+
+function buildTestimonialReactionSummaryFromRows_(testimonialId, viewerUserId, reactions) {
+  var normalizedTestimonialId = String(testimonialId || "").trim();
+  var normalizedViewerUserId = String(viewerUserId || "").trim();
+  var uniqueUserIds = {};
+
+  reactions.forEach(function (reaction) {
+    if (reaction.testimonialId === normalizedTestimonialId && reaction.userId) {
+      uniqueUserIds[reaction.userId] = true;
+    }
+  });
+
+  return {
+    testimonialId: normalizedTestimonialId,
+    reactionCount: Object.keys(uniqueUserIds).length,
+    reactedByCurrentUser: normalizedViewerUserId
+      ? uniqueUserIds[normalizedViewerUserId] === true
+      : false,
+  };
 }
 
 function countLikes_(likes, commentId) {
