@@ -62,6 +62,8 @@ export interface TestimonialData {
   title: string;
   message: string;
   reactionCount: number;
+  persistedReactionCount?: number;
+  reactedByCurrentUser?: boolean;
   ctaLabel: string;
 }
 

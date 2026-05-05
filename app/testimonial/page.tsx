@@ -1,4 +1,5 @@
 import { HeartHandshake, Quote } from "lucide-react";
+import { getServerSession } from "next-auth";
 import { BottomNav } from "../components/BottomNav";
 import { ProfileSubpageHeader } from "../components/ProfileSubpageHeader";
 import { TestimonialCard } from "../components/TestimonialCard";
@@ -6,10 +7,13 @@ import { formatCommentTimeAgo } from "../lib/commentTime";
 import { getLandingData } from "../lib/landing";
 import { getServiceListData } from "../services/serviceData";
 import { getAllServiceComments } from "../lib/serviceComments";
+import { authOptions } from "../lib/auth";
+import { getTestimonialReaction } from "../lib/testimonialReactions";
 import type { TestimonialData } from "../types/landing";
 
 export default async function TestimonialPage() {
-  const [data, services, storedComments] = await Promise.all([
+  const [session, data, services, storedComments] = await Promise.all([
+    getServerSession(authOptions),
     getLandingData(),
     getServiceListData(),
     getAllServiceComments(),
@@ -36,6 +40,25 @@ export default async function TestimonialPage() {
       ctaLabel: "Bantu Mom lain",
     })),
   ];
+  const reactions = await Promise.all(
+    testimonials.map((testimonial) =>
+      getTestimonialReaction(testimonial.id, session?.user?.id),
+    ),
+  );
+  const reactionMap = new Map(
+    reactions.map((reaction) => [reaction.testimonialId, reaction]),
+  );
+  const testimonialsWithReactionState = testimonials.map((testimonial) => {
+    const reaction = reactionMap.get(testimonial.id);
+
+    return {
+      ...testimonial,
+      persistedReactionCount: reaction?.reactionCount || 0,
+      reactionCount:
+        testimonial.reactionCount + (reaction?.reactionCount || 0),
+      reactedByCurrentUser: reaction?.reactedByCurrentUser || false,
+    };
+  });
 
   return (
     <main className="relative mx-auto min-h-screen max-w-md bg-white pb-24 font-sans shadow-md">
@@ -58,14 +81,14 @@ export default async function TestimonialPage() {
             Kumpulan pengalaman dari ibu yang sudah mencoba layanan treatment, konsultasi, dan pendampingan kami di rumah.
           </p>
           <div className="relative z-10 mt-4 inline-flex items-center rounded-full bg-white/80 px-3 py-1.5 text-xs font-semibold text-[#a68b6d]">
-            {testimonials.length} testimonial pilihan
+            {testimonialsWithReactionState.length} testimonial pilihan
           </div>
         </div>
       </section>
 
       <section className="-mt-2 px-6 pb-6">
         <div className="space-y-4">
-          {testimonials.map((testimonial) => (
+          {testimonialsWithReactionState.map((testimonial) => (
             <TestimonialCard key={testimonial.id} testimonial={testimonial} />
           ))}
         </div>
