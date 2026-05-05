@@ -16,6 +16,7 @@ var SHEETS = {
   MEMBER_MENUS: "member_menus",
   SERVICE_COMMENTS: "service_comments",
   SERVICE_COMMENT_LIKES: "service_comment_likes",
+  SERVICE_RECOMMENDATIONS: "service_recommendations",
 };
 
 function doGet(e) {
@@ -60,6 +61,21 @@ function doPost(e) {
     if (action === "addServiceCommentLike") {
       requirePrivateAccess_(body);
       return jsonOutput_(addServiceCommentLike_(body));
+    }
+
+    if (action === "getServiceRecommendation") {
+      requirePrivateAccess_(body);
+      return jsonOutput_(getServiceRecommendation_(body));
+    }
+
+    if (action === "getAllServiceRecommendations") {
+      requirePrivateAccess_(body);
+      return jsonOutput_(getAllServiceRecommendations_(body));
+    }
+
+    if (action === "addServiceRecommendation") {
+      requirePrivateAccess_(body);
+      return jsonOutput_(addServiceRecommendation_(body));
     }
 
     return jsonOutput_({
@@ -400,6 +416,75 @@ function addServiceCommentLike_(payload) {
   }
 }
 
+function getServiceRecommendation_(payload) {
+  validateRequiredText_(payload.serviceId, "serviceId");
+
+  return {
+    ok: true,
+    recommendation: buildServiceRecommendationSummary_(
+      String(payload.serviceId || "").trim(),
+      payload.viewerUserId,
+    ),
+  };
+}
+
+function getAllServiceRecommendations_(payload) {
+  var viewerUserId = payload ? payload.viewerUserId : "";
+  var serviceIds = {};
+
+  getServiceRecommendationRows_().forEach(function (recommendation) {
+    serviceIds[recommendation.serviceId] = true;
+  });
+
+  return {
+    ok: true,
+    recommendations: Object.keys(serviceIds).map(function (serviceId) {
+      return buildServiceRecommendationSummary_(serviceId, viewerUserId);
+    }),
+  };
+}
+
+function addServiceRecommendation_(payload) {
+  validateRequiredText_(payload.serviceId, "serviceId");
+  validateRequiredText_(payload.userId, "userId");
+
+  var lock = LockService.getScriptLock();
+  lock.waitLock(10000);
+
+  try {
+    var serviceId = String(payload.serviceId || "").trim().slice(0, 80);
+    var userId = String(payload.userId || "").trim();
+    var sheet = getOrCreateSheet_(SHEETS.SERVICE_RECOMMENDATIONS, [
+      "serviceId",
+      "userId",
+      "createdAt",
+    ]);
+    var recommendations = getServiceRecommendationRows_();
+    var alreadyRecommended = recommendations.some(function (recommendation) {
+      return recommendation.serviceId === serviceId && recommendation.userId === userId;
+    });
+
+    if (!alreadyRecommended) {
+      sheet.appendRow([serviceId, userId, new Date().toISOString()]);
+      recommendations.push({
+        serviceId: serviceId,
+        userId: userId,
+      });
+    }
+
+    return {
+      ok: true,
+      recommendation: buildServiceRecommendationSummaryFromRows_(
+        serviceId,
+        userId,
+        recommendations,
+      ),
+    };
+  } finally {
+    lock.releaseLock();
+  }
+}
+
 function getServiceCommentRows_(viewerUserId) {
   var normalizedViewerUserId = String(viewerUserId || "").trim();
   var likes = getServiceCommentLikeRows_();
@@ -425,6 +510,45 @@ function getServiceCommentRows_(viewerUserId) {
   }).filter(function (comment) {
     return comment.id && comment.serviceId && comment.author && comment.message && comment.createdAt;
   });
+}
+
+function getServiceRecommendationRows_() {
+  return getSheetObjects_(SHEETS.SERVICE_RECOMMENDATIONS).map(function (row) {
+    return {
+      serviceId: String(row.serviceId || "").trim(),
+      userId: String(row.userId || "").trim(),
+    };
+  }).filter(function (recommendation) {
+    return recommendation.serviceId && recommendation.userId;
+  });
+}
+
+function buildServiceRecommendationSummary_(serviceId, viewerUserId) {
+  return buildServiceRecommendationSummaryFromRows_(
+    serviceId,
+    viewerUserId,
+    getServiceRecommendationRows_(),
+  );
+}
+
+function buildServiceRecommendationSummaryFromRows_(serviceId, viewerUserId, recommendations) {
+  var normalizedServiceId = String(serviceId || "").trim();
+  var normalizedViewerUserId = String(viewerUserId || "").trim();
+  var uniqueUserIds = {};
+
+  recommendations.forEach(function (recommendation) {
+    if (recommendation.serviceId === normalizedServiceId && recommendation.userId) {
+      uniqueUserIds[recommendation.userId] = true;
+    }
+  });
+
+  return {
+    serviceId: normalizedServiceId,
+    recommendationCount: Object.keys(uniqueUserIds).length,
+    recommendedByCurrentUser: normalizedViewerUserId
+      ? uniqueUserIds[normalizedViewerUserId] === true
+      : false,
+  };
 }
 
 function getServiceCommentLikeRows_() {
