@@ -99,8 +99,8 @@ export function ServiceRecommendationButton({
         aria-pressed={recommendation.recommendedByCurrentUser}
         aria-label={
           recommendation.recommendedByCurrentUser
-            ? "Direkomendasikan"
-            : "Rekomendasikan"
+            ? "Batalkan rekomendasi layanan"
+            : "Rekomendasikan layanan"
         }
       >
         <Heart
@@ -113,7 +113,7 @@ export function ServiceRecommendationButton({
           {isSaving
             ? "Memproses"
             : recommendation.recommendedByCurrentUser
-              ? "Direkomendasikan"
+              ? "Batalkan rekomendasi"
               : "Rekomendasikan"}
         </span>
         <span>{recommendation.recommendationCount}</span>

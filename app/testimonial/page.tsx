@@ -8,7 +8,7 @@ import { getLandingData } from "../lib/landing";
 import { getServiceListData } from "../services/serviceData";
 import { getAllServiceComments } from "../lib/serviceComments";
 import { authOptions } from "../lib/auth";
-import { getTestimonialReaction } from "../lib/testimonialReactions";
+import { getTestimonialReactions } from "../lib/testimonialReactions";
 import type { TestimonialData } from "../types/landing";
 
 export default async function TestimonialPage() {
@@ -40,10 +40,9 @@ export default async function TestimonialPage() {
       ctaLabel: "Bantu Mom lain",
     })),
   ];
-  const reactions = await Promise.all(
-    testimonials.map((testimonial) =>
-      getTestimonialReaction(testimonial.id, session?.user?.id),
-    ),
+  const reactions = await getTestimonialReactions(
+    testimonials.map((testimonial) => testimonial.id),
+    session?.user?.id,
   );
   const reactionMap = new Map(
     reactions.map((reaction) => [reaction.testimonialId, reaction]),
