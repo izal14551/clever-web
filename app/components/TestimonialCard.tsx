@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Ellipsis, Heart, UserCircle2 } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { useSession } from "next-auth/react";
@@ -20,42 +20,14 @@ export function TestimonialCard({
   const pathname = usePathname();
   const { status: sessionStatus } = useSession();
   const routeProgress = useRouteProgress();
-  const [storedReactionCount, setStoredReactionCount] = useState(0);
-  const [hasHelped, setHasHelped] = useState(false);
+  const baseReactionCount =
+    testimonial.reactionCount - (testimonial.persistedReactionCount || 0);
+  const [reactionCount, setReactionCount] = useState(testimonial.reactionCount);
+  const [hasHelped, setHasHelped] = useState(
+    testimonial.reactedByCurrentUser === true,
+  );
   const [isSaving, setIsSaving] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
-  const reactionCount = testimonial.reactionCount + storedReactionCount;
-
-  useEffect(() => {
-    let isActive = true;
-
-    async function loadReaction() {
-      try {
-        const params = new URLSearchParams({
-          testimonialId: testimonial.id,
-        });
-        const response = await fetch(`/api/testimonial-reactions?${params}`, {
-          cache: "no-store",
-        });
-        const payload: unknown = await response.json();
-
-        if (!response.ok || !isReactionPayload(payload) || !isActive) {
-          return;
-        }
-
-        setStoredReactionCount(payload.reaction.reactionCount);
-        setHasHelped(payload.reaction.reactedByCurrentUser);
-      } catch {
-        // Keep sheet-provided count when the reaction endpoint is unavailable.
-      }
-    }
-
-    loadReaction();
-
-    return () => {
-      isActive = false;
-    };
-  }, [sessionStatus, testimonial.id]);
 
   const handleHelpMom = async () => {
     if (sessionStatus !== "authenticated") {
@@ -87,7 +59,7 @@ export function TestimonialCard({
         throw new Error(message);
       }
 
-      setStoredReactionCount(payload.reaction.reactionCount);
+      setReactionCount(baseReactionCount + payload.reaction.reactionCount);
       setHasHelped(payload.reaction.reactedByCurrentUser);
     } catch (error) {
       setErrorMessage(

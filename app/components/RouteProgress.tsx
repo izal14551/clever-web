@@ -121,7 +121,10 @@ export function RouteProgressProvider({ children }: { children: ReactNode }) {
         return;
       }
 
-      const anchor = (event.target as Element | null)?.closest("a[href]");
+      const target = event.target;
+      if (!(target instanceof Element)) return;
+
+      const anchor = target.closest("a[href]");
       if (!(anchor instanceof HTMLAnchorElement)) return;
 
       const nextUrl = new URL(anchor.href);

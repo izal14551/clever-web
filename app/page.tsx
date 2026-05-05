@@ -1,6 +1,7 @@
 import React from "react";
 import Link from "next/link";
 import { Search } from "lucide-react";
+import { getServerSession } from "next-auth";
 import { Hero } from "./components/Hero";
 import { ConsultationCard } from "./components/ConsultationCard";
 import { ServiceGrid } from "./components/ServiceGrid";
@@ -15,13 +16,16 @@ import { formatCommentTimeAgo } from "./lib/commentTime";
 import { getServiceListData } from "./services/serviceData";
 import { getAllServiceComments } from "./lib/serviceComments";
 import { getAllServiceRecommendations } from "./lib/serviceRecommendations";
+import { authOptions } from "./lib/auth";
+import { getTestimonialReaction } from "./lib/testimonialReactions";
 import type { TestimonialData } from "./types/landing";
 
 export const dynamic = "force-dynamic";
 
 export default async function LandingPage() {
-  const [data, serviceItems, storedComments, serviceRecommendations] =
+  const [session, data, serviceItems, storedComments, serviceRecommendations] =
     await Promise.all([
+      getServerSession(authOptions),
       getLandingData(),
       getServiceListData(),
       getAllServiceComments(),
@@ -63,6 +67,25 @@ export default async function LandingPage() {
       ctaLabel: "Bantu Mom lain",
     })),
   ];
+  const feedbackReactions = await Promise.all(
+    allFeedback.map((testimonial) =>
+      getTestimonialReaction(testimonial.id, session?.user?.id),
+    ),
+  );
+  const feedbackReactionMap = new Map(
+    feedbackReactions.map((reaction) => [reaction.testimonialId, reaction]),
+  );
+  const feedbackWithReactionState = allFeedback.map((testimonial) => {
+    const reaction = feedbackReactionMap.get(testimonial.id);
+
+    return {
+      ...testimonial,
+      persistedReactionCount: reaction?.reactionCount || 0,
+      reactionCount:
+        testimonial.reactionCount + (reaction?.reactionCount || 0),
+      reactedByCurrentUser: reaction?.reactedByCurrentUser || false,
+    };
+  });
   const recommendationMap = new Map(
     serviceRecommendations.map((recommendation) => [
       recommendation.serviceId,
@@ -134,7 +157,7 @@ export default async function LandingPage() {
         }
       />
       
-      <TestimonialShowcase testimonials={allFeedback} />
+      <TestimonialShowcase testimonials={feedbackWithReactionState} />
 
       <DashboardFooter />
 

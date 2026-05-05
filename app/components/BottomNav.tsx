@@ -9,7 +9,7 @@ interface BottomNavProps {
 }
 
 export function BottomNav({ fixed = true }: BottomNavProps) {
-  const pathname = usePathname();
+  const currentPathname = usePathname() || "";
   const navClassName = fixed
     ? "fixed bottom-0 left-1/2 -translate-x-1/2 z-50"
     : "relative z-10";
@@ -18,30 +18,30 @@ export function BottomNav({ fixed = true }: BottomNavProps) {
     <nav
       className={`${navClassName} w-full max-w-md bg-white border-t border-[#eadbc9] px-6 py-3 flex justify-between items-center`}
     >
-      <NavItem icon={<Home size={22} />} label="Home" href="/" active={pathname === "/"} />
+      <NavItem icon={<Home size={22} />} label="Home" href="/" active={currentPathname === "/"} />
       <NavItem
         icon={<Grid size={22} />}
         label="Layanan"
         href="/services"
-        active={pathname.startsWith("/services")}
+        active={currentPathname.startsWith("/services")}
       />
       <NavItem
         icon={<Newspaper size={22} />}
         label="Artikel"
         href="/artikel"
-        active={pathname.startsWith("/artikel")}
+        active={currentPathname.startsWith("/artikel")}
       />
       <NavItem
         icon={<BadgePercent size={22} />}
         label="Promo"
         href="/promo"
-        active={pathname.startsWith("/promo")}
+        active={currentPathname.startsWith("/promo")}
       />
       <NavItem
         icon={<User size={22} />}
         label="Akun Saya"
         href="/menu"
-        active={pathname.startsWith("/menu")}
+        active={currentPathname.startsWith("/menu")}
       />
     </nav>
   );
