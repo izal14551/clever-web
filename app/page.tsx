@@ -17,7 +17,7 @@ import { getServiceListData } from "./services/serviceData";
 import { getAllServiceComments } from "./lib/serviceComments";
 import { getAllServiceRecommendations } from "./lib/serviceRecommendations";
 import { authOptions } from "./lib/auth";
-import { getTestimonialReaction } from "./lib/testimonialReactions";
+import { getTestimonialReactions } from "./lib/testimonialReactions";
 import type { TestimonialData } from "./types/landing";
 
 export const dynamic = "force-dynamic";
@@ -67,10 +67,9 @@ export default async function LandingPage() {
       ctaLabel: "Bantu Mom lain",
     })),
   ];
-  const feedbackReactions = await Promise.all(
-    allFeedback.map((testimonial) =>
-      getTestimonialReaction(testimonial.id, session?.user?.id),
-    ),
+  const feedbackReactions = await getTestimonialReactions(
+    allFeedback.map((testimonial) => testimonial.id),
+    session?.user?.id,
   );
   const feedbackReactionMap = new Map(
     feedbackReactions.map((reaction) => [reaction.testimonialId, reaction]),

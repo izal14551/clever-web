@@ -94,6 +94,11 @@ function doPost(e) {
       return jsonOutput_(getTestimonialReaction_(body));
     }
 
+    if (action === "getTestimonialReactions") {
+      requirePrivateAccess_(body);
+      return jsonOutput_(getTestimonialReactions_(body));
+    }
+
     if (action === "addTestimonialReaction") {
       requirePrivateAccess_(body);
       return jsonOutput_(addTestimonialReaction_(body));
@@ -584,6 +589,26 @@ function getTestimonialReaction_(payload) {
       String(payload.testimonialId || "").trim(),
       payload.viewerUserId,
     ),
+  };
+}
+
+function getTestimonialReactions_(payload) {
+  var testimonialIds = Array.isArray(payload.testimonialIds)
+    ? payload.testimonialIds.map(function (testimonialId) {
+        return String(testimonialId || "").trim();
+      }).filter(Boolean)
+    : [];
+  var reactions = getTestimonialReactionRows_();
+
+  return {
+    ok: true,
+    reactions: testimonialIds.map(function (testimonialId) {
+      return buildTestimonialReactionSummaryFromRows_(
+        testimonialId,
+        payload.viewerUserId,
+        reactions,
+      );
+    }),
   };
 }
 

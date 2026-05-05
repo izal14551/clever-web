@@ -234,17 +234,21 @@ async function postToAppsScript(
   payload: Record<string, unknown>,
   options: { noStore: boolean },
 ): Promise<Record<string, unknown>> {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 6000);
+
   const res = await fetch(getAppsScriptUrl(), {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
+    signal: controller.signal,
     cache: options.noStore ? "no-store" : "force-cache",
     body: JSON.stringify({
       apiKey: getAppsScriptApiKey(),
       ...payload,
     }),
-  });
+  }).finally(() => clearTimeout(timeout));
 
   const response = (await res.json()) as Record<string, unknown>;
   if (!res.ok || response.ok !== true) {

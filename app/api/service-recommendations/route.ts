@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-import { revalidatePath } from "next/cache";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/lib/auth";
 import {
@@ -62,9 +61,6 @@ async function handleRecommendationRequest(
             userId: session.user.id,
           });
 
-    revalidatePath("/");
-    revalidatePath(`/services/${serviceId}`);
-
     return NextResponse.json({ recommendation }, { status: 200 });
   } catch (error) {
     console.error("Gagal memproses rekomendasi service:", error);
@@ -81,11 +77,11 @@ async function handleRecommendationRequest(
 }
 
 function normalizeText(value: unknown, maxLength: number) {
-  if (typeof value !== "string") {
+  if (value === null || value === undefined) {
     return "";
   }
 
-  return value.trim().replace(/\s+/g, " ").slice(0, maxLength);
+  return String(value).trim().replace(/\s+/g, " ").slice(0, maxLength);
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
