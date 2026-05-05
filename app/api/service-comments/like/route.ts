@@ -77,11 +77,11 @@ async function handleCommentLikeRequest(
 }
 
 function normalizeText(value: unknown, maxLength: number) {
-  if (typeof value !== "string") {
+  if (value === null || value === undefined) {
     return "";
   }
 
-  return value.trim().replace(/\s+/g, " ").slice(0, maxLength);
+  return String(value).trim().replace(/\s+/g, " ").slice(0, maxLength);
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

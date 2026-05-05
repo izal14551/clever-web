@@ -17,6 +17,8 @@ import { getAllServiceComments } from "./lib/serviceComments";
 import { getAllServiceRecommendations } from "./lib/serviceRecommendations";
 import type { TestimonialData } from "./types/landing";
 
+export const dynamic = "force-dynamic";
+
 export default async function LandingPage() {
   const [data, serviceItems, storedComments, serviceRecommendations] =
     await Promise.all([
@@ -76,6 +78,7 @@ export default async function LandingPage() {
       href: `/services/${service.id}`,
       recommendationCount: recommendationMap.get(service.id) || 0,
     }))
+    .filter((service) => service.recommendationCount > 0)
     .sort((a, b) => b.recommendationCount - a.recommendationCount)
     .slice(0, 5);
 

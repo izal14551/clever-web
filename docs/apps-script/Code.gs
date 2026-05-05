@@ -440,7 +440,10 @@ function removeServiceCommentLike_(payload) {
       SHEETS.SERVICE_COMMENT_LIKES,
       ["commentId", "userId", "createdAt"],
       function (row) {
-        return row.commentId === commentId && row.userId === userId;
+        return (
+          String(row.commentId || "").trim() === commentId &&
+          String(row.userId || "").trim() === userId
+        );
       },
     );
 
@@ -540,7 +543,10 @@ function removeServiceRecommendation_(payload) {
       SHEETS.SERVICE_RECOMMENDATIONS,
       ["serviceId", "userId", "createdAt"],
       function (row) {
-        return row.serviceId === serviceId && row.userId === userId;
+        return (
+          String(row.serviceId || "").trim() === serviceId &&
+          String(row.userId || "").trim() === userId
+        );
       },
     );
 

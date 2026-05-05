@@ -214,16 +214,25 @@ async function addRemoteCommentLike(input: {
     return null;
   }
 
-  const response = await postToAppsScript(
-    {
-      action: "addServiceCommentLike",
-      commentId: input.commentId,
-      userId: input.userId,
-    },
-    { noStore: true },
-  );
+  try {
+    const response = await postToAppsScript(
+      {
+        action: "addServiceCommentLike",
+        commentId: input.commentId,
+        userId: input.userId,
+      },
+      { noStore: true },
+    );
 
-  return isServiceCommentLikeResult(response.like) ? response.like : null;
+    return isServiceCommentLikeResult(response.like) ? response.like : null;
+  } catch (error) {
+    if (error instanceof Error && error.message === "Unsupported action") {
+      return null;
+    }
+
+    console.error("Gagal menyimpan like komentar service ke spreadsheet:", error);
+    return null;
+  }
 }
 
 async function removeRemoteCommentLike(input: {
@@ -234,16 +243,25 @@ async function removeRemoteCommentLike(input: {
     return null;
   }
 
-  const response = await postToAppsScript(
-    {
-      action: "removeServiceCommentLike",
-      commentId: input.commentId,
-      userId: input.userId,
-    },
-    { noStore: true },
-  );
+  try {
+    const response = await postToAppsScript(
+      {
+        action: "removeServiceCommentLike",
+        commentId: input.commentId,
+        userId: input.userId,
+      },
+      { noStore: true },
+    );
 
-  return isServiceCommentLikeResult(response.like) ? response.like : null;
+    return isServiceCommentLikeResult(response.like) ? response.like : null;
+  } catch (error) {
+    if (error instanceof Error && error.message === "Unsupported action") {
+      return null;
+    }
+
+    console.error("Gagal menghapus like komentar service dari spreadsheet:", error);
+    return null;
+  }
 }
 
 async function addRemoteComment(
