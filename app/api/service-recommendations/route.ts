@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/lib/auth";
 import {
@@ -60,6 +61,9 @@ async function handleRecommendationRequest(
             serviceId,
             userId: session.user.id,
           });
+
+    revalidatePath("/");
+    revalidatePath(`/services/${serviceId}`);
 
     return NextResponse.json({ recommendation }, { status: 200 });
   } catch (error) {

@@ -124,7 +124,7 @@ async function fetchRemoteServiceRecommendation(params: {
         serviceId: params.serviceId,
         viewerUserId: params.viewerUserId,
       },
-      { noStore: false },
+      { noStore: true },
     );
 
     return isServiceRecommendationSummary(response.recommendation)
@@ -152,7 +152,7 @@ async function fetchRemoteServiceRecommendations(): Promise<
       {
         action: "getAllServiceRecommendations",
       },
-      { noStore: false },
+      { noStore: true },
     );
 
     return Array.isArray(response.recommendations)
