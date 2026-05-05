@@ -353,9 +353,9 @@ export function ServiceComments({
                   type="button"
                   onClick={() => handleLike(item.id)}
                   disabled={likingCommentId === item.id}
-                  className={`inline-flex h-9 items-center justify-center gap-1.5 rounded-md border px-3 text-xs font-semibold transition disabled:cursor-not-allowed ${
+                  className={`inline-flex h-9 cursor-pointer items-center justify-center gap-1.5 rounded-md border px-3 text-xs font-semibold transition disabled:cursor-not-allowed disabled:opacity-70 ${
                     item.likedByCurrentUser
-                      ? "border-[#f1c8c1] bg-[#fff2ef] text-[#c65f51]"
+                      ? "border-[#f1c8c1] bg-[#fff2ef] text-[#c65f51] hover:border-[#d27a6a] hover:bg-[#ffe8e3]"
                       : "border-[#eadbc9] bg-[#fffdf9] text-[#7b6b5b] hover:border-[#d27a6a] hover:text-[#c65f51]"
                   }`}
                   aria-pressed={item.likedByCurrentUser}
@@ -376,7 +376,7 @@ export function ServiceComments({
                     {likingCommentId === item.id
                       ? "Memproses"
                       : item.likedByCurrentUser
-                        ? "Sudah dibantu"
+                        ? "Sudah Bantu"
                         : "Bantu Mom lain"}
                   </span>
                 </button>

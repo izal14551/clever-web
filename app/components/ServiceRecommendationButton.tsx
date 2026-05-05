@@ -91,9 +91,9 @@ export function ServiceRecommendationButton({
         type="button"
         onClick={handleRecommend}
         disabled={isSaving}
-        className={`inline-flex h-10 items-center justify-center gap-2 rounded-md border px-3 text-sm font-semibold transition disabled:cursor-not-allowed ${
+        className={`inline-flex h-10 cursor-pointer items-center justify-center gap-2 rounded-md border px-3 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-70 ${
           recommendation.recommendedByCurrentUser
-            ? "border-[#f1c8c1] bg-[#fff2ef] text-[#c65f51]"
+            ? "border-[#f1c8c1] bg-[#fff2ef] text-[#c65f51] hover:border-[#d27a6a] hover:bg-[#ffe8e3]"
             : "border-[#eadbc9] bg-white text-[#7b6b5b] hover:border-[#d27a6a] hover:text-[#c65f51]"
         }`}
         aria-pressed={recommendation.recommendedByCurrentUser}
@@ -113,7 +113,7 @@ export function ServiceRecommendationButton({
           {isSaving
             ? "Memproses"
             : recommendation.recommendedByCurrentUser
-              ? "Direkomendasikan"
+              ? "Batalkan rekomendasi"
               : "Rekomendasikan"}
         </span>
         <span>{recommendation.recommendationCount}</span>
