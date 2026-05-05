@@ -1,16 +1,35 @@
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/lib/auth";
-import { addServiceCommentLike } from "@/app/lib/serviceComments";
+import {
+  addServiceCommentLike,
+  removeServiceCommentLike,
+} from "@/app/lib/serviceComments";
 
 export const runtime = "nodejs";
 
 export async function POST(request: Request) {
+  return handleCommentLikeRequest(request, "add");
+}
+
+export async function DELETE(request: Request) {
+  return handleCommentLikeRequest(request, "remove");
+}
+
+async function handleCommentLikeRequest(
+  request: Request,
+  operation: "add" | "remove",
+) {
   try {
     const session = await getServerSession(authOptions);
     if (!session?.user?.id) {
       return NextResponse.json(
-        { message: "Silakan login terlebih dahulu untuk memberi like." },
+        {
+          message:
+            operation === "add"
+              ? "Silakan login terlebih dahulu untuk memberi like."
+              : "Silakan login terlebih dahulu untuk membatalkan like.",
+        },
         { status: 401 },
       );
     }
@@ -31,19 +50,27 @@ export async function POST(request: Request) {
       );
     }
 
-    const like = await addServiceCommentLike({
-      commentId,
-      userId: session.user.id,
-    });
+    const like =
+      operation === "add"
+        ? await addServiceCommentLike({
+            commentId,
+            userId: session.user.id,
+          })
+        : await removeServiceCommentLike({
+            commentId,
+            userId: session.user.id,
+          });
 
     return NextResponse.json({ like }, { status: 200 });
   } catch (error) {
-    console.error("Gagal menyimpan like komentar service:", error);
+    console.error("Gagal memproses like komentar service:", error);
     const message =
       error instanceof Error &&
       error.message === "Comment storage is not configured."
         ? "Penyimpanan komentar belum dikonfigurasi di server."
-        : "Like belum bisa disimpan. Coba lagi nanti.";
+        : operation === "add"
+          ? "Like belum bisa disimpan. Coba lagi nanti."
+          : "Like belum bisa dibatalkan. Coba lagi nanti.";
 
     return NextResponse.json({ message }, { status: 500 });
   }

@@ -159,17 +159,18 @@ export function ServiceComments({
     const targetComment = localComments.find(
       (comment) => comment.id === commentId,
     );
-    if (!targetComment || targetComment.likedByCurrentUser) {
+    if (!targetComment) {
       return;
     }
 
+    const willLike = !targetComment.likedByCurrentUser;
     routeProgress.start();
     setLikingCommentId(commentId);
     setStatus({ type: "idle", message: "" });
 
     try {
       const response = await fetch("/api/service-comments/like", {
-        method: "POST",
+        method: willLike ? "POST" : "DELETE",
         headers: {
           "Content-Type": "application/json",
         },
@@ -181,7 +182,9 @@ export function ServiceComments({
         const errorMessage =
           isMessagePayload(payload) && payload.message
             ? payload.message
-            : "Like belum bisa disimpan.";
+            : willLike
+              ? "Like belum bisa disimpan."
+              : "Like belum bisa dibatalkan.";
         throw new Error(errorMessage);
       }
 
@@ -202,7 +205,9 @@ export function ServiceComments({
         message:
           error instanceof Error
             ? error.message
-            : "Like belum bisa disimpan.",
+            : willLike
+              ? "Like belum bisa disimpan."
+              : "Like belum bisa dibatalkan.",
       });
     } finally {
       setLikingCommentId(null);
@@ -347,9 +352,7 @@ export function ServiceComments({
                 <button
                   type="button"
                   onClick={() => handleLike(item.id)}
-                  disabled={
-                    item.likedByCurrentUser || likingCommentId === item.id
-                  }
+                  disabled={likingCommentId === item.id}
                   className={`inline-flex h-9 items-center justify-center gap-1.5 rounded-md border px-3 text-xs font-semibold transition disabled:cursor-not-allowed ${
                     item.likedByCurrentUser
                       ? "border-[#f1c8c1] bg-[#fff2ef] text-[#c65f51]"
@@ -358,7 +361,7 @@ export function ServiceComments({
                   aria-pressed={item.likedByCurrentUser}
                   aria-label={
                     item.likedByCurrentUser
-                      ? "Sudah bantu Mom lain dengan komentar ini"
+                      ? "Batalkan bantuan untuk komentar ini"
                       : "Bantu Mom lain dengan komentar ini"
                   }
                 >
@@ -369,7 +372,13 @@ export function ServiceComments({
                     }
                   />
                   <span>{item.reactionCount}</span>
-                  <span>Bantu Mom lain</span>
+                  <span>
+                    {likingCommentId === item.id
+                      ? "Memproses"
+                      : item.likedByCurrentUser
+                        ? "Sudah dibantu"
+                        : "Bantu Mom lain"}
+                  </span>
                 </button>
               </div>
             ) : null}

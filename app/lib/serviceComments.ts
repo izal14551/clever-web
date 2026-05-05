@@ -136,6 +136,32 @@ export async function addServiceCommentLike(input: {
   };
 }
 
+export async function removeServiceCommentLike(input: {
+  commentId: string;
+  userId: string;
+}): Promise<ServiceCommentLikeResult> {
+  const remoteLike = await removeRemoteCommentLike(input);
+  if (remoteLike) {
+    return remoteLike;
+  }
+
+  if (isReadOnlyDeployment()) {
+    throw new Error("Comment storage is not configured.");
+  }
+
+  const likes = await readLikeStore();
+  const likedUserIds = new Set(likes[input.commentId] || []);
+  likedUserIds.delete(input.userId);
+  likes[input.commentId] = Array.from(likedUserIds);
+  await writeLikeStore(likes);
+
+  return {
+    commentId: input.commentId,
+    likeCount: likes[input.commentId].length,
+    likedByCurrentUser: false,
+  };
+}
+
 function sortComments(comments: ServiceComment[]): ServiceComment[] {
   return comments.sort(
     (a, b) =>
@@ -191,6 +217,26 @@ async function addRemoteCommentLike(input: {
   const response = await postToAppsScript(
     {
       action: "addServiceCommentLike",
+      commentId: input.commentId,
+      userId: input.userId,
+    },
+    { noStore: true },
+  );
+
+  return isServiceCommentLikeResult(response.like) ? response.like : null;
+}
+
+async function removeRemoteCommentLike(input: {
+  commentId: string;
+  userId: string;
+}): Promise<ServiceCommentLikeResult | null> {
+  if (!hasRemoteCommentStore()) {
+    return null;
+  }
+
+  const response = await postToAppsScript(
+    {
+      action: "removeServiceCommentLike",
       commentId: input.commentId,
       userId: input.userId,
     },

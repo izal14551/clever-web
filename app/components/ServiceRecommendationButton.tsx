@@ -24,20 +24,18 @@ export function ServiceRecommendationButton({
   const [errorMessage, setErrorMessage] = useState("");
 
   const handleRecommend = async () => {
-    if (
-      sessionStatus !== "authenticated" ||
-      recommendation.recommendedByCurrentUser
-    ) {
+    if (sessionStatus !== "authenticated") {
       return;
     }
 
+    const willRecommend = !recommendation.recommendedByCurrentUser;
     routeProgress.start();
     setIsSaving(true);
     setErrorMessage("");
 
     try {
       const response = await fetch("/api/service-recommendations", {
-        method: "POST",
+        method: willRecommend ? "POST" : "DELETE",
         headers: {
           "Content-Type": "application/json",
         },
@@ -49,7 +47,9 @@ export function ServiceRecommendationButton({
         const message =
           isMessagePayload(payload) && payload.message
             ? payload.message
-            : "Rekomendasi belum bisa disimpan.";
+            : willRecommend
+              ? "Rekomendasi belum bisa disimpan."
+              : "Rekomendasi belum bisa dibatalkan.";
         throw new Error(message);
       }
 
@@ -58,7 +58,9 @@ export function ServiceRecommendationButton({
       setErrorMessage(
         error instanceof Error
           ? error.message
-          : "Rekomendasi belum bisa disimpan.",
+          : willRecommend
+            ? "Rekomendasi belum bisa disimpan."
+            : "Rekomendasi belum bisa dibatalkan.",
       );
     } finally {
       setIsSaving(false);
@@ -88,7 +90,7 @@ export function ServiceRecommendationButton({
       <button
         type="button"
         onClick={handleRecommend}
-        disabled={recommendation.recommendedByCurrentUser || isSaving}
+        disabled={isSaving}
         className={`inline-flex h-10 items-center justify-center gap-2 rounded-md border px-3 text-sm font-semibold transition disabled:cursor-not-allowed ${
           recommendation.recommendedByCurrentUser
             ? "border-[#f1c8c1] bg-[#fff2ef] text-[#c65f51]"
@@ -97,7 +99,7 @@ export function ServiceRecommendationButton({
         aria-pressed={recommendation.recommendedByCurrentUser}
         aria-label={
           recommendation.recommendedByCurrentUser
-            ? "Layanan sudah direkomendasikan"
+            ? "Batalkan rekomendasi layanan"
             : "Rekomendasikan layanan"
         }
       >
@@ -108,9 +110,11 @@ export function ServiceRecommendationButton({
           }
         />
         <span>
-          {recommendation.recommendedByCurrentUser
-            ? "Direkomendasikan"
-            : "Rekomendasikan"}
+          {isSaving
+            ? "Memproses"
+            : recommendation.recommendedByCurrentUser
+              ? "Direkomendasikan"
+              : "Rekomendasikan"}
         </span>
         <span>{recommendation.recommendationCount}</span>
       </button>
