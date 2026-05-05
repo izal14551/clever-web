@@ -139,7 +139,7 @@ export function TestimonialCard({
               {isSaving
                 ? "Memproses"
                 : hasHelped
-                  ? "Batalkan"
+                  ? "Sudah Bantu"
                   : testimonial.ctaLabel || "Bantu Mom lain"}
             </span>
           </button>
