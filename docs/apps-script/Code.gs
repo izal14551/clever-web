@@ -63,6 +63,11 @@ function doPost(e) {
       return jsonOutput_(addServiceCommentLike_(body));
     }
 
+    if (action === "removeServiceCommentLike") {
+      requirePrivateAccess_(body);
+      return jsonOutput_(removeServiceCommentLike_(body));
+    }
+
     if (action === "getServiceRecommendation") {
       requirePrivateAccess_(body);
       return jsonOutput_(getServiceRecommendation_(body));
@@ -76,6 +81,11 @@ function doPost(e) {
     if (action === "addServiceRecommendation") {
       requirePrivateAccess_(body);
       return jsonOutput_(addServiceRecommendation_(body));
+    }
+
+    if (action === "removeServiceRecommendation") {
+      requirePrivateAccess_(body);
+      return jsonOutput_(removeServiceRecommendation_(body));
     }
 
     return jsonOutput_({
@@ -416,6 +426,37 @@ function addServiceCommentLike_(payload) {
   }
 }
 
+function removeServiceCommentLike_(payload) {
+  validateRequiredText_(payload.commentId, "commentId");
+  validateRequiredText_(payload.userId, "userId");
+
+  var lock = LockService.getScriptLock();
+  lock.waitLock(10000);
+
+  try {
+    var commentId = String(payload.commentId || "").trim();
+    var userId = String(payload.userId || "").trim();
+    deleteMatchingRows_(
+      SHEETS.SERVICE_COMMENT_LIKES,
+      ["commentId", "userId", "createdAt"],
+      function (row) {
+        return row.commentId === commentId && row.userId === userId;
+      },
+    );
+
+    return {
+      ok: true,
+      like: {
+        commentId: commentId,
+        likeCount: countLikes_(getServiceCommentLikeRows_(), commentId),
+        likedByCurrentUser: false,
+      },
+    };
+  } finally {
+    lock.releaseLock();
+  }
+}
+
 function getServiceRecommendation_(payload) {
   validateRequiredText_(payload.serviceId, "serviceId");
 
@@ -479,6 +520,33 @@ function addServiceRecommendation_(payload) {
         userId,
         recommendations,
       ),
+    };
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+function removeServiceRecommendation_(payload) {
+  validateRequiredText_(payload.serviceId, "serviceId");
+  validateRequiredText_(payload.userId, "userId");
+
+  var lock = LockService.getScriptLock();
+  lock.waitLock(10000);
+
+  try {
+    var serviceId = String(payload.serviceId || "").trim().slice(0, 80);
+    var userId = String(payload.userId || "").trim();
+    deleteMatchingRows_(
+      SHEETS.SERVICE_RECOMMENDATIONS,
+      ["serviceId", "userId", "createdAt"],
+      function (row) {
+        return row.serviceId === serviceId && row.userId === userId;
+      },
+    );
+
+    return {
+      ok: true,
+      recommendation: buildServiceRecommendationSummary_(serviceId, userId),
     };
   } finally {
     lock.releaseLock();
@@ -635,6 +703,31 @@ function getOrCreateSheet_(sheetName, headers) {
   sheet = ss.insertSheet(sheetName);
   sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
   return sheet;
+}
+
+function deleteMatchingRows_(sheetName, defaultHeaders, predicate) {
+  var sheet = getOrCreateSheet_(sheetName, defaultHeaders);
+  var values = sheet.getDataRange().getValues();
+  if (!values || values.length < 2) return 0;
+
+  var headers = values[0].map(function (header) {
+    return String(header).trim();
+  });
+  var deletedCount = 0;
+
+  for (var rowIndex = values.length - 1; rowIndex >= 1; rowIndex -= 1) {
+    var row = {};
+    headers.forEach(function (header, columnIndex) {
+      row[header] = values[rowIndex][columnIndex];
+    });
+
+    if (predicate(row)) {
+      sheet.deleteRow(rowIndex + 1);
+      deletedCount += 1;
+    }
+  }
+
+  return deletedCount;
 }
 
 function parseJsonBody_(e) {

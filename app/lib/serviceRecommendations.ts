@@ -67,6 +67,28 @@ export async function addServiceRecommendation(input: {
   return buildSummary(input.serviceId, store, input.userId);
 }
 
+export async function removeServiceRecommendation(input: {
+  serviceId: string;
+  userId: string;
+}): Promise<ServiceRecommendationSummary> {
+  const remoteSummary = await removeRemoteServiceRecommendation(input);
+  if (remoteSummary) {
+    return remoteSummary;
+  }
+
+  if (isReadOnlyDeployment()) {
+    throw new Error("Service recommendation storage is not configured.");
+  }
+
+  const store = await readRecommendationStore();
+  const recommendedUserIds = new Set(store[input.serviceId] || []);
+  recommendedUserIds.delete(input.userId);
+  store[input.serviceId] = Array.from(recommendedUserIds);
+  await writeRecommendationStore(store);
+
+  return buildSummary(input.serviceId, store, input.userId);
+}
+
 function buildSummary(
   serviceId: string,
   store: ServiceRecommendationStore,
@@ -173,6 +195,37 @@ async function addRemoteServiceRecommendation(input: {
     }
 
     console.error("Gagal menyimpan rekomendasi service ke spreadsheet:", error);
+    return null;
+  }
+}
+
+async function removeRemoteServiceRecommendation(input: {
+  serviceId: string;
+  userId: string;
+}): Promise<ServiceRecommendationSummary | null> {
+  if (!hasRemoteRecommendationStore()) {
+    return null;
+  }
+
+  try {
+    const response = await postToAppsScript(
+      {
+        action: "removeServiceRecommendation",
+        serviceId: input.serviceId,
+        userId: input.userId,
+      },
+      { noStore: true },
+    );
+
+    return isServiceRecommendationSummary(response.recommendation)
+      ? response.recommendation
+      : null;
+  } catch (error) {
+    if (error instanceof Error && error.message === "Unsupported action") {
+      return null;
+    }
+
+    console.error("Gagal menghapus rekomendasi service dari spreadsheet:", error);
     return null;
   }
 }
