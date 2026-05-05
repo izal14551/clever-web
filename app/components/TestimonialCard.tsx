@@ -1,8 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Ellipsis, Heart, UserCircle2 } from "lucide-react";
+import { usePathname } from "next/navigation";
+import { useSession } from "next-auth/react";
 import { ReadMoreText } from "./ReadMoreText";
+import { ProgressLink as Link, useRouteProgress } from "./RouteProgress";
 import { TestimonialData } from "../types/landing";
 
 interface TestimonialCardProps {
@@ -14,16 +17,90 @@ export function TestimonialCard({
   testimonial,
   compact = false,
 }: TestimonialCardProps) {
-  const [reactionCount, setReactionCount] = useState(testimonial.reactionCount);
+  const pathname = usePathname();
+  const { status: sessionStatus } = useSession();
+  const routeProgress = useRouteProgress();
+  const [storedReactionCount, setStoredReactionCount] = useState(0);
   const [hasHelped, setHasHelped] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const reactionCount = testimonial.reactionCount + storedReactionCount;
 
-  const handleHelpMom = () => {
-    if (hasHelped) {
+  useEffect(() => {
+    let isActive = true;
+
+    async function loadReaction() {
+      try {
+        const params = new URLSearchParams({
+          testimonialId: testimonial.id,
+        });
+        const response = await fetch(`/api/testimonial-reactions?${params}`, {
+          cache: "no-store",
+        });
+        const payload: unknown = await response.json();
+
+        if (!response.ok || !isReactionPayload(payload) || !isActive) {
+          return;
+        }
+
+        setStoredReactionCount(payload.reaction.reactionCount);
+        setHasHelped(payload.reaction.reactedByCurrentUser);
+      } catch {
+        // Keep sheet-provided count when the reaction endpoint is unavailable.
+      }
+    }
+
+    loadReaction();
+
+    return () => {
+      isActive = false;
+    };
+  }, [sessionStatus, testimonial.id]);
+
+  const handleHelpMom = async () => {
+    if (sessionStatus !== "authenticated") {
       return;
     }
 
-    setHasHelped(true);
-    setReactionCount((current) => current + 1);
+    const willHelp = !hasHelped;
+    routeProgress.start();
+    setIsSaving(true);
+    setErrorMessage("");
+
+    try {
+      const response = await fetch("/api/testimonial-reactions", {
+        method: willHelp ? "POST" : "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ testimonialId: testimonial.id }),
+      });
+      const payload: unknown = await response.json();
+
+      if (!response.ok || !isReactionPayload(payload)) {
+        const message =
+          isMessagePayload(payload) && payload.message
+            ? payload.message
+            : willHelp
+              ? "Bantuan belum bisa disimpan."
+              : "Bantuan belum bisa dibatalkan.";
+        throw new Error(message);
+      }
+
+      setStoredReactionCount(payload.reaction.reactionCount);
+      setHasHelped(payload.reaction.reactedByCurrentUser);
+    } catch (error) {
+      setErrorMessage(
+        error instanceof Error
+          ? error.message
+          : willHelp
+            ? "Bantuan belum bisa disimpan."
+            : "Bantuan belum bisa dibatalkan.",
+      );
+    } finally {
+      setIsSaving(false);
+      routeProgress.finish();
+    }
   };
 
   return (
@@ -67,24 +144,72 @@ export function TestimonialCard({
       </div>
 
       <div className="border-t border-[#f3e7d9] px-4 py-3">
-        <button
-          type="button"
-          onClick={handleHelpMom}
-          disabled={hasHelped}
-          className={`flex w-full items-center justify-center gap-2 text-base font-medium transition disabled:cursor-not-allowed ${
-            hasHelped ? "text-[#c65f51]" : "text-[#a68b6d] hover:text-[#c65f51]"
-          }`}
-          aria-pressed={hasHelped}
-          aria-label={
-            hasHelped
-              ? "Sudah bantu Mom lain"
-              : "Bantu Mom lain dengan cerita ini"
-          }
-        >
-          <Heart size={18} className={hasHelped ? "fill-current" : undefined} />
-          <span>{testimonial.ctaLabel || "Bantu Mom lain"}</span>
-        </button>
+        {sessionStatus === "authenticated" ? (
+          <button
+            type="button"
+            onClick={handleHelpMom}
+            disabled={isSaving}
+            className={`flex w-full cursor-pointer items-center justify-center gap-2 text-base font-medium transition disabled:cursor-not-allowed disabled:opacity-70 ${
+              hasHelped ? "text-[#c65f51]" : "text-[#a68b6d] hover:text-[#c65f51]"
+            }`}
+            aria-pressed={hasHelped}
+            aria-label={
+              hasHelped
+                ? "Batalkan bantuan untuk cerita ini"
+                : "Bantu Mom lain dengan cerita ini"
+            }
+          >
+            <Heart
+              size={18}
+              className={hasHelped ? "fill-current" : undefined}
+            />
+            <span>
+              {isSaving
+                ? "Memproses"
+                : hasHelped
+                  ? "Batalkan"
+                  : testimonial.ctaLabel || "Bantu Mom lain"}
+            </span>
+          </button>
+        ) : (
+          <Link
+            href={`/login?callbackUrl=${encodeURIComponent(pathname || "/")}`}
+            className="flex w-full cursor-pointer items-center justify-center gap-2 text-base font-medium text-[#a68b6d] transition hover:text-[#c65f51]"
+          >
+            <Heart size={18} />
+            <span>{testimonial.ctaLabel || "Bantu Mom lain"}</span>
+          </Link>
+        )}
+        {errorMessage ? (
+          <p className="mt-2 text-center text-xs text-[#c05c4c]">
+            {errorMessage}
+          </p>
+        ) : null}
       </div>
     </article>
   );
+}
+
+function isReactionPayload(value: unknown): value is {
+  reaction: {
+    testimonialId: string;
+    reactionCount: number;
+    reactedByCurrentUser: boolean;
+  };
+} {
+  return (
+    isRecord(value) &&
+    isRecord(value.reaction) &&
+    typeof value.reaction.testimonialId === "string" &&
+    typeof value.reaction.reactionCount === "number" &&
+    typeof value.reaction.reactedByCurrentUser === "boolean"
+  );
+}
+
+function isMessagePayload(value: unknown): value is { message: string } {
+  return isRecord(value) && typeof value.message === "string";
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
 }

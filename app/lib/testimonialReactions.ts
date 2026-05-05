@@ -33,40 +33,6 @@ export async function getTestimonialReaction(
   return buildSummary(testimonialId, store, viewerUserId);
 }
 
-export async function getTestimonialReactions(
-  testimonialIds: string[],
-  viewerUserId?: string,
-): Promise<TestimonialReactionSummary[]> {
-  const uniqueTestimonialIds = Array.from(new Set(testimonialIds));
-  if (uniqueTestimonialIds.length === 0) {
-    return [];
-  }
-
-  const remoteSummaries = await fetchRemoteTestimonialReactions({
-    testimonialIds: uniqueTestimonialIds,
-    viewerUserId,
-  });
-  if (remoteSummaries) {
-    const summaryMap = new Map(
-      remoteSummaries.map((summary) => [summary.testimonialId, summary]),
-    );
-
-    return uniqueTestimonialIds.map(
-      (testimonialId) =>
-        summaryMap.get(testimonialId) || {
-          testimonialId,
-          reactionCount: 0,
-          reactedByCurrentUser: false,
-        },
-    );
-  }
-
-  const store = await readReactionStore();
-  return uniqueTestimonialIds.map((testimonialId) =>
-    buildSummary(testimonialId, store, viewerUserId),
-  );
-}
-
 export async function addTestimonialReaction(input: {
   testimonialId: string;
   userId: string;
@@ -152,37 +118,6 @@ async function fetchRemoteTestimonialReaction(params: {
     return isTestimonialReactionSummary(response.reaction)
       ? response.reaction
       : null;
-  } catch (error) {
-    if (error instanceof Error && error.message === "Unsupported action") {
-      return null;
-    }
-
-    console.error("Gagal mengambil reaksi testimonial dari spreadsheet:", error);
-    return null;
-  }
-}
-
-async function fetchRemoteTestimonialReactions(params: {
-  testimonialIds: string[];
-  viewerUserId?: string;
-}): Promise<TestimonialReactionSummary[] | null> {
-  if (!hasRemoteReactionStore()) {
-    return null;
-  }
-
-  try {
-    const response = await postToAppsScript(
-      {
-        action: "getTestimonialReactions",
-        testimonialIds: params.testimonialIds,
-        viewerUserId: params.viewerUserId,
-      },
-      { noStore: true },
-    );
-
-    return Array.isArray(response.reactions)
-      ? response.reactions.filter(isTestimonialReactionSummary)
-      : [];
   } catch (error) {
     if (error instanceof Error && error.message === "Unsupported action") {
       return null;
