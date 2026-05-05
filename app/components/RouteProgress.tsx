@@ -48,7 +48,9 @@ export function RouteProgressProvider({ children }: { children: ReactNode }) {
   const [progress, setProgress] = useState(0);
   const intervalRef = useRef<number | null>(null);
   const finishTimeoutRef = useRef<number | null>(null);
+  const fallbackTimeoutRef = useRef<number | null>(null);
   const currentUrlRef = useRef("");
+  const isLoadingRef = useRef(false);
 
   const clearTimers = useCallback(() => {
     if (intervalRef.current !== null) {
@@ -60,6 +62,11 @@ export function RouteProgressProvider({ children }: { children: ReactNode }) {
       window.clearTimeout(finishTimeoutRef.current);
       finishTimeoutRef.current = null;
     }
+
+    if (fallbackTimeoutRef.current !== null) {
+      window.clearTimeout(fallbackTimeoutRef.current);
+      fallbackTimeoutRef.current = null;
+    }
   }, []);
 
   const finish = useCallback(() => {
@@ -67,15 +74,17 @@ export function RouteProgressProvider({ children }: { children: ReactNode }) {
     setProgress(100);
 
     finishTimeoutRef.current = window.setTimeout(() => {
+      isLoadingRef.current = false;
       setIsLoading(false);
       setProgress(0);
     }, 180);
   }, [clearTimers]);
 
   const start = useCallback(() => {
-    if (isLoading) return;
+    if (isLoadingRef.current) return;
 
     clearTimers();
+    isLoadingRef.current = true;
     currentUrlRef.current = window.location.pathname + window.location.search;
     setIsLoading(true);
     setProgress(12);
@@ -86,13 +95,61 @@ export function RouteProgressProvider({ children }: { children: ReactNode }) {
         return Math.min(value + Math.random() * 14, 88);
       });
     }, 140);
-  }, [clearTimers, isLoading]);
+
+    fallbackTimeoutRef.current = window.setTimeout(() => {
+      finish();
+    }, 8000);
+  }, [clearTimers, finish]);
 
   useEffect(() => {
     if (!isLoading) {
       currentUrlRef.current = window.location.pathname + window.location.search;
     }
   }, [isLoading, pathname]);
+
+  useEffect(() => {
+    function handleDocumentClick(event: MouseEvent) {
+      if (
+        event.defaultPrevented ||
+        event.button !== 0 ||
+        event.metaKey ||
+        event.ctrlKey ||
+        event.shiftKey ||
+        event.altKey
+      ) {
+        return;
+      }
+
+      const anchor = (event.target as Element | null)?.closest("a[href]");
+      if (!(anchor instanceof HTMLAnchorElement)) return;
+
+      const nextUrl = new URL(anchor.href);
+      const currentUrl = new URL(window.location.href);
+
+      if (
+        anchor.target === "_blank" ||
+        anchor.hasAttribute("download") ||
+        nextUrl.origin !== currentUrl.origin ||
+        nextUrl.pathname + nextUrl.search === currentUrl.pathname + currentUrl.search
+      ) {
+        return;
+      }
+
+      start();
+    }
+
+    function handlePopState() {
+      start();
+    }
+
+    document.addEventListener("click", handleDocumentClick, true);
+    window.addEventListener("popstate", handlePopState);
+
+    return () => {
+      document.removeEventListener("click", handleDocumentClick, true);
+      window.removeEventListener("popstate", handlePopState);
+    };
+  }, [start]);
 
   useEffect(() => {
     if (!isLoading) return;
