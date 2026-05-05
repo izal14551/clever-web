@@ -2,9 +2,9 @@
 
 import { useState } from "react";
 import { Heart } from "lucide-react";
-import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSession } from "next-auth/react";
+import { ProgressLink as Link, useRouteProgress } from "./RouteProgress";
 import type { ServiceRecommendationSummary } from "../lib/serviceRecommendations";
 
 interface ServiceRecommendationButtonProps {
@@ -18,6 +18,7 @@ export function ServiceRecommendationButton({
 }: ServiceRecommendationButtonProps) {
   const pathname = usePathname();
   const { status: sessionStatus } = useSession();
+  const routeProgress = useRouteProgress();
   const [recommendation, setRecommendation] = useState(initialRecommendation);
   const [isSaving, setIsSaving] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
@@ -30,6 +31,7 @@ export function ServiceRecommendationButton({
       return;
     }
 
+    routeProgress.start();
     setIsSaving(true);
     setErrorMessage("");
 
@@ -60,6 +62,7 @@ export function ServiceRecommendationButton({
       );
     } finally {
       setIsSaving(false);
+      routeProgress.finish();
     }
   };
 
