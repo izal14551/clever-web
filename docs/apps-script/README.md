@@ -120,6 +120,33 @@ Untuk like komentar layanan, web memakai action berikut. Action ini idempotent: 
 }
 ```
 
+Untuk rekomendasi layanan, web memakai action privat berikut. Action `addServiceRecommendation` idempotent: akun yang sama hanya dihitung satu kali untuk layanan yang sama.
+
+```json
+{
+  "action": "getServiceRecommendation",
+  "apiKey": "your-shared-secret",
+  "serviceId": "baby-spa",
+  "viewerUserId": "google-user-id"
+}
+```
+
+```json
+{
+  "action": "getAllServiceRecommendations",
+  "apiKey": "your-shared-secret"
+}
+```
+
+```json
+{
+  "action": "addServiceRecommendation",
+  "apiKey": "your-shared-secret",
+  "serviceId": "baby-spa",
+  "userId": "google-user-id"
+}
+```
+
 ## Cara Pakai
 
 1. Buat Google Spreadsheet dan import semua CSV di folder `docs/sheet-templates`.
@@ -144,4 +171,4 @@ Untuk like komentar layanan, web memakai action berikut. Action ini idempotent: 
 - Jika ingin menambah endpoint lain, tambahkan cabang di `doGet()` atau `doPost()`.
 - Untuk field array seperti `details`, gunakan pemisah `|` di spreadsheet.
 - `GET /exec` dibiarkan publik hanya untuk konten website yang memang public.
-- Semua action member dan komentar layanan wajib lewat `POST` + `apiKey`.
+- Semua action member, komentar layanan, dan rekomendasi layanan wajib lewat `POST` + `apiKey`.

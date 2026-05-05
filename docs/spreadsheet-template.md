@@ -14,6 +14,7 @@ Spreadsheet ini dipakai sebagai source data untuk:
 - Bantuan
 - Profile summary member
 - Komentar layanan
+- Rekomendasi layanan
 
 ## Struktur Sheet yang Disarankan
 
@@ -36,6 +37,7 @@ Buat file Google Spreadsheet dengan tab berikut:
 15. `member_menus`
 16. `service_comments`
 17. `service_comment_likes`
+18. `service_recommendations`
 
 Template utama sekarang disiapkan dalam satu file CSV master di [sheet-template-master.csv](/c:/laragon/www/clevermom/clever-web/docs/sheet-template-master.csv).
 Selain itu, workbook siap pakai dengan banyak sheet juga tersedia di [spreadsheet-template.xlsx](/c:/laragon/www/clevermom/clever-web/docs/spreadsheet-template.xlsx).
@@ -267,6 +269,20 @@ Satu baris per akun yang memberi like pada satu komentar layanan.
 Catatan:
 - Kombinasi `commentId` + `userId` harus dianggap unik.
 - Apps Script akan menolak penambahan angka like dari akun yang sama dengan cara mengecek baris existing terlebih dahulu.
+
+### 18. `service_recommendations`
+
+Satu baris per akun yang merekomendasikan satu layanan.
+
+| Kolom | Wajib | Keterangan |
+| --- | --- | --- |
+| `serviceId` | Ya | ID layanan dari `service_list.id` |
+| `userId` | Ya | ID user dari login |
+| `createdAt` | Ya | Timestamp ISO saat rekomendasi dibuat |
+
+Catatan:
+- Kombinasi `serviceId` + `userId` harus dianggap unik.
+- Apps Script akan menolak penambahan angka rekomendasi dari akun yang sama dengan cara mengecek baris existing terlebih dahulu.
 
 ## Bentuk JSON Output yang Disarankan
 
