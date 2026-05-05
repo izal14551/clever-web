@@ -18,6 +18,7 @@ type ProgressContextValue = {
   isLoading: boolean;
   progress: number;
   start: () => void;
+  finish: () => void;
 };
 
 const RouteProgressContext = createContext<ProgressContextValue | null>(null);
@@ -169,11 +170,17 @@ export function RouteProgressProvider({ children }: { children: ReactNode }) {
   useEffect(() => () => clearTimers(), [clearTimers]);
 
   return (
-    <RouteProgressContext.Provider value={{ isLoading, progress, start }}>
+    <RouteProgressContext.Provider value={{ isLoading, progress, start, finish }}>
       {children}
       <RouteProgressBar />
     </RouteProgressContext.Provider>
   );
+}
+
+export function useRouteProgress() {
+  const { start, finish } = useRouteProgressContext();
+
+  return { start, finish };
 }
 
 function RouteProgressBar() {

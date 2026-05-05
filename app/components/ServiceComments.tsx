@@ -2,9 +2,9 @@
 
 import { FormEvent, useMemo, useState } from "react";
 import { Heart, SendHorizonal } from "lucide-react";
-import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSession } from "next-auth/react";
+import { ProgressLink as Link, useRouteProgress } from "./RouteProgress";
 import type { ServiceComment } from "../lib/serviceComments";
 import { formatCommentTimeAgo } from "../lib/commentTime";
 import type { TestimonialData } from "../types/landing";
@@ -43,6 +43,7 @@ export function ServiceComments({
 }: ServiceCommentsProps) {
   const pathname = usePathname();
   const { data: session, status: sessionStatus } = useSession();
+  const routeProgress = useRouteProgress();
   const [message, setMessage] = useState("");
   const [authorMode, setAuthorMode] = useState<"anonymous" | "account">(
     "account",
@@ -100,6 +101,7 @@ export function ServiceComments({
       return;
     }
 
+    routeProgress.start();
     setIsSubmitting(true);
     setStatus({ type: "idle", message: "" });
 
@@ -141,6 +143,7 @@ export function ServiceComments({
       });
     } finally {
       setIsSubmitting(false);
+      routeProgress.finish();
     }
   };
 
@@ -160,6 +163,7 @@ export function ServiceComments({
       return;
     }
 
+    routeProgress.start();
     setLikingCommentId(commentId);
     setStatus({ type: "idle", message: "" });
 
@@ -202,6 +206,7 @@ export function ServiceComments({
       });
     } finally {
       setLikingCommentId(null);
+      routeProgress.finish();
     }
   };
 

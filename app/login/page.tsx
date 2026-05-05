@@ -5,11 +5,16 @@ import { useSearchParams } from "next/navigation";
 import { signIn, useSession } from "next-auth/react";
 import { ArrowLeft } from "lucide-react";
 import { Suspense, useEffect } from "react";
-import { ProgressLink as Link, useProgressRouter } from "@/app/components/RouteProgress";
+import {
+  ProgressLink as Link,
+  useProgressRouter,
+  useRouteProgress,
+} from "@/app/components/RouteProgress";
 
 function LoginContent() {
   const { status } = useSession();
   const router = useProgressRouter();
+  const routeProgress = useRouteProgress();
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl") || "/menu";
 
@@ -60,7 +65,10 @@ function LoginContent() {
           </p>
 
           <button
-            onClick={() => signIn("google", { callbackUrl })}
+            onClick={() => {
+              routeProgress.start();
+              signIn("google", { callbackUrl });
+            }}
             className="flex h-12 w-full items-center justify-center gap-3 rounded-2xl border border-[#eadbc9] bg-[#fffaf5] text-sm font-semibold text-[#1f1f1f] shadow-sm transition-colors hover:bg-[#fff1e2]"
           >
             <svg className="h-5 w-5" viewBox="0 0 24 24">
