@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Ellipsis, Heart, UserCircle2 } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { useSession } from "next-auth/react";
