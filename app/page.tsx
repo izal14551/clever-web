@@ -37,7 +37,6 @@ export default async function LandingPage() {
     consultation,
     services,
     promos,
-    packages,
     testimonials,
     featuredTreatments,
   } =
@@ -103,6 +102,16 @@ export default async function LandingPage() {
     .filter((service) => service.recommendationCount > 0)
     .sort((a, b) => b.recommendationCount - a.recommendationCount)
     .slice(0, 5);
+  const packageServices = serviceItems
+    .filter((service) => service.category?.toLowerCase().includes("paket"))
+    .map((service) => ({
+      id: service.id,
+      title: service.title,
+      subtitle: service.category || "Paket CleverMom",
+      details: [service.description],
+      duration: service.duration,
+      imageUrl: service.imageUrl,
+    }));
 
   return (
     <main className="max-w-md mx-auto bg-white min-h-screen pb-10 font-sans shadow-md relative">
@@ -137,7 +146,7 @@ export default async function LandingPage() {
         </div>
 
         <div className="flex gap-4 overflow-x-auto pb-6 no-scrollbar -mx-6 px-6 scroll-smooth snap-x snap-mandatory">
-          {packages?.map((pkg) => (
+          {packageServices.map((pkg) => (
             <PackageCard
               key={pkg.id}
               title={pkg.title}
