@@ -43,6 +43,10 @@ function deriveCategory(service: ServiceListItemData): string {
   return "Perawatan";
 }
 
+function isPackageService(service: ServiceListItemData): boolean {
+  return deriveCategory(service).toLowerCase().includes("paket");
+}
+
 export function ServicesExplorer({
   services,
   initialCategory = "Semua",
@@ -53,7 +57,12 @@ export function ServicesExplorer({
   const [sort, setSort] = useState<SortOption>("default");
   const [durationFilter, setDurationFilter] = useState<DurationFilter>("all");
 
-  const categories = ["Semua", ...Array.from(new Set(services.map(deriveCategory)))];
+  const serviceCategories = Array.from(new Set(services.map(deriveCategory)));
+  const categories = [
+    "Semua",
+    ...(services.some(isPackageService) ? ["Paket"] : []),
+    ...serviceCategories,
+  ];
   const category = categories.includes(initialCategory) ? initialCategory : "Semua";
 
   function updateCategory(nextCategory: string) {
@@ -69,7 +78,15 @@ export function ServicesExplorer({
   }
 
   let visibleServices = services.filter((service) => {
-    if (category !== "Semua" && deriveCategory(service) !== category) {
+    if (category === "Paket" && !isPackageService(service)) {
+      return false;
+    }
+
+    if (
+      category !== "Semua" &&
+      category !== "Paket" &&
+      deriveCategory(service) !== category
+    ) {
       return false;
     }
 

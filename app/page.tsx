@@ -140,21 +140,29 @@ export default async function LandingPage() {
       <section className="px-6  bg-gradient-to-b from-[#ffffff] to-[##fffffe]  rounded-lg">
         <div className="flex justify-between items-center mb-4">
           <h2 className="font-bold text-gray-800 text-lg">Ada Paketnya Juga loh!</h2>
-          <span className="text-[#a68b6d] text-[10px] font-semibold cursor-pointer hover:underline">
+          <Link
+            href="/services?category=Paket"
+            className="text-[#a68b6d] text-[10px] font-semibold cursor-pointer hover:underline"
+          >
             Lihat Selengkapnya
-          </span>
+          </Link>
         </div>
 
         <div className="flex gap-4 overflow-x-auto pb-6 no-scrollbar -mx-6 px-6 scroll-smooth snap-x snap-mandatory">
           {packageServices.map((pkg) => (
-            <PackageCard
+            <Link
               key={pkg.id}
-              title={pkg.title}
-              subtitle={pkg.subtitle}
-              details={pkg.details}
-              duration={pkg.duration}
-              imageUrl={pkg.imageUrl}
-            />
+              href={`/services/${pkg.id}`}
+              className="block shrink-0 snap-center"
+            >
+              <PackageCard
+                title={pkg.title}
+                subtitle={pkg.subtitle}
+                details={pkg.details}
+                duration={pkg.duration}
+                imageUrl={pkg.imageUrl}
+              />
+            </Link>
           ))}
         </div>
       </section>
