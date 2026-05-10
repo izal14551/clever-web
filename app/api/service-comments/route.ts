@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
+import { revalidatePath } from "next/cache";
 import { authOptions } from "../../lib/auth";
 import { addServiceComment } from "../../lib/serviceComments";
 
@@ -55,6 +56,10 @@ export async function POST(request: Request) {
       userId: session.user.id,
       authorMode,
     });
+
+    revalidatePath("/");
+    revalidatePath("/testimonial");
+    revalidatePath(`/services/${serviceId}`);
 
     return NextResponse.json({ comment }, { status: 201 });
   } catch (error) {

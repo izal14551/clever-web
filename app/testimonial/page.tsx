@@ -11,6 +11,8 @@ import { authOptions } from "../lib/auth";
 import { getTestimonialReactions } from "../lib/testimonialReactions";
 import type { TestimonialData } from "../types/landing";
 
+export const dynamic = "force-dynamic";
+
 export default async function TestimonialPage() {
   const [session, data, services, storedComments] = await Promise.all([
     getServerSession(authOptions),
