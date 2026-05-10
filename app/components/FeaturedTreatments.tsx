@@ -19,7 +19,7 @@ export function FeaturedTreatments({ treatments }: FeaturedTreatmentsProps) {
         {treatments.map((treatment) => (
           <Link
             key={treatment.id}
-            href={treatment.href || `/services/${treatment.id}`}
+            href={treatment.href || `/services/${treatment.slug || treatment.id}`}
             className="bg-white rounded-xl shadow-sm border border-gray-100 p-3 flex gap-3 items-center"
           >
             <div className="w-12 h-12 bg-gray-100 rounded-lg shrink-0 relative overflow-hidden">

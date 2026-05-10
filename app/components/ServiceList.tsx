@@ -14,7 +14,7 @@ export function ServiceList({ services }: ServiceListProps) {
         {services.map((service) => (
           <Link
             key={service.id}
-            href={`/services/${service.id}`}
+            href={`/services/${service.slug || service.id}`}
             className="block p-4 border-b border-orange-100 last:border-b-0 hover:bg-orange-50/40 transition-colors"
           >
             <div className="flex items-center gap-3">

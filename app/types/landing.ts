@@ -21,6 +21,7 @@ export interface ServiceData {
 
 export interface ServiceListItemData {
   id: string;
+  slug?: string;
   title: string;
   category?: string;
   description: string;
@@ -46,6 +47,7 @@ export interface PackageData {
 
 export interface TreatmentData {
   id: string;
+  slug?: string;
   name: string;
   description: string;
   imageUrl?: string;

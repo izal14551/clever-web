@@ -2,7 +2,7 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { notFound } from "next/navigation";
 import { BottomNav } from "@/app/components/BottomNav";
-import { getArticleById } from "@/app/lib/blogger";
+import { getArticleBySlugOrId } from "@/app/lib/blogger";
 
 interface ArticleDetailPageProps {
   params: Promise<{ id: string }>;
@@ -20,7 +20,7 @@ export default async function ArticleDetailPage({
   params,
 }: ArticleDetailPageProps) {
   const { id } = await params;
-  const article = await getArticleById(id);
+  const article = await getArticleBySlugOrId(id);
 
   if (!article) {
     notFound();

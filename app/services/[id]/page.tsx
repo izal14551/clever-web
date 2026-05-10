@@ -25,18 +25,20 @@ export default async function ServiceDetailPage({
 }: ServiceDetailPageProps) {
   const { id } = await params;
   const session = await getServerSession(authOptions);
-  const [service, landingData, articles, comments, recommendation] =
-    await Promise.all([
-      getServiceById(id),
-      getLandingData(),
-      getArticleList(),
-      getServiceComments(id, session?.user?.id),
-      getServiceRecommendation(id, session?.user?.id),
-    ]);
+  const [service, landingData, articles] = await Promise.all([
+    getServiceById(id),
+    getLandingData(),
+    getArticleList(),
+  ]);
 
   if (!service) {
     notFound();
   }
+
+  const [comments, recommendation] = await Promise.all([
+    getServiceComments(service.id, session?.user?.id),
+    getServiceRecommendation(service.id, session?.user?.id),
+  ]);
 
   const relatedTestimonials = getRelatedTestimonials(
     service.id,
@@ -124,7 +126,7 @@ export default async function ServiceDetailPage({
           {recommendedArticles.map((article) => (
             <Link
               key={article.id}
-              href={`/artikel/${article.id}`}
+              href={`/artikel/${article.slug || article.id}`}
               className="block rounded-[24px] border border-[#eadbc9] bg-[#fffaf5] p-4 shadow-[0_10px_24px_rgba(166,139,109,0.06)] transition-colors hover:bg-[#fff4e8]"
             >
               <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#a68b6d]">

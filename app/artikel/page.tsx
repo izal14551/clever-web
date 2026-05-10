@@ -35,7 +35,7 @@ export default async function ArtikelPage() {
           articles.map((article) => (
             <Link
               key={article.id}
-              href={`/artikel/${article.id}`}
+              href={`/artikel/${article.slug || article.id}`}
               className="block overflow-hidden rounded-3xl border border-orange-100 bg-white shadow-sm transition-colors hover:bg-[#fffaf5]"
             >
               <div className="h-44 bg-[#f4ede4]">

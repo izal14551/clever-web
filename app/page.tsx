@@ -93,10 +93,11 @@ export default async function LandingPage() {
   const favoriteTreatments = serviceItems
     .map((service) => ({
       id: service.id,
+      slug: service.slug,
       name: service.title,
       description: service.category || service.description,
       imageUrl: service.imageUrl,
-      href: `/services/${service.id}`,
+      href: `/services/${service.slug || service.id}`,
       recommendationCount: recommendationMap.get(service.id) || 0,
     }))
     .filter((service) => service.recommendationCount > 0)
@@ -106,6 +107,7 @@ export default async function LandingPage() {
     .filter((service) => service.category?.toLowerCase().includes("paket"))
     .map((service) => ({
       id: service.id,
+      slug: service.slug,
       title: service.title,
       subtitle: service.category || "Paket CleverMom",
       details: [service.description],
@@ -152,7 +154,7 @@ export default async function LandingPage() {
           {packageServices.map((pkg) => (
             <Link
               key={pkg.id}
-              href={`/services/${pkg.id}`}
+              href={`/services/${pkg.slug || pkg.id}`}
               className="block shrink-0 snap-center"
             >
               <PackageCard
