@@ -136,10 +136,11 @@ export default async function LandingPage() {
   const favoriteTreatments = serviceItems
     .map((service) => ({
       id: service.id,
+      slug: service.slug,
       name: service.title,
       description: service.category || service.description,
       imageUrl: service.imageUrl,
-      href: `/services/${service.id}`,
+      href: `/services/${service.slug || service.id}`,
       recommendationCount: recommendationMap.get(service.id) || 0,
     }))
     .sort((a, b) => b.recommendationCount - a.recommendationCount)
