@@ -190,7 +190,7 @@ async function fetchRemoteComments(
         serviceId: params?.serviceId,
         viewerUserId: params?.viewerUserId,
       },
-      { noStore: false },
+      { noStore: true },
     );
 
     return Array.isArray(response.comments)
