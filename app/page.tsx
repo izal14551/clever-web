@@ -103,6 +103,10 @@ export default async function LandingPage() {
     .filter((service) => service.recommendationCount > 0)
     .sort((a, b) => b.recommendationCount - a.recommendationCount)
     .slice(0, 5);
+  const displayedTreatments =
+    favoriteTreatments.length > 0
+      ? favoriteTreatments
+      : featuredTreatments.slice(0, 5);
   const packageServices = serviceItems
     .filter((service) => service.category?.toLowerCase().includes("paket"))
     .map((service) => ({
@@ -170,9 +174,7 @@ export default async function LandingPage() {
       </section>
 
       <FeaturedTreatments
-        treatments={
-          favoriteTreatments.length > 0 ? favoriteTreatments : featuredTreatments
-        }
+        treatments={displayedTreatments}
       />
       
       <TestimonialShowcase testimonials={feedbackWithReactionState} />
