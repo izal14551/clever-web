@@ -1,5 +1,6 @@
 import { mockArticleData } from "@/app/data/mockArticleData";
 import type { ArticleDetail, ArticleListItem } from "@/app/types/article";
+import { createSlug } from "@/app/utils/slug";
 
 interface BloggerPostAuthor {
   displayName?: string;
@@ -73,6 +74,7 @@ function normalizePost(post: BloggerPost, index: number): ArticleDetail | null {
 
   return {
     id: post.id || `post-${index + 1}`,
+    slug: createSlug(post.title, post.id || `post-${index + 1}`),
     title: post.title,
     excerpt: buildExcerpt(contentHtml),
     publishedAt: post.published || new Date().toISOString(),
@@ -114,6 +116,7 @@ async function fetchFromBlogger<T>(path: string): Promise<T | null> {
 export async function getArticleList(): Promise<ArticleListItem[]> {
   const toListItem = (article: ArticleDetail): ArticleListItem => ({
     id: article.id,
+    slug: article.slug || createSlug(article.title, article.id),
     title: article.title,
     excerpt: article.excerpt,
     publishedAt: article.publishedAt,
@@ -123,7 +126,7 @@ export async function getArticleList(): Promise<ArticleListItem[]> {
   });
 
   if (!hasBloggerConfig()) {
-    return mockArticleData.map(toListItem);
+    return normalizeArticleSlugs(mockArticleData).map(toListItem);
   }
 
   const payload = await fetchFromBlogger<BloggerPostListResponse>(
@@ -131,7 +134,7 @@ export async function getArticleList(): Promise<ArticleListItem[]> {
   );
 
   if (!payload) {
-    return mockArticleData.map(toListItem);
+    return normalizeArticleSlugs(mockArticleData).map(toListItem);
   }
 
   const items =
@@ -139,20 +142,66 @@ export async function getArticleList(): Promise<ArticleListItem[]> {
       ?.map((post, index) => normalizePost(post, index))
       .filter((post): post is ArticleDetail => post !== null) || [];
 
-  return items.map(toListItem);
+  return normalizeArticleSlugs(items).map(toListItem);
 }
 
 export async function getArticleById(id: string): Promise<ArticleDetail | null> {
   if (!hasBloggerConfig()) {
-    return mockArticleData.find((article) => article.id === id) || null;
+    return (
+      mockArticleData
+        .map(normalizeArticleSlug)
+        .find((article) => article.id === id || article.slug === id) || null
+    );
   }
 
   const post = await fetchFromBlogger<BloggerPost>(`/posts/${id}?view=READER`);
   const normalized = post ? normalizePost(post, 0) : null;
 
   if (!normalized) {
-    return mockArticleData.find((article) => article.id === id) || null;
+    return (
+      mockArticleData
+        .map(normalizeArticleSlug)
+        .find((article) => article.id === id || article.slug === id) || null
+    );
   }
 
   return normalized;
+}
+
+export async function getArticleBySlugOrId(
+  slugOrId: string,
+): Promise<ArticleDetail | null> {
+  if (!hasBloggerConfig()) {
+    return getArticleById(slugOrId);
+  }
+
+  const articles = await getArticleList();
+  const match = articles.find(
+    (article) => article.id === slugOrId || article.slug === slugOrId,
+  );
+
+  return match ? getArticleById(match.id) : getArticleById(slugOrId);
+}
+
+function normalizeArticleSlug(article: ArticleDetail): ArticleDetail {
+  return {
+    ...article,
+    slug: article.slug || createSlug(article.title, article.id),
+  };
+}
+
+function normalizeArticleSlugs(articles: ArticleDetail[]): ArticleDetail[] {
+  const slugCounts = new Map<string, number>();
+
+  return articles.map((article) => {
+    const normalized = normalizeArticleSlug(article);
+    const baseSlug = normalized.slug || createSlug(normalized.title, normalized.id);
+    const count = slugCounts.get(baseSlug) || 0;
+    slugCounts.set(baseSlug, count + 1);
+
+    return {
+      ...normalized,
+      slug: count === 0 ? baseSlug : `${baseSlug}-${count + 1}`,
+    };
+  });
 }

@@ -2,13 +2,14 @@ import { mockServiceListData } from "../data/mockServiceListData";
 import { buildAppsScriptUrl } from "../lib/appsScript";
 import type { ServiceListItemData } from "../types/landing";
 import { getDirectImageUrl } from "../utils/imageUtils";
+import { createSlug } from "../utils/slug";
 
 export async function getServiceListData(): Promise<ServiceListItemData[]> {
   try {
     const scriptUrl = buildAppsScriptUrl();
 
     if (!scriptUrl) {
-      return mockServiceListData;
+      return normalizeServiceSlugs(mockServiceListData);
     }
 
     const res = await fetch(scriptUrl, {
@@ -19,12 +20,12 @@ export async function getServiceListData(): Promise<ServiceListItemData[]> {
     });
 
     if (!res.ok) {
-      return mockServiceListData;
+      return normalizeServiceSlugs(mockServiceListData);
     }
 
     const payload: unknown = await res.json();
     if (!isRecord(payload)) {
-      return mockServiceListData;
+      return normalizeServiceSlugs(mockServiceListData);
     }
 
     const sourceList =
@@ -33,17 +34,19 @@ export async function getServiceListData(): Promise<ServiceListItemData[]> {
       getArray(payload, "services");
 
     if (!sourceList || sourceList.length === 0) {
-      return mockServiceListData;
+      return normalizeServiceSlugs(mockServiceListData);
     }
 
     const normalized = sourceList
       .map((item, index) => normalizeServiceItem(item, index))
       .filter((item): item is ServiceListItemData => item !== null);
 
-    return normalized.length > 0 ? normalized : mockServiceListData;
+    return normalized.length > 0
+      ? normalizeServiceSlugs(normalized)
+      : normalizeServiceSlugs(mockServiceListData);
   } catch (error) {
     console.error("Gagal mengambil data halaman services:", error);
-    return mockServiceListData;
+    return normalizeServiceSlugs(mockServiceListData);
   }
 }
 
@@ -51,7 +54,9 @@ export async function getServiceById(
   id: string,
 ): Promise<ServiceListItemData | null> {
   const services = await getServiceListData();
-  return services.find((service) => service.id === id) || null;
+  return (
+    services.find((service) => service.id === id || service.slug === id) || null
+  );
 }
 
 function normalizeServiceItem(
@@ -86,6 +91,7 @@ function normalizeServiceItem(
 
   return {
     id: toStringValue(item.id) || `svc-${index + 1}`,
+    slug: createSlug(toStringValue(item.slug) || title, `svc-${index + 1}`),
     title,
     category:
       toStringValue(item.category) ||
@@ -96,6 +102,23 @@ function normalizeServiceItem(
     duration,
     imageUrl,
   };
+}
+
+function normalizeServiceSlugs(
+  services: ServiceListItemData[],
+): ServiceListItemData[] {
+  const slugCounts = new Map<string, number>();
+
+  return services.map((service) => {
+    const baseSlug = service.slug || createSlug(service.title, service.id);
+    const count = slugCounts.get(baseSlug) || 0;
+    slugCounts.set(baseSlug, count + 1);
+
+    return {
+      ...service,
+      slug: count === 0 ? baseSlug : `${baseSlug}-${count + 1}`,
+    };
+  });
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
