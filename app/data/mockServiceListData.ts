@@ -1,4 +1,4 @@
-﻿import { ServiceListItemData } from "../types/landing";
+import { ServiceListItemData } from "../types/landing";
 
 export const mockServiceListData: ServiceListItemData[] = [
   {
