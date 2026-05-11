@@ -102,7 +102,18 @@ export function TestimonialCard({
       </div>
 
       <div className="flex flex-1 flex-col px-4 pb-4">
-        <h3 className="text-sm font-bold text-[#5f4c39]">{testimonial.title}</h3>
+        <h3 className="text-sm font-bold text-[#5f4c39]">
+          {testimonial.serviceId ? (
+            <Link
+              href={`/services/${encodeURIComponent(testimonial.serviceId)}`}
+              className="transition hover:text-[#c65f51]"
+            >
+              {testimonial.title}
+            </Link>
+          ) : (
+            testimonial.title
+          )}
+        </h3>
         <ReadMoreText
           text={testimonial.message}
           maxChars={compact ? 140 : 220}
