@@ -1,6 +1,13 @@
 import { mockServiceListData } from "../data/mockServiceListData";
 import { buildAppsScriptUrl } from "../lib/appsScript";
 import type { ServiceListItemData } from "../types/landing";
+import {
+  normalizeNumericId,
+  normalizeSortOrder,
+  normalizeSlug,
+  toPositiveInteger,
+  toStringValue,
+} from "../utils/dataIdentity";
 import { getDirectImageUrl } from "../utils/imageUtils";
 import { createSlug } from "../utils/slug";
 
@@ -55,7 +62,8 @@ export async function getServiceById(
 ): Promise<ServiceListItemData | null> {
   const services = await getServiceListData();
   return (
-    services.find((service) => service.id === id || service.slug === id) || null
+    services.find((service) => String(service.id) === id || service.slug === id) ||
+    null
   );
 }
 
@@ -89,9 +97,16 @@ function normalizeServiceItem(
     getDirectImageUrl(toStringValue(item.imageUrl) || toStringValue(item.iconUrl)) ||
     undefined;
 
+  const id = normalizeNumericId(item.id, index + 1);
+  const legacySlug = toPositiveInteger(item.id) ? "" : toStringValue(item.id);
+
   return {
-    id: toStringValue(item.id) || `svc-${index + 1}`,
-    slug: createSlug(toStringValue(item.slug) || title, `svc-${index + 1}`),
+    id,
+    slug: normalizeSlug(
+      toStringValue(item.slug) || legacySlug,
+      title,
+      `service-${id}`,
+    ),
     title,
     category:
       toStringValue(item.category) ||
@@ -101,6 +116,7 @@ function normalizeServiceItem(
     description,
     duration,
     imageUrl,
+    sortOrder: normalizeSortOrder(item.sortOrder, index + 1),
   };
 }
 
@@ -110,7 +126,8 @@ function normalizeServiceSlugs(
   const slugCounts = new Map<string, number>();
 
   return services.map((service) => {
-    const baseSlug = service.slug || createSlug(service.title, service.id);
+    const baseSlug =
+      service.slug || createSlug(service.title, `service-${service.id}`);
     const count = slugCounts.get(baseSlug) || 0;
     slugCounts.set(baseSlug, count + 1);
 
@@ -118,7 +135,7 @@ function normalizeServiceSlugs(
       ...service,
       slug: count === 0 ? baseSlug : `${baseSlug}-${count + 1}`,
     };
-  });
+  }).sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0));
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -131,23 +148,4 @@ function getArray(
 ): unknown[] | undefined {
   const value = source[key];
   return Array.isArray(value) ? value : undefined;
-}
-
-function toStringValue(value: unknown): string {
-  if (typeof value === "string") {
-    return value.trim();
-  }
-
-  if (typeof value === "number" && Number.isFinite(value)) {
-    return String(value);
-  }
-
-  if (Array.isArray(value)) {
-    return value
-      .map((item) => (typeof item === "string" ? item.trim() : ""))
-      .filter(Boolean)
-      .join(". ");
-  }
-
-  return "";
 }

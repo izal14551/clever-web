@@ -13,51 +13,61 @@ export interface ConsultationData {
 }
 
 export interface ServiceData {
-  id: string;
+  id: number;
+  slug?: string;
   label: string;
   category?: string;
   iconUrl?: string;
+  sortOrder?: number;
 }
 
 export interface ServiceListItemData {
-  id: string;
+  id: number;
   slug?: string;
   title: string;
   category?: string;
   description: string;
   duration: string;
   imageUrl?: string;
+  sortOrder?: number;
 }
 
 export interface PromoData {
-  id: string;
+  id: number;
+  slug?: string;
   imageUrl?: string;
   title?: string;
   link?: string;
+  sortOrder?: number;
 }
 
 export interface PackageData {
-  id: string;
+  id: number;
+  slug?: string;
   title: string;
   subtitle: string;
   details: string[];
   duration: string;
   imageUrl?: string;
+  sortOrder?: number;
 }
 
 export interface TreatmentData {
-  id: string;
+  id: number;
   slug?: string;
   name: string;
   description: string;
   imageUrl?: string;
   href?: string;
   recommendationCount?: number;
+  sortOrder?: number;
 }
 
 export interface TestimonialData {
-  id: string;
-  serviceId?: string;
+  id: number | string;
+  slug?: string;
+  serviceId?: number;
+  serviceSlug?: string;
   author: string;
   timeAgo: string;
   category: string;
@@ -67,6 +77,7 @@ export interface TestimonialData {
   persistedReactionCount?: number;
   reactedByCurrentUser?: boolean;
   ctaLabel: string;
+  sortOrder?: number;
 }
 
 export interface LandingPageData {

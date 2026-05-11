@@ -20,6 +20,12 @@ export function TestimonialCard({
   const pathname = usePathname();
   const { status: sessionStatus } = useSession();
   const routeProgress = useRouteProgress();
+  const serviceHref = testimonial.serviceSlug
+    ? `/services/${encodeURIComponent(testimonial.serviceSlug)}`
+    : testimonial.serviceId
+      ? `/services/${testimonial.serviceId}`
+      : "";
+  const testimonialKey = String(testimonial.id);
   const baseReactionCount =
     testimonial.reactionCount - (testimonial.persistedReactionCount || 0);
   const [reactionCount, setReactionCount] = useState(testimonial.reactionCount);
@@ -45,7 +51,7 @@ export function TestimonialCard({
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ testimonialId: testimonial.id }),
+        body: JSON.stringify({ testimonialId: testimonialKey }),
       });
       const payload: unknown = await response.json();
 
@@ -103,9 +109,9 @@ export function TestimonialCard({
 
       <div className="flex flex-1 flex-col px-4 pb-4">
         <h3 className="text-sm font-bold text-[#5f4c39]">
-          {testimonial.serviceId ? (
+          {serviceHref ? (
             <Link
-              href={`/services/${encodeURIComponent(testimonial.serviceId)}`}
+              href={serviceHref}
               className="transition hover:text-[#c65f51]"
             >
               {testimonial.title}

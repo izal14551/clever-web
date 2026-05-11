@@ -1,0 +1,8 @@
+id,slug,label,category,iconUrl,sortOrder
+1,baby-treatment,"Baby Treatment","Baby Treatment",,1
+2,paket-baby-treatment,"Paket Baby Treatment","Paket Baby Treatment",,2
+3,toddler-treatment,"Toddler Treatment","Toddler Treatment",,3
+4,paket-toddler-treatment,"Paket Toddler Treatment","Paket Toddler Treatment",,4
+5,kids-treatment,"Kids Treatment","Kids Treatment",,5
+6,paket-kids-treatment,"Paket Kids Treatment","Paket Kids Treatment",,6
+7,additional,"Additional","Additional",,7

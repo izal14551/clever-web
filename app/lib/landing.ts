@@ -1,6 +1,20 @@
 import { mockLandingData } from "@/app/data/mockLandingData";
 import { buildAppsScriptUrl } from "@/app/lib/appsScript";
-import type { LandingPageData } from "@/app/types/landing";
+import type {
+  LandingPageData,
+  PackageData,
+  PromoData,
+  ServiceData,
+  TestimonialData,
+  TreatmentData,
+} from "@/app/types/landing";
+import {
+  normalizeNumericId,
+  normalizeSortOrder,
+  normalizeSlug,
+  toPositiveInteger,
+  toStringValue,
+} from "@/app/utils/dataIdentity";
 import { getDirectImageUrl } from "@/app/utils/imageUtils";
 
 export async function getLandingData(): Promise<LandingPageData> {
@@ -38,44 +52,138 @@ export async function getLandingData(): Promise<LandingPageData> {
         ...mockLandingData.consultation,
         ...(fetchedData.consultation || {}),
       },
-      services: (fetchedData.services && fetchedData.services.length > 0
-        ? fetchedData.services
-        : mockLandingData.services
-      ).map((service) => ({
-        ...service,
-        iconUrl: getDirectImageUrl(service.iconUrl),
-      })),
-      promos: (fetchedData.promos && fetchedData.promos.length > 0
-        ? fetchedData.promos
-        : mockLandingData.promos
-      ).map((promo) => ({
-        ...promo,
-        imageUrl: getDirectImageUrl(promo.imageUrl),
-      })),
-      packages: (fetchedData.packages && fetchedData.packages.length > 0
-        ? fetchedData.packages
-        : mockLandingData.packages
-      ).map((pkg) => ({
-        ...pkg,
-        imageUrl: getDirectImageUrl(pkg.imageUrl),
-      })),
-      testimonials: fetchedData.testimonials && fetchedData.testimonials.length > 0
-        ? fetchedData.testimonials.map((testimonial) => ({
-          ...testimonial,
-          serviceId: testimonial.serviceId,
-        }))
-        : mockLandingData.testimonials,
-      featuredTreatments: (fetchedData.featuredTreatments &&
-      fetchedData.featuredTreatments.length > 0
-        ? fetchedData.featuredTreatments
-        : mockLandingData.featuredTreatments
-      ).map((treatment) => ({
-        ...treatment,
-        imageUrl: getDirectImageUrl(treatment.imageUrl),
-      })),
+      services: normalizeServices(fetchedData.services),
+      promos: normalizePromos(fetchedData.promos),
+      packages: normalizePackages(fetchedData.packages),
+      testimonials: normalizeTestimonials(fetchedData.testimonials),
+      featuredTreatments: normalizeTreatments(fetchedData.featuredTreatments),
     };
   } catch (error) {
     console.error("Terjadi kesalahan saat fetch data Apps Script:", error);
     return mockLandingData;
   }
+}
+
+function normalizeServices(source?: ServiceData[]): ServiceData[] {
+  const services = source && source.length > 0 ? source : mockLandingData.services;
+
+  return services.map((service, index) => {
+    const item = service as unknown as Record<string, unknown>;
+    const id = normalizeNumericId(item.id, index + 1);
+    const label = toStringValue(item.label) || toStringValue(item.title) || "Layanan";
+    const category = toStringValue(item.category) || undefined;
+
+    return {
+      id,
+      slug: normalizeSlug(item.slug, category || label, `service-category-${id}`),
+      label,
+      category,
+      iconUrl: getDirectImageUrl(toStringValue(item.iconUrl)) || undefined,
+      sortOrder: normalizeSortOrder(item.sortOrder, index + 1),
+    };
+  }).sort(sortBySortOrder);
+}
+
+function normalizePromos(source?: PromoData[]): PromoData[] {
+  const promos = source && source.length > 0 ? source : mockLandingData.promos;
+
+  return promos.map((promo, index) => {
+    const item = promo as unknown as Record<string, unknown>;
+    const id = normalizeNumericId(item.id, index + 1);
+    const title = toStringValue(item.title);
+
+    return {
+      id,
+      slug: normalizeSlug(item.slug, title || `promo-${id}`, `promo-${id}`),
+      title: title || undefined,
+      imageUrl: getDirectImageUrl(toStringValue(item.imageUrl)) || undefined,
+      link: toStringValue(item.link) || undefined,
+      sortOrder: normalizeSortOrder(item.sortOrder, index + 1),
+    };
+  }).sort(sortBySortOrder);
+}
+
+function normalizePackages(source?: PackageData[]): PackageData[] {
+  const packages = source && source.length > 0 ? source : mockLandingData.packages;
+
+  return packages.map((pkg, index) => {
+    const item = pkg as unknown as Record<string, unknown>;
+    const id = normalizeNumericId(item.id, index + 1);
+    const title = toStringValue(item.title) || `Paket ${id}`;
+    const details = Array.isArray(item.details)
+      ? item.details.map(toStringValue).filter(Boolean)
+      : toStringValue(item.details)
+          .split("|")
+          .map((detail) => detail.trim())
+          .filter(Boolean);
+
+    return {
+      id,
+      slug: normalizeSlug(item.slug, title, `package-${id}`),
+      title,
+      subtitle: toStringValue(item.subtitle),
+      details,
+      duration: toStringValue(item.duration) || "-",
+      imageUrl: getDirectImageUrl(toStringValue(item.imageUrl)) || undefined,
+      sortOrder: normalizeSortOrder(item.sortOrder, index + 1),
+    };
+  }).sort(sortBySortOrder);
+}
+
+function normalizeTestimonials(source?: TestimonialData[]): TestimonialData[] {
+  const testimonials =
+    source && source.length > 0 ? source : mockLandingData.testimonials;
+
+  return testimonials.map((testimonial, index) => {
+    const item = testimonial as unknown as Record<string, unknown>;
+    const id = normalizeNumericId(item.id, index + 1);
+    const title = toStringValue(item.title) || `Testimonial ${id}`;
+
+    return {
+      id,
+      slug: normalizeSlug(item.slug, title, `testimonial-${id}`),
+      serviceId:
+        toPositiveInteger(item.serviceId) ||
+        toPositiveInteger(item.service_id) ||
+        undefined,
+      serviceSlug:
+        toStringValue(item.serviceSlug) ||
+        toStringValue(item.service_slug) ||
+        undefined,
+      author: toStringValue(item.author) || "Mom CleverMom",
+      timeAgo: toStringValue(item.timeAgo) || toStringValue(item.time_ago) || "",
+      category: toStringValue(item.category) || "Layanan CleverMom",
+      title,
+      message: toStringValue(item.message),
+      reactionCount: toPositiveInteger(item.reactionCount) || 0,
+      ctaLabel: toStringValue(item.ctaLabel) || "Bantu Mom lain",
+      sortOrder: normalizeSortOrder(item.sortOrder, index + 1),
+    };
+  }).sort(sortBySortOrder);
+}
+
+function normalizeTreatments(source?: TreatmentData[]): TreatmentData[] {
+  const treatments =
+    source && source.length > 0 ? source : mockLandingData.featuredTreatments;
+
+  return treatments.map((treatment, index) => {
+    const item = treatment as unknown as Record<string, unknown>;
+    const id = normalizeNumericId(item.id, index + 1);
+    const name = toStringValue(item.name) || toStringValue(item.title) || `Treatment ${id}`;
+
+    return {
+      id,
+      slug: normalizeSlug(item.slug, name, `treatment-${id}`),
+      name,
+      description: toStringValue(item.description),
+      imageUrl: getDirectImageUrl(toStringValue(item.imageUrl)) || undefined,
+      href: toStringValue(item.href) || undefined,
+      recommendationCount: toPositiveInteger(item.recommendationCount) || 0,
+      sortOrder: normalizeSortOrder(item.sortOrder, index + 1),
+    };
+  }).sort(sortBySortOrder);
+}
+
+function sortBySortOrder<T extends { sortOrder?: number }>(a: T, b: T) {
+  return (a.sortOrder || 0) - (b.sortOrder || 0);
 }

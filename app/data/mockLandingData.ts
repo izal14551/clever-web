@@ -15,30 +15,34 @@ export const mockLandingData: LandingPageData = {
     whatsappNumber: "6281932618816",
   },
   services: [
-    { id: "1", label: "Baby\nTreatment", category: "Baby Treatment" },
+    { id: 1, slug: "baby-treatment", label: "Baby\nTreatment", category: "Baby Treatment" },
     {
-      id: "2",
+      id: 2,
+      slug: "paket-baby-treatment",
       label: "Paket Baby\nTreatment",
       category: "Paket Baby Treatment",
     },
-    { id: "3", label: "Toddler\nTreatment", category: "Toddler Treatment" },
+    { id: 3, slug: "toddler-treatment", label: "Toddler\nTreatment", category: "Toddler Treatment" },
     {
-      id: "4",
+      id: 4,
+      slug: "paket-toddler-treatment",
       label: "Paket Toddler\nTreatment",
       category: "Paket Toddler Treatment",
     },
-    { id: "5", label: "Kids\nTreatment", category: "Kids Treatment" },
+    { id: 5, slug: "kids-treatment", label: "Kids\nTreatment", category: "Kids Treatment" },
     {
-      id: "6",
+      id: 6,
+      slug: "paket-kids-treatment",
       label: "Paket Kids\nTreatment",
       category: "Paket Kids Treatment",
     },
-    { id: "7", label: "Additional", category: "Additional" },
+    { id: 7, slug: "additional", label: "Additional", category: "Additional" },
   ],
-  promos: [{ id: "p1" }, { id: "p2" }, { id: "p3" }, { id: "p4" }],
+  promos: [{ id: 1 }, { id: 2 }, { id: 3 }, { id: 4 }],
   packages: [
     {
-      id: "pkg1",
+      id: 1,
+      slug: "little-raindrops",
       title: "Little Raindrops",
       subtitle: "(Baby Massage, Memandikan)",
       details: [
@@ -49,7 +53,8 @@ export const mockLandingData: LandingPageData = {
       duration: "90 Menit",
     },
     {
-      id: "pkg2",
+      id: 2,
+      slug: "comfort-breath",
       title: "Comfort Breath",
       subtitle: "(Nebulizer, Sinar Infrared)",
       details: [
@@ -62,8 +67,9 @@ export const mockLandingData: LandingPageData = {
   ],
   testimonials: [
     {
-      id: "ts1",
-      serviceId: "svc2",
+      id: 1,
+      slug: "baby-jadi-lebih-tenang-setelah-treatment",
+      serviceId: 2,
       author: "Mom Anisa",
       timeAgo: "3 hari lalu",
       category: "Baby Massage",
@@ -74,8 +80,9 @@ export const mockLandingData: LandingPageData = {
       ctaLabel: "Bantu Mom lain",
     },
     {
-      id: "ts2",
-      serviceId: "svc8",
+      id: 2,
+      slug: "napas-si-kecil-lebih-lega-setelah-sesi-treatment",
+      serviceId: 8,
       author: "Mom Dita",
       timeAgo: "1 minggu lalu",
       category: "Paket Baby Treatment",
@@ -86,8 +93,9 @@ export const mockLandingData: LandingPageData = {
       ctaLabel: "Bantu Mom lain",
     },
     {
-      id: "ts3",
-      serviceId: "svc18",
+      id: 3,
+      slug: "anak-lebih-nyaman-setelah-pediatric-massage",
+      serviceId: 18,
       author: "Mom Rara",
       timeAgo: "2 minggu lalu",
       category: "Kids Treatment",
@@ -100,12 +108,14 @@ export const mockLandingData: LandingPageData = {
   ],
   featuredTreatments: [
     {
-      id: "tr1",
+      id: 1,
+      slug: "nama-treatment",
       name: "Nama Treatment",
       description: "Deskripsi singkat treatment...",
     },
     {
-      id: "tr2",
+      id: 2,
+      slug: "nama-treatment-2",
       name: "Nama Treatment",
       description: "Deskripsi singkat treatment...",
     },

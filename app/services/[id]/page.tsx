@@ -35,9 +35,10 @@ export default async function ServiceDetailPage({
     notFound();
   }
 
+  const serviceKey = String(service.id);
   const [comments, recommendation] = await Promise.all([
-    getServiceComments(service.id, session?.user?.id),
-    getServiceRecommendation(service.id, session?.user?.id),
+    getServiceComments(serviceKey, session?.user?.id),
+    getServiceRecommendation(serviceKey, session?.user?.id),
   ]);
 
   const relatedTestimonials = getRelatedTestimonials(
@@ -93,13 +94,13 @@ export default async function ServiceDetailPage({
           buttonClassName="text-[#a68b6d] text-sm mt-1"
         />
         <ServiceRecommendationButton
-          serviceId={service.id}
+          serviceId={serviceKey}
           initialRecommendation={recommendation}
         />
       </section>
 
       <ServiceComments
-        serviceId={service.id}
+        serviceId={serviceKey}
         testimonials={relatedTestimonials}
         comments={comments}
       />
@@ -154,7 +155,7 @@ export default async function ServiceDetailPage({
 }
 
 function getRelatedTestimonials(
-  serviceId: string,
+  serviceId: number,
   serviceTitle: string,
   serviceCategory: string | undefined,
   testimonials: TestimonialData[],

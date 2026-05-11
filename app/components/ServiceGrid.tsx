@@ -2,7 +2,8 @@ import React from "react";
 import { ProgressLink as Link } from "./RouteProgress";
 
 interface ServiceGridItem {
-  id: string;
+  id: number;
+  slug?: string;
   label?: string;
   title?: string;
   category?: string;
