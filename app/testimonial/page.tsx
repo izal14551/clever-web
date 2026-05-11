@@ -20,14 +20,15 @@ export default async function TestimonialPage() {
     getServiceListData(),
     getAllServiceComments(),
   ]);
-  const serviceMap = new Map(services.map((service) => [service.id, service]));
+  const serviceMap = new Map(services.map((service) => [String(service.id), service]));
   const testimonials: TestimonialData[] = [
     ...storedComments.map((comment) => {
       const service = serviceMap.get(comment.serviceId);
 
       return {
         id: `comment-${comment.id}`,
-        serviceId: comment.serviceId,
+        serviceId: service?.id,
+        serviceSlug: service?.slug,
         author: comment.author,
         timeAgo: formatCommentTimeAgo(comment.createdAt),
         category: service?.category || "Layanan CleverMom",
@@ -43,17 +44,21 @@ export default async function TestimonialPage() {
     })),
   ];
   const reactions = await getTestimonialReactions(
-    testimonials.map((testimonial) => testimonial.id),
+    testimonials.map((testimonial) => String(testimonial.id)),
     session?.user?.id,
   );
   const reactionMap = new Map(
     reactions.map((reaction) => [reaction.testimonialId, reaction]),
   );
   const testimonialsWithReactionState = testimonials.map((testimonial) => {
-    const reaction = reactionMap.get(testimonial.id);
+    const reaction = reactionMap.get(String(testimonial.id));
+    const service = testimonial.serviceId
+      ? serviceMap.get(String(testimonial.serviceId))
+      : undefined;
 
     return {
       ...testimonial,
+      serviceSlug: testimonial.serviceSlug || service?.slug,
       persistedReactionCount: reaction?.reactionCount || 0,
       reactionCount:
         testimonial.reactionCount + (reaction?.reactionCount || 0),

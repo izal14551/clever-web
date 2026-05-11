@@ -1,7 +1,9 @@
 export interface HelpTopic {
-  id: string;
+  id: number;
+  slug?: string;
   title: string;
   description: string;
+  sortOrder?: number;
 }
 
 export interface HelpPageData {

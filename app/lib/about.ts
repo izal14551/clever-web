@@ -42,11 +42,13 @@ function normalizeAboutData(input: unknown): AboutPageData {
 
   const values = (valuesSource || mockAboutData.values)
     .map((item, index) => normalizeValue(item, index))
-    .filter((item): item is AboutValue => item !== null);
+    .filter((item): item is AboutValue => item !== null)
+    .sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0));
 
   const locations = (locationsSource || mockAboutData.locations)
     .map((item, index) => normalizeLocation(item, index))
-    .filter((item): item is BranchLocation => item !== null);
+    .filter((item): item is BranchLocation => item !== null)
+    .sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0));
 
   return {
     heroTitle:
@@ -80,7 +82,20 @@ function normalizeValue(item: unknown, index: number): AboutValue | null {
     return null;
   }
 
-  return { title, description };
+  const id = toIntegerValue(item.id);
+  const legacySlug = typeof item.id === "string" ? item.id.trim() : "";
+
+  return {
+    id,
+    slug:
+      toStringValue(item.slug) ||
+      toStringValue(item.valueSlug) ||
+      (id ? undefined : legacySlug) ||
+      undefined,
+    title,
+    description,
+    sortOrder: toIntegerValue(item.sortOrder) || index + 1,
+  };
 }
 
 function normalizeLocation(item: unknown, index: number): BranchLocation | null {
@@ -91,8 +106,10 @@ function normalizeLocation(item: unknown, index: number): BranchLocation | null 
     }
 
     return {
-      id: `branch-${index + 1}`,
+      id: index + 1,
+      slug: `branch-${index + 1}`,
       name: value,
+      sortOrder: index + 1,
     };
   }
 
@@ -123,11 +140,21 @@ function normalizeLocation(item: unknown, index: number): BranchLocation | null 
     return null;
   }
 
+  const id = toIntegerValue(item.id) || index + 1;
+  const legacySlug = typeof item.id === "string" ? item.id.trim() : "";
+  const slug =
+    toStringValue(item.slug) ||
+    toStringValue(item.branchSlug) ||
+    toStringValue(item.cabangSlug) ||
+    (toIntegerValue(item.id) ? "" : legacySlug);
+
   return {
-    id: toStringValue(item.id) || `branch-${index + 1}`,
+    id,
+    slug: slug || undefined,
     name: name || address,
     address: name && address && name !== address ? address : undefined,
     mapUrl: mapUrl || undefined,
+    sortOrder: toIntegerValue(item.sortOrder) || index + 1,
   };
 }
 
@@ -161,4 +188,19 @@ function toStringValue(value: unknown): string {
   }
 
   return "";
+}
+
+function toIntegerValue(value: unknown): number | undefined {
+  if (typeof value === "number" && Number.isInteger(value) && value > 0) {
+    return value;
+  }
+
+  if (typeof value === "string") {
+    const trimmed = value.trim();
+    if (/^\d+$/.test(trimmed)) {
+      return Number(trimmed);
+    }
+  }
+
+  return undefined;
 }

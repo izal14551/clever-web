@@ -1,4 +1,4 @@
-id,slug,label,category,icon_url,sort_order
+id,slug,label,category,iconUrl,sortOrder
 1,baby-treatment,"Baby Treatment","Baby Treatment",,1
 2,paket-baby-treatment,"Paket Baby Treatment","Paket Baby Treatment",,2
 3,toddler-treatment,"Toddler Treatment","Toddler Treatment",,3

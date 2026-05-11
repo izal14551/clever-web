@@ -6,22 +6,28 @@ export const mockHelpData: HelpPageData = {
     "Halaman ini merangkum topik bantuan utama yang paling sering dibutuhkan oleh Mom saat menggunakan layanan CleverMom.",
   topics: [
     {
-      id: "help-1",
+      id: 1,
+      slug: "konsultasi-layanan",
       title: "Konsultasi layanan",
       description:
         "Tanyakan rekomendasi treatment, jadwal, atau kebutuhan perawatan ibu dan bayi.",
+      sortOrder: 1,
     },
     {
-      id: "help-2",
+      id: 2,
+      slug: "informasi-promo",
       title: "Informasi promo",
       description:
         "Mom bisa meminta detail promo yang sedang berjalan sebelum melakukan booking.",
+      sortOrder: 2,
     },
     {
-      id: "help-3",
+      id: 3,
+      slug: "bantuan-akun",
       title: "Bantuan akun",
       description:
         "Jika ada kendala akses atau pertanyaan umum seputar penggunaan website, tim kami siap membantu.",
+      sortOrder: 3,
     },
   ],
   contactTitle: "Butuh bantuan langsung?",

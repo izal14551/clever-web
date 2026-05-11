@@ -1,6 +1,13 @@
 import { mockHelpData } from "@/app/data/mockHelpData";
 import { buildAppsScriptUrl } from "@/app/lib/appsScript";
 import type { HelpPageData, HelpTopic } from "@/app/types/help";
+import {
+  normalizeNumericId,
+  normalizeSortOrder,
+  normalizeSlug,
+  toPositiveInteger,
+  toStringValue,
+} from "@/app/utils/dataIdentity";
 
 export async function getHelpData(): Promise<HelpPageData> {
   const helpScriptUrl = buildAppsScriptUrl();
@@ -42,7 +49,8 @@ function normalizeHelpData(input: unknown): HelpPageData {
 
   const topics = (topicsSource || mockHelpData.topics)
     .map((item, index) => normalizeTopic(item, index))
-    .filter((item): item is HelpTopic => item !== null);
+    .filter((item): item is HelpTopic => item !== null)
+    .sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0));
 
   return {
     heroTitle:
@@ -94,9 +102,16 @@ function normalizeTopic(item: unknown, index: number): HelpTopic | null {
   }
 
   return {
-    id: toStringValue(item.id) || `help-${index + 1}`,
+    id: normalizeNumericId(item.id, index + 1),
+    slug: normalizeSlug(
+      toStringValue(item.slug) ||
+        (toPositiveInteger(item.id) ? "" : toStringValue(item.id)),
+      title,
+      `help-${index + 1}`,
+    ),
     title,
     description,
+    sortOrder: normalizeSortOrder(item.sortOrder, index + 1),
   };
 }
 
@@ -118,16 +133,4 @@ function getArray(
 ): unknown[] | undefined {
   const value = source[key];
   return Array.isArray(value) ? value : undefined;
-}
-
-function toStringValue(value: unknown): string {
-  if (typeof value === "string") {
-    return value.trim();
-  }
-
-  if (typeof value === "number" && Number.isFinite(value)) {
-    return String(value);
-  }
-
-  return "";
 }

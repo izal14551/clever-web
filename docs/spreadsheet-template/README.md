@@ -2,17 +2,12 @@
 
 Template ini menstandarkan data spreadsheet agar siap dipakai aplikasi sekarang dan lebih mudah dimigrasikan ke relational DB nanti.
 
-Ini adalah template **resmi/aktif** untuk setup baru. Jika menemukan template lain di `docs/apps-script/`, anggap itu format lama/legacy.
-
-Template siap pakai tersedia sebagai satu workbook multi-sheet di `docs/spreadsheet-template.xlsx`.
-Upload file tersebut ke Google Sheets jika ingin langsung mendapatkan semua tab dalam satu file.
-
 ## Prinsip Kolom
 
 - `id`: integer positif, stabil, tidak dipakai untuk URL publik.
 - `slug`: teks URL-friendly, unik per sheet jika dipakai untuk route/link.
-- `service_id`: foreign key integer ke sheet `services.id`.
-- `sort_order`: integer untuk urutan tampil.
+- `serviceId`: foreign key integer ke sheet `services.id`.
+- `sortOrder`: integer untuk urutan tampil.
 - Kolom gambar boleh berisi URL publik atau Google Drive share link; aplikasi akan mencoba mengubahnya ke direct image URL.
 
 ## Sheet yang Disiapkan
@@ -21,7 +16,7 @@ Upload file tersebut ke Google Sheets jika ingin langsung mendapatkan semua tab 
 - `services.csv`: daftar treatment/layanan detail.
 - `promos.csv`: banner promo.
 - `packages.csv`: paket yang tampil di homepage.
-- `testimonials.csv`: testimonial, terkait ke treatment via `service_id`.
+- `testimonials.csv`: testimonial, terkait ke treatment via `serviceId`.
 - `featured_treatments.csv`: fallback treatment favorit saat belum ada rekomendasi user.
 - `about_values.csv`: nilai/section halaman tentang.
 - `branches.csv`: lokasi cabang.
@@ -34,18 +29,15 @@ File `apps-script-example.gs` sudah dibuat sebagai `Code.gs` paste-ready.
 
 Langkah implementasi:
 
-1. Upload `docs/spreadsheet-template.xlsx` ke Google Sheets.
-2. Pastikan nama tab sama seperti daftar sheet di atas.
+1. Buat Google Sheets.
+2. Import CSV template ke sheet dengan nama yang sama tanpa ekstensi, misalnya `branches.csv` menjadi sheet `branches`.
 3. Buka `Extensions -> Apps Script`.
 4. Paste isi `apps-script-example.gs` ke `Code.gs`.
 5. Di Apps Script, buka `Project Settings -> Script properties`.
 6. Tambahkan `APPS_SCRIPT_API_KEY` dengan value yang sama seperti `.env.local`.
 7. Deploy sebagai Web app, lalu pakai URL deployment sebagai `APPS_SCRIPT_URL`.
 
-CSV di folder ini adalah sumber maintenance untuk `docs/spreadsheet-template.xlsx`.
-Untuk penggunaan normal, upload file `.xlsx` saja.
-
-Script membaca header spreadsheet dalam `snake_case`, lalu mengembalikan JSON dengan bentuk `camelCase` agar tetap cocok dengan aplikasi:
+Script akan mengembalikan JSON dengan bentuk:
 
 ```json
 {

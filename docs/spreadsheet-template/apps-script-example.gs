@@ -30,29 +30,25 @@ const CONFIG = {
     siteContent: "site_content",
   },
   storeSheets: {
-    users: {
-      name: "users",
-      headers: ["id", "email", "name", "image", "last_login_at", "updated_at"],
-    },
     members: {
       name: "members",
-      headers: ["id", "user_id", "level", "point"],
+      headers: ["userId", "email", "name", "image", "lastLoginAt", "updatedAt"],
     },
     serviceComments: {
       name: "service_comments",
-      headers: ["id", "service_id", "author", "message", "created_at", "user_id", "author_mode"],
+      headers: ["id", "serviceId", "author", "message", "createdAt", "userId", "authorMode"],
     },
     serviceCommentLikes: {
       name: "service_comment_likes",
-      headers: ["comment_id", "user_id", "created_at"],
+      headers: ["commentId", "userId", "createdAt"],
     },
     serviceRecommendations: {
       name: "service_recommendations",
-      headers: ["service_id", "user_id", "created_at"],
+      headers: ["serviceId", "userId", "createdAt"],
     },
     testimonialReactions: {
       name: "testimonial_reactions",
-      headers: ["testimonial_id", "user_id", "created_at"],
+      headers: ["testimonialId", "userId", "createdAt"],
     },
   },
 };
@@ -110,10 +106,6 @@ function routeAction(action, payload) {
       return { member: upsertMember(payload) };
     case "updateMemberName":
       return { member: updateMemberName(payload) };
-    case "getMemberSummary":
-      return getMemberSummary(
-        normalizeText(payload.userId) || normalizeText(payload.id)
-      );
     case "getServiceComments":
       return {
         comments: getServiceComments(
@@ -196,73 +188,42 @@ function routeAction(action, payload) {
 }
 
 function upsertMember(payload) {
-  const userId = requireText(payload.userId || payload.id, "userId wajib ada.");
+  const userId = requireText(payload.userId, "userId wajib ada.");
   const email = normalizeText(payload.email);
   const now = new Date().toISOString();
-
-  // 1. Upsert data ke sheet "users"
-  const userSheet = ensureStoreSheet(CONFIG.storeSheets.users);
-  const userRows = readSheetRows(userSheet);
-  const existingUser = userRows.find((row) => row.id === userId);
-  const userObj = {
-    id: userId,
+  const sheet = ensureStoreSheet(CONFIG.storeSheets.members);
+  const rows = readSheetRows(sheet);
+  const existing = rows.find((row) => row.userId === userId);
+  const member = {
+    userId,
     email,
     name: normalizeText(payload.name),
     image: normalizeText(payload.image),
     lastLoginAt: normalizeText(payload.lastLoginAt) || now,
-    updatedAt: existingUser ? existingUser.updatedAt || now : now,
+    updatedAt: existing ? existing.updatedAt || now : now,
   };
-  upsertRowByKey(userSheet, "id", userId, userObj);
 
-  // 2. Check & inisialisasi membership di sheet "members"
-  const memberSheet = ensureStoreSheet(CONFIG.storeSheets.members);
-  const memberRows = readSheetRows(memberSheet);
-  const existingMember = memberRows.find((row) => row.userId === userId);
-  if (!existingMember) {
-    const newMember = {
-      id: Utilities.getUuid(),
-      userId: userId,
-      level: "-",
-      point: 120, // default point
-    };
-    appendObjectRow(memberSheet, newMember);
-  }
-
-  return userObj;
+  upsertRowByKey(sheet, "userId", userId, member);
+  return member;
 }
 
 function updateMemberName(payload) {
-  const userId = requireText(payload.userId || payload.id, "userId wajib ada.");
+  const userId = requireText(payload.userId, "userId wajib ada.");
   const now = new Date().toISOString();
-  const userSheet = ensureStoreSheet(CONFIG.storeSheets.users);
-  const userRows = readSheetRows(userSheet);
-  const existingUser = userRows.find((row) => row.id === userId) || {};
-  
-  const userObj = {
-    id: userId,
-    email: normalizeText(payload.email) || existingUser.email,
+  const sheet = ensureStoreSheet(CONFIG.storeSheets.members);
+  const rows = readSheetRows(sheet);
+  const existing = rows.find((row) => row.userId === userId) || {};
+  const member = {
+    userId,
+    email: normalizeText(payload.email) || existing.email,
     name: requireText(payload.name, "name wajib ada."),
-    image: existingUser.image || "",
-    lastLoginAt: existingUser.lastLoginAt || now,
+    image: existing.image || "",
+    lastLoginAt: existing.lastLoginAt || now,
     updatedAt: normalizeText(payload.updatedAt) || now,
   };
 
-  upsertRowByKey(userSheet, "id", userId, userObj);
-  return userObj;
-}
-
-function getMemberSummary(userId) {
-  requireText(userId, "userId wajib ada.");
-  const memberSheet = ensureStoreSheet(CONFIG.storeSheets.members);
-  const memberRows = readSheetRows(memberSheet);
-  const member = memberRows.find((row) => row.userId === userId);
-
-  return {
-    summary: {
-      memberLevel: member ? normalizeText(member.level) || "-" : "-",
-      points: member ? Number(member.point) || 0 : 0
-    }
-  };
+  upsertRowByKey(sheet, "userId", userId, member);
+  return member;
 }
 
 function getServiceComments(serviceId, viewerUserId) {
@@ -445,7 +406,7 @@ function addUniqueRelation(sheetConfig, relation) {
 function readSiteContent() {
   return readRows(CONFIG.contentSheets.siteContent).reduce((sections, row) => {
     const section = normalizeText(row.section);
-    const key = normalizeHeaderKey(row.key);
+    const key = normalizeText(row.key);
     if (!section || !key) return sections;
 
     sections[section] = sections[section] || {};
@@ -464,7 +425,7 @@ function readSheetRows(sheet) {
   const values = sheet.getDataRange().getValues();
   if (values.length < 2) return [];
 
-  const headers = values[0].map((header) => normalizeHeaderKey(header));
+  const headers = values[0].map((header) => normalizeText(header));
   return values
     .slice(1)
     .map((row) =>
@@ -496,8 +457,7 @@ function ensureStoreSheet(config) {
     .getValues()[0]
     .map((header) => normalizeText(header));
 
-  const existingKeys = headers.map(normalizeHeaderKey);
-  const missingHeaders = config.headers.filter((header) => !existingKeys.includes(normalizeHeaderKey(header)));
+  const missingHeaders = config.headers.filter((header) => !headers.includes(header));
   if (missingHeaders.length > 0) {
     sheet.getRange(1, headers.length + 1, 1, missingHeaders.length).setValues([missingHeaders]);
   }
@@ -507,14 +467,14 @@ function ensureStoreSheet(config) {
 
 function appendObjectRow(sheet, object) {
   const headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0].map(normalizeText);
-  sheet.appendRow(headers.map((header) => object[normalizeHeaderKey(header)] || ""));
+  sheet.appendRow(headers.map((header) => object[header] || ""));
 }
 
 function upsertRowByKey(sheet, key, value, object) {
   const headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0].map(normalizeText);
   const rows = readSheetRows(sheet);
   const index = rows.findIndex((row) => row[key] === value);
-  const values = headers.map((header) => object[normalizeHeaderKey(header)] || "");
+  const values = headers.map((header) => object[header] || "");
 
   if (index >= 0) {
     sheet.getRange(index + 2, 1, 1, values.length).setValues([values]);
@@ -596,14 +556,6 @@ function requireText(value, message) {
 
 function normalizeText(value) {
   return String(value === null || value === undefined ? "" : value).trim();
-}
-
-function normalizeHeaderKey(value) {
-  return snakeToCamel(normalizeText(value));
-}
-
-function snakeToCamel(value) {
-  return value.replace(/_([a-z0-9])/g, (_, char) => char.toUpperCase());
 }
 
 function unique(values) {

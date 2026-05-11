@@ -1,8 +1,8 @@
-﻿import { ServiceListItemData } from "../types/landing";
+import { ServiceListItemData } from "../types/landing";
 
 export const mockServiceListData: ServiceListItemData[] = [
   {
-    id: "svc2",
+    id: 2,
     category: "Baby Treatment",
     title: "Baby Massage Imun Booster & Relaksasi",
     description:
@@ -12,7 +12,7 @@ export const mockServiceListData: ServiceListItemData[] = [
       "https://images.unsplash.com/photo-1516627145497-ae6968895b74?auto=format&fit=crop&w=800&q=80",
   },
   {
-    id: "svc3",
+    id: 3,
     category: "Baby Treatment",
     title: "Baby Pierce One Click + Salf",
     description:
@@ -22,7 +22,7 @@ export const mockServiceListData: ServiceListItemData[] = [
       "https://images.unsplash.com/photo-1516589091380-5d8e87df6999?auto=format&fit=crop&w=800&q=80",
   },
   {
-    id: "svc4",
+    id: 4,
     category: "Baby Treatment",
     title: "Pediatric Massage",
     description:
@@ -32,7 +32,7 @@ export const mockServiceListData: ServiceListItemData[] = [
       "https://images.unsplash.com/photo-1609220136736-443140cffec6?auto=format&fit=crop&w=800&q=80",
   },
   {
-    id: "svc5",
+    id: 5,
     category: "Baby Treatment",
     title: "Haircut Full atau Non Full",
     description:
@@ -40,7 +40,7 @@ export const mockServiceListData: ServiceListItemData[] = [
     duration: "30 Menit",
   },
   {
-    id: "svc6",
+    id: 6,
     category: "Baby Treatment",
     title: "Baby Swim + Gym",
     description:
@@ -48,7 +48,7 @@ export const mockServiceListData: ServiceListItemData[] = [
     duration: "30 Menit",
   },
   {
-    id: "svc7",
+    id: 7,
     category: "Paket Baby Treatment",
     title: "Little Raindrops",
     description:
@@ -56,7 +56,7 @@ export const mockServiceListData: ServiceListItemData[] = [
     duration: "90 Menit",
   },
   {
-    id: "svc8",
+    id: 8,
     category: "Paket Baby Treatment",
     title: "Comfort Breath",
     description:
@@ -64,7 +64,7 @@ export const mockServiceListData: ServiceListItemData[] = [
     duration: "30 Menit",
   },
   {
-    id: "svc9",
+    id: 9,
     category: "Paket Baby Treatment",
     title: "Serenity Package",
     description:
@@ -72,7 +72,7 @@ export const mockServiceListData: ServiceListItemData[] = [
     duration: "60 Menit",
   },
   {
-    id: "svc10",
+    id: 10,
     category: "Paket Baby Treatment",
     title: "Sugar Plum",
     description:
@@ -80,7 +80,7 @@ export const mockServiceListData: ServiceListItemData[] = [
     duration: "60 Menit",
   },
   {
-    id: "svc11",
+    id: 11,
     category: "Paket Baby Treatment",
     title: "Snuggle Soft",
     description:
@@ -88,7 +88,7 @@ export const mockServiceListData: ServiceListItemData[] = [
     duration: "60 Menit",
   },
   {
-    id: "svc12",
+    id: 12,
     category: "Paket Baby Treatment",
     title: "Tiny Joy Spa",
     description:
@@ -96,7 +96,7 @@ export const mockServiceListData: ServiceListItemData[] = [
     duration: "60 Menit",
   },
   {
-    id: "svc13",
+    id: 13,
     category: "Toddler Treatment",
     title: "Toddler Massage Imun Booster & Relaksasi",
     description:
@@ -104,7 +104,7 @@ export const mockServiceListData: ServiceListItemData[] = [
     duration: "45 Menit",
   },
   {
-    id: "svc14",
+    id: 14,
     category: "Toddler Treatment",
     title: "Pediatric Massage Toddler",
     description:
@@ -112,7 +112,7 @@ export const mockServiceListData: ServiceListItemData[] = [
     duration: "45 Menit",
   },
   {
-    id: "svc15",
+    id: 15,
     category: "Paket Toddler Treatment",
     title: "Little Splash",
     description:
@@ -120,7 +120,7 @@ export const mockServiceListData: ServiceListItemData[] = [
     duration: "90 Menit",
   },
   {
-    id: "svc16",
+    id: 16,
     category: "Paket Toddler Treatment",
     title: "Bounce & Bright",
     description:
@@ -128,7 +128,7 @@ export const mockServiceListData: ServiceListItemData[] = [
     duration: "60 Menit",
   },
   {
-    id: "svc17",
+    id: 17,
     category: "Kids Treatment",
     title: "Kids Massage Imun Booster & Relaksasi",
     description:
@@ -136,7 +136,7 @@ export const mockServiceListData: ServiceListItemData[] = [
     duration: "60 Menit",
   },
   {
-    id: "svc18",
+    id: 18,
     category: "Kids Treatment",
     title: "Pediatric Massage Kids",
     description:
@@ -144,7 +144,7 @@ export const mockServiceListData: ServiceListItemData[] = [
     duration: "60 Menit",
   },
   {
-    id: "svc19",
+    id: 19,
     category: "Paket Kids Treatment",
     title: "Fun & Fabulous",
     description:
@@ -152,7 +152,7 @@ export const mockServiceListData: ServiceListItemData[] = [
     duration: "90 Menit",
   },
   {
-    id: "svc20",
+    id: 20,
     category: "Additional",
     title: "Nebulizer",
     description:
@@ -160,7 +160,7 @@ export const mockServiceListData: ServiceListItemData[] = [
     duration: "20 Menit",
   },
   {
-    id: "svc21",
+    id: 21,
     category: "Additional",
     title: "Therapy Sinar Infrared",
     description:
@@ -168,7 +168,7 @@ export const mockServiceListData: ServiceListItemData[] = [
     duration: "15 Menit",
   },
   {
-    id: "svc22",
+    id: 22,
     category: "Additional",
     title: "Nailcut",
     description:
@@ -176,7 +176,7 @@ export const mockServiceListData: ServiceListItemData[] = [
     duration: "30 Menit",
   },
   {
-    id: "svc23",
+    id: 23,
     category: "Additional",
     title: "Memandikan Bayi atau Toddler",
     description:
@@ -184,7 +184,7 @@ export const mockServiceListData: ServiceListItemData[] = [
     duration: "30 Menit",
   },
   {
-    id: "svc24",
+    id: 24,
     category: "Additional",
     title: "On Call Bidan Menjaga Bayi atau Anak per Jam",
     description:
@@ -192,7 +192,7 @@ export const mockServiceListData: ServiceListItemData[] = [
     duration: "90 Menit",
   },
   {
-    id: "svc25",
+    id: 25,
     category: "Additional",
     title: "On Call Menjaga Bayi 0-11 Bulan Half Day 6 Jam",
     description:
@@ -200,7 +200,7 @@ export const mockServiceListData: ServiceListItemData[] = [
     duration: "6 Jam",
   },
   {
-    id: "svc26",
+    id: 26,
     category: "Additional",
     title: "On Call Menjaga Bayi 0-11 Bulan per Hari 8 Jam",
     description:
@@ -208,7 +208,7 @@ export const mockServiceListData: ServiceListItemData[] = [
     duration: "8 Jam",
   },
   {
-    id: "svc27",
+    id: 27,
     category: "Additional",
     title: "On Call Bidan Menginap 12 Jam",
     description:
@@ -216,7 +216,7 @@ export const mockServiceListData: ServiceListItemData[] = [
     duration: "12 Jam",
   },
   {
-    id: "svc28",
+    id: 28,
     category: "Additional",
     title: "On Call Bidan Menginap 24 Jam",
     description:

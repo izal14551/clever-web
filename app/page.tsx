@@ -43,7 +43,7 @@ export default async function LandingPage() {
     data;
 
   const serviceMap = new Map(
-    serviceItems.map((service) => [service.id, service]),
+    serviceItems.map((service) => [String(service.id), service]),
   );
   const allFeedback: TestimonialData[] = [
     ...storedComments.map((comment) => {
@@ -51,7 +51,8 @@ export default async function LandingPage() {
 
       return {
         id: `comment-${comment.id}`,
-        serviceId: comment.serviceId,
+        serviceId: service?.id,
+        serviceSlug: service?.slug,
         author: comment.author,
         timeAgo: formatCommentTimeAgo(comment.createdAt),
         category: service?.category || "Layanan CleverMom",
@@ -67,17 +68,21 @@ export default async function LandingPage() {
     })),
   ];
   const feedbackReactions = await getTestimonialReactions(
-    allFeedback.map((testimonial) => testimonial.id),
+    allFeedback.map((testimonial) => String(testimonial.id)),
     session?.user?.id,
   );
   const feedbackReactionMap = new Map(
     feedbackReactions.map((reaction) => [reaction.testimonialId, reaction]),
   );
   const feedbackWithReactionState = allFeedback.map((testimonial) => {
-    const reaction = feedbackReactionMap.get(testimonial.id);
+    const reaction = feedbackReactionMap.get(String(testimonial.id));
+    const service = testimonial.serviceId
+      ? serviceMap.get(String(testimonial.serviceId))
+      : undefined;
 
     return {
       ...testimonial,
+      serviceSlug: testimonial.serviceSlug || service?.slug,
       persistedReactionCount: reaction?.reactionCount || 0,
       reactionCount:
         testimonial.reactionCount + (reaction?.reactionCount || 0),
@@ -98,7 +103,7 @@ export default async function LandingPage() {
       description: service.category || service.description,
       imageUrl: service.imageUrl,
       href: `/services/${service.slug || service.id}`,
-      recommendationCount: recommendationMap.get(service.id) || 0,
+      recommendationCount: recommendationMap.get(String(service.id)) || 0,
     }))
     .filter((service) => service.recommendationCount > 0)
     .sort((a, b) => b.recommendationCount - a.recommendationCount)
