@@ -1,4 +1,4 @@
-id,slug,title,description,sortOrder
+id,slug,title,description,sort_order
 1,konsultasi-layanan,"Konsultasi layanan","Tanyakan rekomendasi treatment, jadwal, atau kebutuhan perawatan ibu dan bayi.",1
 2,informasi-promo,"Informasi promo","Mom bisa meminta detail promo yang sedang berjalan sebelum melakukan booking.",2
 3,bantuan-akun,"Bantuan akun","Jika ada kendala akses atau pertanyaan umum seputar penggunaan website, tim kami siap membantu.",3
