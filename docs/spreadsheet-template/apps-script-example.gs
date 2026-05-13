@@ -32,23 +32,23 @@ const CONFIG = {
   storeSheets: {
     members: {
       name: "members",
-      headers: ["userId", "email", "name", "image", "lastLoginAt", "updatedAt"],
+      headers: ["user_id", "email", "name", "image", "last_login_at", "updated_at"],
     },
     serviceComments: {
       name: "service_comments",
-      headers: ["id", "serviceId", "author", "message", "createdAt", "userId", "authorMode"],
+      headers: ["id", "service_id", "author", "message", "created_at", "user_id", "author_mode"],
     },
     serviceCommentLikes: {
       name: "service_comment_likes",
-      headers: ["commentId", "userId", "createdAt"],
+      headers: ["comment_id", "user_id", "created_at"],
     },
     serviceRecommendations: {
       name: "service_recommendations",
-      headers: ["serviceId", "userId", "createdAt"],
+      headers: ["service_id", "user_id", "created_at"],
     },
     testimonialReactions: {
       name: "testimonial_reactions",
-      headers: ["testimonialId", "userId", "createdAt"],
+      headers: ["testimonial_id", "user_id", "created_at"],
     },
   },
 };
@@ -406,7 +406,7 @@ function addUniqueRelation(sheetConfig, relation) {
 function readSiteContent() {
   return readRows(CONFIG.contentSheets.siteContent).reduce((sections, row) => {
     const section = normalizeText(row.section);
-    const key = normalizeText(row.key);
+    const key = normalizeHeaderKey(row.key);
     if (!section || !key) return sections;
 
     sections[section] = sections[section] || {};
@@ -425,7 +425,7 @@ function readSheetRows(sheet) {
   const values = sheet.getDataRange().getValues();
   if (values.length < 2) return [];
 
-  const headers = values[0].map((header) => normalizeText(header));
+  const headers = values[0].map((header) => normalizeHeaderKey(header));
   return values
     .slice(1)
     .map((row) =>
@@ -457,7 +457,8 @@ function ensureStoreSheet(config) {
     .getValues()[0]
     .map((header) => normalizeText(header));
 
-  const missingHeaders = config.headers.filter((header) => !headers.includes(header));
+  const existingKeys = headers.map(normalizeHeaderKey);
+  const missingHeaders = config.headers.filter((header) => !existingKeys.includes(normalizeHeaderKey(header)));
   if (missingHeaders.length > 0) {
     sheet.getRange(1, headers.length + 1, 1, missingHeaders.length).setValues([missingHeaders]);
   }
@@ -467,14 +468,14 @@ function ensureStoreSheet(config) {
 
 function appendObjectRow(sheet, object) {
   const headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0].map(normalizeText);
-  sheet.appendRow(headers.map((header) => object[header] || ""));
+  sheet.appendRow(headers.map((header) => object[normalizeHeaderKey(header)] || ""));
 }
 
 function upsertRowByKey(sheet, key, value, object) {
   const headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0].map(normalizeText);
   const rows = readSheetRows(sheet);
   const index = rows.findIndex((row) => row[key] === value);
-  const values = headers.map((header) => object[header] || "");
+  const values = headers.map((header) => object[normalizeHeaderKey(header)] || "");
 
   if (index >= 0) {
     sheet.getRange(index + 2, 1, 1, values.length).setValues([values]);
@@ -556,6 +557,14 @@ function requireText(value, message) {
 
 function normalizeText(value) {
   return String(value === null || value === undefined ? "" : value).trim();
+}
+
+function normalizeHeaderKey(value) {
+  return snakeToCamel(normalizeText(value));
+}
+
+function snakeToCamel(value) {
+  return value.replace(/_([a-z0-9])/g, (_, char) => char.toUpperCase());
 }
 
 function unique(values) {
