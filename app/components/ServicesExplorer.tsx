@@ -28,7 +28,11 @@ function deriveCategory(service: ServiceListItemData): string {
 
   const text = `${service.title} ${service.description}`.toLowerCase();
 
-  if (text.includes("bayi") || text.includes("baby") || text.includes("newborn")) {
+  if (
+    text.includes("bayi") ||
+    text.includes("baby") ||
+    text.includes("newborn")
+  ) {
     return "Bayi";
   }
 
@@ -36,7 +40,11 @@ function deriveCategory(service: ServiceListItemData): string {
     return "Laktasi";
   }
 
-  if (text.includes("nifas") || text.includes("postpartum") || text.includes("ibu")) {
+  if (
+    text.includes("nifas") ||
+    text.includes("postpartum") ||
+    text.includes("ibu")
+  ) {
     return "Ibu";
   }
 
@@ -63,7 +71,7 @@ export function ServicesExplorer({
     ...(services.some(isPackageService) ? ["Paket"] : []),
     ...serviceCategories,
   ];
-  const category = categories.includes(initialCategory) ? initialCategory : "Semua";
+  const category = resolveInitialCategory(initialCategory, categories);
 
   function updateCategory(nextCategory: string) {
     const params = new URLSearchParams(searchParams.toString());
@@ -74,7 +82,9 @@ export function ServicesExplorer({
     }
 
     const query = params.toString();
-    router.replace(query ? `/services?${query}` : "/services", { scroll: false });
+    router.replace(query ? `/services?${query}` : "/services", {
+      scroll: false,
+    });
   }
 
   let visibleServices = services.filter((service) => {
@@ -117,7 +127,9 @@ export function ServicesExplorer({
         <button
           type="button"
           onClick={() =>
-            setActivePanel((current) => (current === "category" ? null : "category"))
+            setActivePanel((current) =>
+              current === "category" ? null : "category",
+            )
           }
           className="flex items-center justify-center gap-2 border-r border-orange-100 py-3 text-sm font-semibold text-[#6f5a40]"
         >
@@ -126,7 +138,9 @@ export function ServicesExplorer({
         </button>
         <button
           type="button"
-          onClick={() => setActivePanel((current) => (current === "sort" ? null : "sort"))}
+          onClick={() =>
+            setActivePanel((current) => (current === "sort" ? null : "sort"))
+          }
           className="flex items-center justify-center gap-2 border-r border-orange-100 py-3 text-sm font-semibold text-[#6f5a40]"
         >
           <ArrowDownUp size={16} className="text-[#a68b6d]" />
@@ -135,7 +149,9 @@ export function ServicesExplorer({
         <button
           type="button"
           onClick={() =>
-            setActivePanel((current) => (current === "filter" ? null : "filter"))
+            setActivePanel((current) =>
+              current === "filter" ? null : "filter",
+            )
           }
           className="flex items-center justify-center gap-2 py-3 text-sm font-semibold text-[#6f5a40]"
         >
@@ -248,10 +264,40 @@ export function ServicesExplorer({
       ) : (
         <section className="bg-gradient-to-b from-orange-50 to-orange-100/70 px-4 py-6">
           <div className="rounded-2xl border border-dashed border-orange-200 bg-white p-5 text-sm text-[#6f6255]">
-            Belum ada layanan yang cocok dengan kategori, urutan, dan filter yang dipilih.
+            Belum ada layanan yang cocok dengan kategori, urutan, dan filter
+            yang dipilih.
           </div>
         </section>
       )}
     </>
   );
+}
+
+function resolveInitialCategory(input: string, categories: string[]): string {
+  if (!input || input === "Semua") return "Semua";
+
+  // Exact match first
+  if (categories.includes(input)) return input;
+
+  // Case-insensitive match
+  const lowerInput = input.toLowerCase();
+  const match = categories.find(
+    (category) => category.toLowerCase() === lowerInput,
+  );
+  if (match) return match;
+
+  // Partial match: "Paket" should activate the virtual "Paket" category
+  if (lowerInput === "paket" && categories.includes("Paket")) {
+    return "Paket";
+  }
+
+  // Substring match: try to find a category that contains the input
+  const partialMatch = categories.find(
+    (category) =>
+      category.toLowerCase().includes(lowerInput) ||
+      lowerInput.includes(category.toLowerCase()),
+  );
+  if (partialMatch) return partialMatch;
+
+  return "Semua";
 }
