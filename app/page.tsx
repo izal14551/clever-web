@@ -45,9 +45,15 @@ export default async function LandingPage() {
   const serviceMap = new Map(
     serviceItems.map((service) => [String(service.id), service]),
   );
+  const serviceSlugMap = new Map(
+    serviceItems
+      .filter((service) => service.slug)
+      .map((service) => [service.slug as string, service]),
+  );
   const allFeedback: TestimonialData[] = [
     ...storedComments.map((comment) => {
-      const service = serviceMap.get(comment.serviceId);
+      const service =
+        serviceMap.get(comment.serviceId) || serviceSlugMap.get(comment.serviceId);
 
       return {
         id: `comment-${comment.id}`,

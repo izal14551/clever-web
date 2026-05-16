@@ -21,9 +21,15 @@ export default async function TestimonialPage() {
     getAllServiceComments(),
   ]);
   const serviceMap = new Map(services.map((service) => [String(service.id), service]));
+  const serviceSlugMap = new Map(
+    services
+      .filter((service) => service.slug)
+      .map((service) => [service.slug as string, service]),
+  );
   const testimonials: TestimonialData[] = [
     ...storedComments.map((comment) => {
-      const service = serviceMap.get(comment.serviceId);
+      const service =
+        serviceMap.get(comment.serviceId) || serviceSlugMap.get(comment.serviceId);
 
       return {
         id: `comment-${comment.id}`,
