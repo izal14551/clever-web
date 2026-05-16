@@ -26,14 +26,14 @@ function LoginContent() {
 
   if (status === "loading") {
     return (
-      <main className="mx-auto flex min-h-screen max-w-md items-center justify-center bg-gradient-to-b from-[#fff6ea] via-[#fffaf4] to-[#fffdf9] p-6 font-sans shadow-md">
+      <main className="mx-auto flex min-h-screen max-w-md items-center justify-center bg-linear-to-b from-[#fff6ea] via-[#fffaf4] to-[#fffdf9] p-6 font-sans shadow-md">
         <p className="font-semibold text-[#8d7b69] animate-pulse">Memuat...</p>
       </main>
     );
   }
 
   return (
-    <main className="mx-auto flex min-h-screen max-w-md flex-col bg-gradient-to-b from-[#fff6ea] via-[#fffaf4] to-[#fffdf9] font-sans shadow-md relative">
+    <main className="mx-auto flex min-h-screen max-w-md flex-col bg-linear-to-b from-[#fff6ea] via-[#fffaf4] to-[#fffdf9] font-sans shadow-md relative">
       <header className="sticky top-0 z-30 flex h-14 items-center border-b border-[#efe2d3] bg-white/90 px-4 backdrop-blur">
         <Link href="/" className="inline-flex items-center text-[#6f6255]">
           <ArrowLeft size={20} />
@@ -43,7 +43,7 @@ function LoginContent() {
 
       <section className="flex flex-1 items-center justify-center p-6">
         <div className="w-full rounded-[32px] border border-[#eadbc9] bg-white/88 px-6 py-10 text-center shadow-[0_20px_55px_rgba(166,139,109,0.12)] backdrop-blur">
-          <div className="mx-auto mb-6 flex h-32 w-32 items-center justify-center rounded-full bg-gradient-to-b from-[#fff6ea] to-[#fff0df] p-4 shadow-[0_14px_30px_rgba(166,139,109,0.14)]">
+          <div className="mx-auto mb-6 flex h-32 w-32 items-center justify-center rounded-full bg-linear-to-b from-[#fff6ea] to-[#fff0df] p-4 shadow-[0_14px_30px_rgba(166,139,109,0.14)]">
             <Image
               src="/logo/LOGO_CLEVERMOM.PNG"
               alt="Clevermom Logo"
@@ -61,7 +61,8 @@ function LoginContent() {
             Selamat Datang di Clevermom
           </h1>
           <p className="mb-8 px-2 text-sm leading-7 text-[#7b6b5b]">
-            Masuk dengan akun Google untuk melihat profil, mengakses layanan, dan melanjutkan kebutuhan treatment Mom.
+            Masuk dengan akun Google untuk melihat profil, mengakses layanan,
+            dan melanjutkan kebutuhan treatment Mom.
           </p>
 
           <button
@@ -102,8 +103,10 @@ export default function LoginPage() {
   return (
     <Suspense
       fallback={
-        <main className="mx-auto flex min-h-screen max-w-md items-center justify-center bg-gradient-to-b from-[#fff6ea] via-[#fffaf4] to-[#fffdf9] p-6 font-sans shadow-md">
-          <p className="font-semibold text-[#8d7b69] animate-pulse">Memuat...</p>
+        <main className="mx-auto flex min-h-screen max-w-md items-center justify-center bg-linear-to-b from-[#fff6ea] via-[#fffaf4] to-[#fffdf9] p-6 font-sans shadow-md">
+          <p className="font-semibold text-[#8d7b69] animate-pulse">
+            Memuat...
+          </p>
         </main>
       }
     >
