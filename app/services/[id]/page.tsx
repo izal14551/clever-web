@@ -92,6 +92,7 @@ export default async function ServiceDetailPage({
 
       <ServiceComments
         serviceId={serviceKey}
+        serviceTitle={service.title}
         comments={comments}
       />
 
