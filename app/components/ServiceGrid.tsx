@@ -64,7 +64,9 @@ export function ServiceGrid({
 function getServiceCategories(services: ServiceGridItem[]): string[] {
   const categories = services
     .map((service) => (service.category || "").trim())
-    .filter(Boolean);
+    .filter(
+      (category) => category && !category.toLowerCase().includes("paket"),
+    );
 
   return Array.from(new Set(categories));
 }
