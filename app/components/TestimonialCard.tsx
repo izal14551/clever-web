@@ -46,16 +46,16 @@ export function TestimonialCard({
     setErrorMessage("");
 
     try {
-      const response = await fetch("/api/testimonial-reactions", {
+      const response = await fetch("/api/service-comments/like", {
         method: willHelp ? "POST" : "DELETE",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ testimonialId: testimonialKey }),
+        body: JSON.stringify({ commentId: testimonialKey }),
       });
       const payload: unknown = await response.json();
 
-      if (!response.ok || !isReactionPayload(payload)) {
+      if (!response.ok || !isLikePayload(payload)) {
         const message =
           isMessagePayload(payload) && payload.message
             ? payload.message
@@ -65,8 +65,8 @@ export function TestimonialCard({
         throw new Error(message);
       }
 
-      setReactionCount(baseReactionCount + payload.reaction.reactionCount);
-      setHasHelped(payload.reaction.reactedByCurrentUser);
+      setReactionCount(baseReactionCount + payload.like.likeCount);
+      setHasHelped(payload.like.likedByCurrentUser);
     } catch (error) {
       setErrorMessage(
         error instanceof Error
@@ -96,7 +96,9 @@ export function TestimonialCard({
               <p className="truncate text-sm font-bold text-[#5f4c39]">
                 {testimonial.author}
               </p>
-              <p className="text-[11px] text-[#b49a80]">{testimonial.timeAgo}</p>
+              <p className="text-[11px] text-[#b49a80]">
+                {testimonial.timeAgo}
+              </p>
             </div>
             <Ellipsis size={18} className="shrink-0 text-[#c6b29e]" />
           </div>
@@ -139,7 +141,9 @@ export function TestimonialCard({
             onClick={handleHelpMom}
             disabled={isSaving}
             className={`flex w-full cursor-pointer items-center justify-center gap-2 text-base font-medium transition disabled:cursor-not-allowed disabled:opacity-70 ${
-              hasHelped ? "text-[#c65f51]" : "text-[#a68b6d] hover:text-[#c65f51]"
+              hasHelped
+                ? "text-[#c65f51]"
+                : "text-[#a68b6d] hover:text-[#c65f51]"
             }`}
             aria-pressed={hasHelped}
             aria-label={
@@ -179,19 +183,19 @@ export function TestimonialCard({
   );
 }
 
-function isReactionPayload(value: unknown): value is {
-  reaction: {
-    testimonialId: string;
-    reactionCount: number;
-    reactedByCurrentUser: boolean;
+function isLikePayload(value: unknown): value is {
+  like: {
+    commentId: string;
+    likeCount: number;
+    likedByCurrentUser: boolean;
   };
 } {
   return (
     isRecord(value) &&
-    isRecord(value.reaction) &&
-    typeof value.reaction.testimonialId === "string" &&
-    typeof value.reaction.reactionCount === "number" &&
-    typeof value.reaction.reactedByCurrentUser === "boolean"
+    isRecord(value.like) &&
+    typeof value.like.commentId === "string" &&
+    typeof value.like.likeCount === "number" &&
+    typeof value.like.likedByCurrentUser === "boolean"
   );
 }
 

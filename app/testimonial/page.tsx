@@ -4,71 +4,46 @@ import { BottomNav } from "../components/BottomNav";
 import { ProfileSubpageHeader } from "../components/ProfileSubpageHeader";
 import { TestimonialCard } from "../components/TestimonialCard";
 import { formatCommentTimeAgo } from "../lib/commentTime";
-import { getLandingData } from "../lib/landing";
 import { getServiceListData } from "../services/serviceData";
 import { getAllServiceComments } from "../lib/serviceComments";
 import { authOptions } from "../lib/auth";
-import { getTestimonialReactions } from "../lib/testimonialReactions";
 import type { TestimonialData } from "../types/landing";
 
 export const dynamic = "force-dynamic";
 
 export default async function TestimonialPage() {
-  const [session, data, services, storedComments] = await Promise.all([
+  const [session, services, storedComments] = await Promise.all([
     getServerSession(authOptions),
-    getLandingData(),
     getServiceListData(),
     getAllServiceComments(),
   ]);
-  const serviceMap = new Map(services.map((service) => [String(service.id), service]));
+  const serviceMap = new Map(
+    services.map((service) => [String(service.id), service]),
+  );
   const serviceSlugMap = new Map(
     services
       .filter((service) => service.slug)
       .map((service) => [service.slug as string, service]),
   );
-  const testimonials: TestimonialData[] = [
-    ...storedComments.map((comment) => {
-      const service =
-        serviceMap.get(comment.serviceId) || serviceSlugMap.get(comment.serviceId);
 
-      return {
-        id: `comment-${comment.id}`,
-        serviceId: service?.id,
-        serviceSlug: service?.slug,
-        author: comment.author,
-        timeAgo: formatCommentTimeAgo(comment.createdAt),
-        category: service?.category || "Layanan CleverMom",
-        title: service?.title || "Komentar Mom",
-        message: comment.message,
-        reactionCount: comment.likeCount,
-        ctaLabel: "Bantu Mom lain",
-      };
-    }),
-    ...(data.testimonials ?? []).map((testimonial) => ({
-      ...testimonial,
-      ctaLabel: "Bantu Mom lain",
-    })),
-  ];
-  const reactions = await getTestimonialReactions(
-    testimonials.map((testimonial) => String(testimonial.id)),
-    session?.user?.id,
-  );
-  const reactionMap = new Map(
-    reactions.map((reaction) => [reaction.testimonialId, reaction]),
-  );
-  const testimonialsWithReactionState = testimonials.map((testimonial) => {
-    const reaction = reactionMap.get(String(testimonial.id));
-    const service = testimonial.serviceId
-      ? serviceMap.get(String(testimonial.serviceId))
-      : undefined;
+  const testimonials: TestimonialData[] = storedComments.map((comment) => {
+    const service =
+      serviceMap.get(comment.serviceId) ||
+      serviceSlugMap.get(comment.serviceId);
 
     return {
-      ...testimonial,
-      serviceSlug: testimonial.serviceSlug || service?.slug,
-      persistedReactionCount: reaction?.reactionCount || 0,
-      reactionCount:
-        testimonial.reactionCount + (reaction?.reactionCount || 0),
-      reactedByCurrentUser: reaction?.reactedByCurrentUser || false,
+      id: comment.id,
+      serviceId: service?.id,
+      serviceSlug: service?.slug,
+      author: comment.author,
+      timeAgo: formatCommentTimeAgo(comment.createdAt),
+      category: service?.category || "Layanan CleverMom",
+      title: service?.title || "Komentar Mom",
+      message: comment.message,
+      reactionCount: comment.likeCount,
+      persistedReactionCount: comment.likeCount,
+      reactedByCurrentUser: comment.likedByCurrentUser,
+      ctaLabel: "Bantu Mom lain",
     };
   });
 
@@ -90,17 +65,18 @@ export default async function TestimonialPage() {
             Cerita hangat dari Mom yang sudah ditemani CleverMom
           </h1>
           <p className="relative z-10 mt-3 text-sm leading-6 text-[#7d6a57]">
-            Kumpulan pengalaman dari ibu yang sudah mencoba layanan treatment, konsultasi, dan pendampingan kami di rumah.
+            Kumpulan pengalaman dari ibu yang sudah mencoba layanan treatment,
+            konsultasi, dan pendampingan kami di rumah.
           </p>
           <div className="relative z-10 mt-4 inline-flex items-center rounded-full bg-white/80 px-3 py-1.5 text-xs font-semibold text-[#a68b6d]">
-            {testimonialsWithReactionState.length} testimonial pilihan
+            {testimonials.length} testimonial pilihan
           </div>
         </div>
       </section>
 
       <section className="-mt-2 px-6 pb-6">
         <div className="space-y-4">
-          {testimonialsWithReactionState.map((testimonial) => (
+          {testimonials.map((testimonial) => (
             <TestimonialCard key={testimonial.id} testimonial={testimonial} />
           ))}
         </div>
@@ -117,7 +93,8 @@ export default async function TestimonialPage() {
             Setiap cerita jadi pengingat bahwa ibu juga perlu ditemani
           </h2>
           <p className="relative z-10 mt-2 text-sm leading-6 text-[#7d6a57]">
-            Karena itu kami berusaha menjaga setiap layanan tetap hangat, tenang, dan nyaman untuk Mom serta si kecil.
+            Karena itu kami berusaha menjaga setiap layanan tetap hangat,
+            tenang, dan nyaman untuk Mom serta si kecil.
           </p>
         </div>
       </section>
