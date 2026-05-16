@@ -1,5 +1,8 @@
 # Template Spreadsheet Apps Script untuk CleverMom
 
+Template aktif yang dipakai project sekarang adalah format **baru** di `docs/spreadsheet-template/`.
+Folder `docs/apps-script/` adalah format lama/legacy dan tidak dipakai untuk setup baru.
+
 Gunakan file [spreadsheet-template.xlsx](/c:/laragon/www/clevermom/clever-web/docs/spreadsheet-template.xlsx) sebagai template utama.
 
 File tersebut adalah satu workbook multi-sheet. Upload langsung ke Google Sheets, lalu isi data di masing-masing tab.

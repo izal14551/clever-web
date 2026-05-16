@@ -1,905 +1,535 @@
-var SHEETS = {
-  LANDING_HERO: "landing_hero",
-  LANDING_CONSULTATION: "landing_consultation",
-  LANDING_SERVICES: "landing_services",
-  LANDING_PROMOS: "landing_promos",
-  LANDING_PACKAGES: "landing_packages",
-  LANDING_TESTIMONIALS: "landing_testimonials",
-  LANDING_FEATURED_TREATMENTS: "landing_featured_treatments",
-  SERVICE_LIST: "service_list",
-  ABOUT_PAGE: "about_page",
-  ABOUT_VALUES: "about_values",
-  ABOUT_LOCATIONS: "about_locations",
-  HELP_PAGE: "help_page",
-  HELP_TOPICS: "help_topics",
-  MEMBER_SUMMARY: "member_summary",
-  MEMBER_MENUS: "member_menus",
-  SERVICE_COMMENTS: "service_comments",
-  SERVICE_COMMENT_LIKES: "service_comment_likes",
-  SERVICE_RECOMMENDATIONS: "service_recommendations",
-  TESTIMONIAL_REACTIONS: "testimonial_reactions",
+/**
+ * Clevermom Apps Script - paste-ready Code.gs
+ *
+ * Cara pakai:
+ * 1. Buat Google Sheets dengan sheet konten sesuai CSV template:
+ *    service_categories, services, promos, packages, testimonials,
+ *    featured_treatments, about_values, branches, help_topics, site_content.
+ * 2. Buka Extensions -> Apps Script.
+ * 3. Paste seluruh isi file ini ke Code.gs.
+ * 4. Di Apps Script, buka Project Settings -> Script properties:
+ *    APPS_SCRIPT_API_KEY = secret yang sama dengan .env.local APPS_SCRIPT_API_KEY.
+ * 5. Deploy -> New deployment -> Web app:
+ *    Execute as: Me
+ *    Who has access: Anyone
+ * 6. Pakai URL deployment sebagai APPS_SCRIPT_URL.
+ */
+
+const CONFIG = {
+  apiKeyProperty: "APPS_SCRIPT_API_KEY",
+  contentSheets: {
+    serviceCategories: "service_categories",
+    services: "services",
+    promos: "promos",
+    packages: "packages",
+    testimonials: "testimonials",
+    featuredTreatments: "featured_treatments",
+    aboutValues: "about_values",
+    branches: "branches",
+    helpTopics: "help_topics",
+    siteContent: "site_content",
+  },
+  storeSheets: {
+    members: {
+      name: "members",
+      headers: ["user_id", "email", "name", "image", "last_login_at", "updated_at"],
+    },
+    serviceComments: {
+      name: "service_comments",
+      headers: ["id", "service_id", "author", "message", "created_at", "user_id", "author_mode"],
+    },
+    serviceCommentLikes: {
+      name: "service_comment_likes",
+      headers: ["comment_id", "user_id", "created_at"],
+    },
+    serviceRecommendations: {
+      name: "service_recommendations",
+      headers: ["service_id", "user_id", "created_at"],
+    },
+    testimonialReactions: {
+      name: "testimonial_reactions",
+      headers: ["testimonial_id", "user_id", "created_at"],
+    },
+  },
 };
 
-function doGet(e) {
-  return jsonOutput_(buildSitePayload_());
+function doGet() {
+  return jsonResponse(buildContentPayload());
 }
 
 function doPost(e) {
   try {
-    var body = parseJsonBody_(e);
-    var action = body.action || "";
+    const payload = parsePostPayload(e);
+    assertAuthorized(payload.apiKey);
 
-    if (action === "getMemberSummary") {
-      requirePrivateAccess_(body);
-      return jsonOutput_(getMemberSummary_(body));
+    const action = normalizeText(payload.action);
+    if (!action) {
+      return jsonResponse({ ok: false, message: "Missing action" });
     }
 
-    if (action === "upsertMember") {
-      requirePrivateAccess_(body);
-      return jsonOutput_(upsertMember_(body));
-    }
-
-    if (action === "updateMemberName") {
-      requirePrivateAccess_(body);
-      return jsonOutput_(updateMemberName_(body));
-    }
-
-    if (action === "getServiceComments") {
-      requirePrivateAccess_(body);
-      return jsonOutput_(getServiceComments_(body));
-    }
-
-    if (action === "getAllServiceComments") {
-      requirePrivateAccess_(body);
-      return jsonOutput_(getAllServiceComments_());
-    }
-
-    if (action === "addServiceComment") {
-      requirePrivateAccess_(body);
-      return jsonOutput_(addServiceComment_(body));
-    }
-
-    if (action === "addServiceCommentLike") {
-      requirePrivateAccess_(body);
-      return jsonOutput_(addServiceCommentLike_(body));
-    }
-
-    if (action === "removeServiceCommentLike") {
-      requirePrivateAccess_(body);
-      return jsonOutput_(removeServiceCommentLike_(body));
-    }
-
-    if (action === "getServiceRecommendation") {
-      requirePrivateAccess_(body);
-      return jsonOutput_(getServiceRecommendation_(body));
-    }
-
-    if (action === "getAllServiceRecommendations") {
-      requirePrivateAccess_(body);
-      return jsonOutput_(getAllServiceRecommendations_(body));
-    }
-
-    if (action === "addServiceRecommendation") {
-      requirePrivateAccess_(body);
-      return jsonOutput_(addServiceRecommendation_(body));
-    }
-
-    if (action === "removeServiceRecommendation") {
-      requirePrivateAccess_(body);
-      return jsonOutput_(removeServiceRecommendation_(body));
-    }
-
-    if (action === "getTestimonialReaction") {
-      requirePrivateAccess_(body);
-      return jsonOutput_(getTestimonialReaction_(body));
-    }
-
-    if (action === "getTestimonialReactions") {
-      requirePrivateAccess_(body);
-      return jsonOutput_(getTestimonialReactions_(body));
-    }
-
-    if (action === "addTestimonialReaction") {
-      requirePrivateAccess_(body);
-      return jsonOutput_(addTestimonialReaction_(body));
-    }
-
-    if (action === "removeTestimonialReaction") {
-      requirePrivateAccess_(body);
-      return jsonOutput_(removeTestimonialReaction_(body));
-    }
-
-    return jsonOutput_({
-      ok: false,
-      message: "Unsupported action",
-    });
+    const result = routeAction(action, payload);
+    return jsonResponse({ ok: true, ...result });
   } catch (error) {
-    return jsonOutput_({
+    return jsonResponse({
       ok: false,
-      message: error.message || "Unknown error",
+      message: error && error.message ? error.message : "Apps Script request failed.",
     });
   }
 }
 
-function buildSitePayload_() {
+function buildContentPayload() {
+  const siteContent = readSiteContent();
+
   return {
-    hero: firstRowObject_(SHEETS.LANDING_HERO),
-    consultation: firstRowObject_(SHEETS.LANDING_CONSULTATION),
-    services: sortedRows_(SHEETS.LANDING_SERVICES).map(function (row) {
-      return {
-        id: row.id,
-        label: row.label,
-        category: row.category || "",
-        iconUrl: row.iconUrl || "",
-      };
-    }),
-    promos: sortedRows_(SHEETS.LANDING_PROMOS).map(function (row) {
-      return {
-        id: row.id,
-        title: row.title || "",
-        imageUrl: row.imageUrl || "",
-        link: row.link || "",
-      };
-    }),
-    packages: sortedRows_(SHEETS.LANDING_PACKAGES).map(function (row) {
-      return {
-        id: row.id,
-        title: row.title,
-        subtitle: row.subtitle || "",
-        details: splitPipe_(row.details),
-        duration: row.duration || "",
-        imageUrl: row.imageUrl || "",
-      };
-    }),
-    testimonials: sortedRows_(SHEETS.LANDING_TESTIMONIALS).map(function (row) {
-      return {
-        id: row.id,
-        serviceId: row.serviceId || "",
-        author: row.author,
-        timeAgo: row.timeAgo,
-        category: row.category,
-        title: row.title,
-        message: row.message,
-        reactionCount: toNumber_(row.reactionCount),
-        ctaLabel: row.ctaLabel || "Bantu Mom lain",
-      };
-    }),
-    featuredTreatments: sortedRows_(SHEETS.LANDING_FEATURED_TREATMENTS).map(function (row) {
-      return {
-        id: row.id,
-        name: row.name,
-        description: row.description || "",
-        imageUrl: row.imageUrl || "",
-      };
-    }),
-    serviceList: sortedRows_(SHEETS.SERVICE_LIST).map(function (row) {
-      return {
-        id: row.id,
-        category: row.category || "",
-        title: row.title,
-        description: row.description || "",
-        duration: row.duration || "",
-        imageUrl: row.imageUrl || "",
-      };
-    }),
+    ...siteContent,
+    services: readRows(CONFIG.contentSheets.serviceCategories).map(normalizeContentRow),
+    serviceList: readRows(CONFIG.contentSheets.services).map(normalizePackageDetailsIfNeeded),
+    promos: readRows(CONFIG.contentSheets.promos).map(normalizeContentRow),
+    packages: readRows(CONFIG.contentSheets.packages).map(normalizePackageRow),
+    testimonials: readRows(CONFIG.contentSheets.testimonials).map(normalizeContentRow),
+    featuredTreatments: readRows(CONFIG.contentSheets.featuredTreatments).map(normalizeContentRow),
     about: {
-      heroTitle: firstValue_(SHEETS.ABOUT_PAGE, "heroTitle"),
-      heroDescription: firstValue_(SHEETS.ABOUT_PAGE, "heroDescription"),
-      values: sortedRows_(SHEETS.ABOUT_VALUES).map(function (row) {
-        return {
-          title: row.title,
-          description: row.description || "",
-        };
-      }),
-      locations: sortedRows_(SHEETS.ABOUT_LOCATIONS).map(function (row) {
-        return {
-          id: row.id,
-          name: row.name,
-          address: row.address || "",
-          mapUrl: row.mapUrl || "",
-        };
-      }),
+      ...(siteContent.about || {}),
+      values: readRows(CONFIG.contentSheets.aboutValues).map(normalizeContentRow),
+      branches: readRows(CONFIG.contentSheets.branches).map(normalizeContentRow),
     },
     help: {
-      heroTitle: firstValue_(SHEETS.HELP_PAGE, "heroTitle"),
-      heroDescription: firstValue_(SHEETS.HELP_PAGE, "heroDescription"),
-      contactTitle: firstValue_(SHEETS.HELP_PAGE, "contactTitle"),
-      contactDescription: firstValue_(SHEETS.HELP_PAGE, "contactDescription"),
-      contactButtonLabel: firstValue_(SHEETS.HELP_PAGE, "contactButtonLabel"),
-      whatsappNumber: firstValue_(SHEETS.HELP_PAGE, "whatsappNumber"),
-      topics: sortedRows_(SHEETS.HELP_TOPICS).map(function (row) {
-        return {
-          id: row.id,
-          title: row.title,
-          description: row.description || "",
-        };
-      }),
+      ...(siteContent.help || {}),
+      topics: readRows(CONFIG.contentSheets.helpTopics).map(normalizeContentRow),
     },
   };
 }
 
-function getMemberSummary_(payload) {
-  var userId = normalizeText_(payload.userId);
-  var email = normalizeText_(payload.email);
-  var rows = getSheetObjects_(SHEETS.MEMBER_SUMMARY);
-  var menus = sortedRows_(SHEETS.MEMBER_MENUS).map(function (row) {
-    return {
-      key: row.key,
-      label: row.label,
-      href: row.href,
-    };
-  });
-
-  var match = rows.find(function (row) {
-    var byUserId = userId && row.userId === userId;
-    var byEmail = email && normalizeText_(row.email) === email;
-    return byUserId || byEmail;
-  });
-
-  return {
-    summary: {
-      memberLevel: (match && match.memberLevel) || "-",
-      points: toNumber_(match && match.points),
-    },
-    menus: menus,
-  };
-}
-
-function upsertMember_(payload) {
-  validateRequiredText_(payload.userId, "userId");
-  validateEmail_(payload.email);
-  validateName_(payload.name);
-
-  var sheet = getOrCreateSheet_(SHEETS.MEMBER_SUMMARY, [
-    "userId",
-    "email",
-    "name",
-    "memberLevel",
-    "points",
-    "image",
-    "lastLoginAt",
-  ]);
-  var rows = getSheetObjects_(SHEETS.MEMBER_SUMMARY);
-  var normalizedEmail = normalizeText_(payload.email);
-  var rowIndex = -1;
-
-  for (var i = 0; i < rows.length; i += 1) {
-    var row = rows[i];
-    var matchByUserId = payload.userId && row.userId === payload.userId;
-    var matchByEmail = normalizedEmail && normalizeText_(row.email) === normalizedEmail;
-    if (matchByUserId || matchByEmail) {
-      rowIndex = i + 2;
-      break;
-    }
-  }
-
-  var values = [
-    payload.userId || "",
-    payload.email || "",
-    payload.name || "",
-    payload.memberLevel || "-",
-    payload.points || 0,
-    payload.image || "",
-    payload.lastLoginAt || new Date().toISOString(),
-  ];
-
-  if (rowIndex > 0) {
-    sheet.getRange(rowIndex, 1, 1, values.length).setValues([values]);
-  } else {
-    sheet.appendRow(values);
-  }
-
-  return {
-    ok: true,
-    message: "Member synced",
-  };
-}
-
-function updateMemberName_(payload) {
-  validateRequiredText_(payload.userId, "userId");
-  validateEmail_(payload.email);
-  validateName_(payload.name);
-
-  var sheet = getOrCreateSheet_(SHEETS.MEMBER_SUMMARY, [
-    "userId",
-    "email",
-    "name",
-    "memberLevel",
-    "points",
-    "image",
-    "lastLoginAt",
-  ]);
-  var rows = getSheetObjects_(SHEETS.MEMBER_SUMMARY);
-  var normalizedEmail = normalizeText_(payload.email);
-
-  for (var i = 0; i < rows.length; i += 1) {
-    var row = rows[i];
-    var matchByUserId = payload.userId && row.userId === payload.userId;
-    var matchByEmail = normalizedEmail && normalizeText_(row.email) === normalizedEmail;
-
-    if (matchByUserId || matchByEmail) {
-      sheet.getRange(i + 2, 3).setValue(payload.name || row.name || "");
+function routeAction(action, payload) {
+  switch (action) {
+    case "upsertMember":
+      return { member: upsertMember(payload) };
+    case "updateMemberName":
+      return { member: updateMemberName(payload) };
+    case "getServiceComments":
       return {
-        ok: true,
-        message: "Username updated",
+        comments: getServiceComments(
+          normalizeText(payload.serviceId),
+          normalizeText(payload.viewerUserId),
+        ),
       };
-    }
-  }
-
-  sheet.appendRow([
-    payload.userId || "",
-    payload.email || "",
-    payload.name || "",
-    "-",
-    0,
-    "",
-    payload.updatedAt || new Date().toISOString(),
-  ]);
-
-  return {
-    ok: true,
-    message: "Username created",
-  };
-}
-
-function getServiceComments_(payload) {
-  validateRequiredText_(payload.serviceId, "serviceId");
-
-  return {
-    ok: true,
-    comments: getServiceCommentRows_(payload.viewerUserId).filter(function (comment) {
-      return comment.serviceId === String(payload.serviceId || "").trim();
-    }),
-  };
-}
-
-function getAllServiceComments_() {
-  return {
-    ok: true,
-    comments: getServiceCommentRows_(),
-  };
-}
-
-function addServiceComment_(payload) {
-  var comment = payload.comment || {};
-  validateRequiredText_(comment.id, "comment.id");
-  validateRequiredText_(comment.serviceId, "comment.serviceId");
-  validateRequiredText_(comment.author, "comment.author");
-  validateRequiredText_(comment.message, "comment.message");
-  validateRequiredText_(comment.createdAt, "comment.createdAt");
-
-  var sheet = getOrCreateSheet_(SHEETS.SERVICE_COMMENTS, [
-    "id",
-    "serviceId",
-    "author",
-    "message",
-    "createdAt",
-    "userId",
-    "authorMode",
-  ]);
-
-  var row = [
-    String(comment.id || "").trim(),
-    String(comment.serviceId || "").trim().slice(0, 80),
-    String(comment.author || "").trim().slice(0, 60),
-    String(comment.message || "").trim().slice(0, 600),
-    String(comment.createdAt || "").trim(),
-    String(comment.userId || "").trim(),
-    comment.authorMode === "anonymous" ? "anonymous" : "account",
-  ];
-
-  sheet.appendRow(row);
-
-  return {
-    ok: true,
-    comment: {
-      id: row[0],
-      serviceId: row[1],
-      author: row[2],
-      message: row[3],
-      createdAt: row[4],
-      userId: row[5] || undefined,
-      authorMode: row[6],
-      likeCount: 0,
-      likedByCurrentUser: false,
-    },
-  };
-}
-
-function addServiceCommentLike_(payload) {
-  validateRequiredText_(payload.commentId, "commentId");
-  validateRequiredText_(payload.userId, "userId");
-
-  var lock = LockService.getScriptLock();
-  lock.waitLock(10000);
-
-  try {
-    var commentId = String(payload.commentId || "").trim();
-    var userId = String(payload.userId || "").trim();
-    var sheet = getOrCreateSheet_(SHEETS.SERVICE_COMMENT_LIKES, [
-      "commentId",
-      "userId",
-      "createdAt",
-    ]);
-    var likes = getServiceCommentLikeRows_();
-    var alreadyLiked = likes.some(function (like) {
-      return like.commentId === commentId && like.userId === userId;
-    });
-
-    if (!alreadyLiked) {
-      sheet.appendRow([commentId, userId, new Date().toISOString()]);
-      likes.push({
-        commentId: commentId,
-        userId: userId,
-      });
-    }
-
-    return {
-      ok: true,
-      like: {
-        commentId: commentId,
-        likeCount: countLikes_(likes, commentId),
-        likedByCurrentUser: true,
-      },
-    };
-  } finally {
-    lock.releaseLock();
+    case "getAllServiceComments":
+      return { comments: getAllServiceComments() };
+    case "addServiceComment":
+      return { comment: addServiceComment(payload.comment || payload) };
+    case "addServiceCommentLike":
+      return {
+        like: addServiceCommentLike(
+          normalizeText(payload.commentId),
+          normalizeText(payload.userId),
+        ),
+      };
+    case "removeServiceCommentLike":
+      return {
+        like: removeServiceCommentLike(
+          normalizeText(payload.commentId),
+          normalizeText(payload.userId),
+        ),
+      };
+    case "getServiceRecommendation":
+      return {
+        recommendation: getServiceRecommendation(
+          normalizeText(payload.serviceId),
+          normalizeText(payload.viewerUserId),
+        ),
+      };
+    case "getAllServiceRecommendations":
+      return { recommendations: getAllServiceRecommendations() };
+    case "addServiceRecommendation":
+      return {
+        recommendation: addServiceRecommendation(
+          normalizeText(payload.serviceId),
+          normalizeText(payload.userId),
+        ),
+      };
+    case "removeServiceRecommendation":
+      return {
+        recommendation: removeServiceRecommendation(
+          normalizeText(payload.serviceId),
+          normalizeText(payload.userId),
+        ),
+      };
+    case "getTestimonialReaction":
+      return {
+        reaction: getTestimonialReaction(
+          normalizeText(payload.testimonialId),
+          normalizeText(payload.viewerUserId),
+        ),
+      };
+    case "getTestimonialReactions":
+      return {
+        reactions: getTestimonialReactions(
+          Array.isArray(payload.testimonialIds) ? payload.testimonialIds.map(normalizeText) : [],
+          normalizeText(payload.viewerUserId),
+        ),
+      };
+    case "addTestimonialReaction":
+      return {
+        reaction: addTestimonialReaction(
+          normalizeText(payload.testimonialId),
+          normalizeText(payload.userId),
+        ),
+      };
+    case "removeTestimonialReaction":
+      return {
+        reaction: removeTestimonialReaction(
+          normalizeText(payload.testimonialId),
+          normalizeText(payload.userId),
+        ),
+      };
+    default:
+      throw new Error("Unsupported action");
   }
 }
 
-function removeServiceCommentLike_(payload) {
-  validateRequiredText_(payload.commentId, "commentId");
-  validateRequiredText_(payload.userId, "userId");
-
-  var lock = LockService.getScriptLock();
-  lock.waitLock(10000);
-
-  try {
-    var commentId = String(payload.commentId || "").trim();
-    var userId = String(payload.userId || "").trim();
-    deleteMatchingRows_(
-      SHEETS.SERVICE_COMMENT_LIKES,
-      ["commentId", "userId", "createdAt"],
-      function (row) {
-        return (
-          String(row.commentId || "").trim() === commentId &&
-          String(row.userId || "").trim() === userId
-        );
-      },
-    );
-
-    return {
-      ok: true,
-      like: {
-        commentId: commentId,
-        likeCount: countLikes_(getServiceCommentLikeRows_(), commentId),
-        likedByCurrentUser: false,
-      },
-    };
-  } finally {
-    lock.releaseLock();
-  }
-}
-
-function getServiceRecommendation_(payload) {
-  validateRequiredText_(payload.serviceId, "serviceId");
-
-  return {
-    ok: true,
-    recommendation: buildServiceRecommendationSummary_(
-      String(payload.serviceId || "").trim(),
-      payload.viewerUserId,
-    ),
+function upsertMember(payload) {
+  const userId = requireText(payload.userId, "userId wajib ada.");
+  const email = normalizeText(payload.email);
+  const now = new Date().toISOString();
+  const sheet = ensureStoreSheet(CONFIG.storeSheets.members);
+  const rows = readSheetRows(sheet);
+  const existing = rows.find((row) => row.userId === userId);
+  const member = {
+    userId,
+    email,
+    name: normalizeText(payload.name),
+    image: normalizeText(payload.image),
+    lastLoginAt: normalizeText(payload.lastLoginAt) || now,
+    updatedAt: existing ? existing.updatedAt || now : now,
   };
+
+  upsertRowByKey(sheet, "userId", userId, member);
+  return member;
 }
 
-function getAllServiceRecommendations_(payload) {
-  var viewerUserId = payload ? payload.viewerUserId : "";
-  var serviceIds = {};
-
-  getServiceRecommendationRows_().forEach(function (recommendation) {
-    serviceIds[recommendation.serviceId] = true;
-  });
-
-  return {
-    ok: true,
-    recommendations: Object.keys(serviceIds).map(function (serviceId) {
-      return buildServiceRecommendationSummary_(serviceId, viewerUserId);
-    }),
+function updateMemberName(payload) {
+  const userId = requireText(payload.userId, "userId wajib ada.");
+  const now = new Date().toISOString();
+  const sheet = ensureStoreSheet(CONFIG.storeSheets.members);
+  const rows = readSheetRows(sheet);
+  const existing = rows.find((row) => row.userId === userId) || {};
+  const member = {
+    userId,
+    email: normalizeText(payload.email) || existing.email,
+    name: requireText(payload.name, "name wajib ada."),
+    image: existing.image || "",
+    lastLoginAt: existing.lastLoginAt || now,
+    updatedAt: normalizeText(payload.updatedAt) || now,
   };
+
+  upsertRowByKey(sheet, "userId", userId, member);
+  return member;
 }
 
-function addServiceRecommendation_(payload) {
-  validateRequiredText_(payload.serviceId, "serviceId");
-  validateRequiredText_(payload.userId, "userId");
-
-  var lock = LockService.getScriptLock();
-  lock.waitLock(10000);
-
-  try {
-    var serviceId = String(payload.serviceId || "").trim().slice(0, 80);
-    var userId = String(payload.userId || "").trim();
-    var sheet = getOrCreateSheet_(SHEETS.SERVICE_RECOMMENDATIONS, [
-      "serviceId",
-      "userId",
-      "createdAt",
-    ]);
-    var recommendations = getServiceRecommendationRows_();
-    var alreadyRecommended = recommendations.some(function (recommendation) {
-      return recommendation.serviceId === serviceId && recommendation.userId === userId;
-    });
-
-    if (!alreadyRecommended) {
-      sheet.appendRow([serviceId, userId, new Date().toISOString()]);
-      recommendations.push({
-        serviceId: serviceId,
-        userId: userId,
-      });
-    }
-
-    return {
-      ok: true,
-      recommendation: buildServiceRecommendationSummaryFromRows_(
-        serviceId,
-        userId,
-        recommendations,
-      ),
-    };
-  } finally {
-    lock.releaseLock();
-  }
+function getServiceComments(serviceId, viewerUserId) {
+  const comments = getAllServiceComments().filter((comment) => comment.serviceId === serviceId);
+  return comments.map((comment) => withCommentLikeSummary(comment, viewerUserId));
 }
 
-function removeServiceRecommendation_(payload) {
-  validateRequiredText_(payload.serviceId, "serviceId");
-  validateRequiredText_(payload.userId, "userId");
+function getAllServiceComments() {
+  const sheet = ensureStoreSheet(CONFIG.storeSheets.serviceComments);
+  const comments = readSheetRows(sheet)
+    .filter((row) => row.id && row.serviceId && row.message)
+    .map((row) => withCommentLikeSummary({
+      id: normalizeText(row.id),
+      serviceId: normalizeText(row.serviceId),
+      author: normalizeText(row.author) || "Akun Mom",
+      message: normalizeText(row.message),
+      createdAt: normalizeText(row.createdAt),
+      userId: normalizeText(row.userId),
+      authorMode: normalizeText(row.authorMode),
+    }));
 
-  var lock = LockService.getScriptLock();
-  lock.waitLock(10000);
-
-  try {
-    var serviceId = String(payload.serviceId || "").trim().slice(0, 80);
-    var userId = String(payload.userId || "").trim();
-    deleteMatchingRows_(
-      SHEETS.SERVICE_RECOMMENDATIONS,
-      ["serviceId", "userId", "createdAt"],
-      function (row) {
-        return (
-          String(row.serviceId || "").trim() === serviceId &&
-          String(row.userId || "").trim() === userId
-        );
-      },
-    );
-
-    return {
-      ok: true,
-      recommendation: buildServiceRecommendationSummary_(serviceId, userId),
-    };
-  } finally {
-    lock.releaseLock();
-  }
+  return comments.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 }
 
-function getTestimonialReaction_(payload) {
-  validateRequiredText_(payload.testimonialId, "testimonialId");
-
-  return {
-    ok: true,
-    reaction: buildTestimonialReactionSummary_(
-      String(payload.testimonialId || "").trim(),
-      payload.viewerUserId,
-    ),
-  };
-}
-
-function getTestimonialReactions_(payload) {
-  var testimonialIds = Array.isArray(payload.testimonialIds)
-    ? payload.testimonialIds.map(function (testimonialId) {
-        return String(testimonialId || "").trim();
-      }).filter(Boolean)
-    : [];
-  var reactions = getTestimonialReactionRows_();
-
-  return {
-    ok: true,
-    reactions: testimonialIds.map(function (testimonialId) {
-      return buildTestimonialReactionSummaryFromRows_(
-        testimonialId,
-        payload.viewerUserId,
-        reactions,
-      );
-    }),
-  };
-}
-
-function addTestimonialReaction_(payload) {
-  validateRequiredText_(payload.testimonialId, "testimonialId");
-  validateRequiredText_(payload.userId, "userId");
-
-  var lock = LockService.getScriptLock();
-  lock.waitLock(10000);
-
-  try {
-    var testimonialId = String(payload.testimonialId || "").trim().slice(0, 160);
-    var userId = String(payload.userId || "").trim();
-    var sheet = getOrCreateSheet_(SHEETS.TESTIMONIAL_REACTIONS, [
-      "testimonialId",
-      "userId",
-      "createdAt",
-    ]);
-    var reactions = getTestimonialReactionRows_();
-    var alreadyReacted = reactions.some(function (reaction) {
-      return reaction.testimonialId === testimonialId && reaction.userId === userId;
-    });
-
-    if (!alreadyReacted) {
-      sheet.appendRow([testimonialId, userId, new Date().toISOString()]);
-      reactions.push({
-        testimonialId: testimonialId,
-        userId: userId,
-      });
-    }
-
-    return {
-      ok: true,
-      reaction: buildTestimonialReactionSummaryFromRows_(
-        testimonialId,
-        userId,
-        reactions,
-      ),
-    };
-  } finally {
-    lock.releaseLock();
-  }
-}
-
-function removeTestimonialReaction_(payload) {
-  validateRequiredText_(payload.testimonialId, "testimonialId");
-  validateRequiredText_(payload.userId, "userId");
-
-  var lock = LockService.getScriptLock();
-  lock.waitLock(10000);
-
-  try {
-    var testimonialId = String(payload.testimonialId || "").trim().slice(0, 160);
-    var userId = String(payload.userId || "").trim();
-    deleteMatchingRows_(
-      SHEETS.TESTIMONIAL_REACTIONS,
-      ["testimonialId", "userId", "createdAt"],
-      function (row) {
-        return (
-          String(row.testimonialId || "").trim() === testimonialId &&
-          String(row.userId || "").trim() === userId
-        );
-      },
-    );
-
-    return {
-      ok: true,
-      reaction: buildTestimonialReactionSummary_(testimonialId, userId),
-    };
-  } finally {
-    lock.releaseLock();
-  }
-}
-
-function getServiceCommentRows_(viewerUserId) {
-  var normalizedViewerUserId = String(viewerUserId || "").trim();
-  var likes = getServiceCommentLikeRows_();
-
-  return getSheetObjects_(SHEETS.SERVICE_COMMENTS).map(function (row) {
-    var commentId = String(row.id || "");
-
-    return {
-      id: commentId,
-      serviceId: String(row.serviceId || ""),
-      author: String(row.author || ""),
-      message: String(row.message || ""),
-      createdAt: String(row.createdAt || ""),
-      userId: row.userId ? String(row.userId) : undefined,
-      authorMode: row.authorMode === "anonymous" ? "anonymous" : "account",
-      likeCount: countLikes_(likes, commentId),
-      likedByCurrentUser: normalizedViewerUserId
-        ? likes.some(function (like) {
-            return like.commentId === commentId && like.userId === normalizedViewerUserId;
-          })
-        : false,
-    };
-  }).filter(function (comment) {
-    return comment.id && comment.serviceId && comment.author && comment.message && comment.createdAt;
-  });
-}
-
-function getServiceRecommendationRows_() {
-  return getSheetObjects_(SHEETS.SERVICE_RECOMMENDATIONS).map(function (row) {
-    return {
-      serviceId: String(row.serviceId || "").trim(),
-      userId: String(row.userId || "").trim(),
-    };
-  }).filter(function (recommendation) {
-    return recommendation.serviceId && recommendation.userId;
-  });
-}
-
-function buildServiceRecommendationSummary_(serviceId, viewerUserId) {
-  return buildServiceRecommendationSummaryFromRows_(
+function addServiceComment(input) {
+  const serviceId = requireText(input.serviceId, "serviceId wajib ada.");
+  const message = requireText(input.message, "message wajib ada.");
+  const comment = {
+    id: normalizeText(input.id) || Utilities.getUuid(),
     serviceId,
-    viewerUserId,
-    getServiceRecommendationRows_(),
-  );
+    author: normalizeText(input.author) || "Akun Mom",
+    message,
+    createdAt: normalizeText(input.createdAt) || new Date().toISOString(),
+    userId: normalizeText(input.userId),
+    authorMode: normalizeText(input.authorMode) || "account",
+  };
+
+  const lock = LockService.getScriptLock();
+  lock.waitLock(5000);
+  try {
+    const sheet = ensureStoreSheet(CONFIG.storeSheets.serviceComments);
+    appendObjectRow(sheet, comment);
+  } finally {
+    lock.releaseLock();
+  }
+
+  return withCommentLikeSummary(comment, comment.userId);
 }
 
-function buildServiceRecommendationSummaryFromRows_(serviceId, viewerUserId, recommendations) {
-  var normalizedServiceId = String(serviceId || "").trim();
-  var normalizedViewerUserId = String(viewerUserId || "").trim();
-  var uniqueUserIds = {};
+function addServiceCommentLike(commentId, userId) {
+  requireText(commentId, "commentId wajib ada.");
+  requireText(userId, "userId wajib ada.");
 
-  recommendations.forEach(function (recommendation) {
-    if (recommendation.serviceId === normalizedServiceId && recommendation.userId) {
-      uniqueUserIds[recommendation.userId] = true;
+  const lock = LockService.getScriptLock();
+  lock.waitLock(5000);
+  try {
+    const sheet = ensureStoreSheet(CONFIG.storeSheets.serviceCommentLikes);
+    const exists = readSheetRows(sheet).some(
+      (row) => row.commentId === commentId && row.userId === userId,
+    );
+    if (!exists) {
+      appendObjectRow(sheet, { commentId, userId, createdAt: new Date().toISOString() });
     }
-  });
+  } finally {
+    lock.releaseLock();
+  }
 
+  return getCommentLikeSummary(commentId, userId);
+}
+
+function removeServiceCommentLike(commentId, userId) {
+  requireText(commentId, "commentId wajib ada.");
+  requireText(userId, "userId wajib ada.");
+
+  const sheet = ensureStoreSheet(CONFIG.storeSheets.serviceCommentLikes);
+  deleteRowsWhere(sheet, (row) => row.commentId === commentId && row.userId === userId);
+  return getCommentLikeSummary(commentId, userId);
+}
+
+function withCommentLikeSummary(comment, viewerUserId) {
+  const summary = getCommentLikeSummary(comment.id, viewerUserId);
   return {
-    serviceId: normalizedServiceId,
-    recommendationCount: Object.keys(uniqueUserIds).length,
-    recommendedByCurrentUser: normalizedViewerUserId
-      ? uniqueUserIds[normalizedViewerUserId] === true
-      : false,
+    ...comment,
+    likeCount: summary.likeCount,
+    likedByCurrentUser: summary.likedByCurrentUser,
   };
 }
 
-function getServiceCommentLikeRows_() {
-  return getSheetObjects_(SHEETS.SERVICE_COMMENT_LIKES).map(function (row) {
-    return {
-      commentId: String(row.commentId || "").trim(),
-      userId: String(row.userId || "").trim(),
-    };
-  }).filter(function (like) {
-    return like.commentId && like.userId;
-  });
+function getCommentLikeSummary(commentId, viewerUserId) {
+  const sheet = ensureStoreSheet(CONFIG.storeSheets.serviceCommentLikes);
+  const likes = readSheetRows(sheet).filter((row) => row.commentId === commentId);
+  return {
+    commentId,
+    likeCount: unique(likes.map((row) => row.userId)).length,
+    likedByCurrentUser: Boolean(viewerUserId && likes.some((row) => row.userId === viewerUserId)),
+  };
 }
 
-function getTestimonialReactionRows_() {
-  return getSheetObjects_(SHEETS.TESTIMONIAL_REACTIONS).map(function (row) {
-    return {
-      testimonialId: String(row.testimonialId || "").trim(),
-      userId: String(row.userId || "").trim(),
-    };
-  }).filter(function (reaction) {
-    return reaction.testimonialId && reaction.userId;
-  });
+function getServiceRecommendation(serviceId, viewerUserId) {
+  const sheet = ensureStoreSheet(CONFIG.storeSheets.serviceRecommendations);
+  const rows = readSheetRows(sheet).filter((row) => row.serviceId === serviceId);
+  return {
+    serviceId,
+    recommendationCount: unique(rows.map((row) => row.userId)).length,
+    recommendedByCurrentUser: Boolean(viewerUserId && rows.some((row) => row.userId === viewerUserId)),
+  };
 }
 
-function buildTestimonialReactionSummary_(testimonialId, viewerUserId) {
-  return buildTestimonialReactionSummaryFromRows_(
+function getAllServiceRecommendations() {
+  const sheet = ensureStoreSheet(CONFIG.storeSheets.serviceRecommendations);
+  const rows = readSheetRows(sheet);
+  return unique(rows.map((row) => row.serviceId))
+    .filter(Boolean)
+    .map((serviceId) => getServiceRecommendation(serviceId));
+}
+
+function addServiceRecommendation(serviceId, userId) {
+  requireText(serviceId, "serviceId wajib ada.");
+  requireText(userId, "userId wajib ada.");
+  addUniqueRelation(CONFIG.storeSheets.serviceRecommendations, { serviceId, userId });
+  return getServiceRecommendation(serviceId, userId);
+}
+
+function removeServiceRecommendation(serviceId, userId) {
+  requireText(serviceId, "serviceId wajib ada.");
+  requireText(userId, "userId wajib ada.");
+  const sheet = ensureStoreSheet(CONFIG.storeSheets.serviceRecommendations);
+  deleteRowsWhere(sheet, (row) => row.serviceId === serviceId && row.userId === userId);
+  return getServiceRecommendation(serviceId, userId);
+}
+
+function getTestimonialReaction(testimonialId, viewerUserId) {
+  const sheet = ensureStoreSheet(CONFIG.storeSheets.testimonialReactions);
+  const rows = readSheetRows(sheet).filter((row) => row.testimonialId === testimonialId);
+  return {
     testimonialId,
-    viewerUserId,
-    getTestimonialReactionRows_(),
-  );
-}
-
-function buildTestimonialReactionSummaryFromRows_(testimonialId, viewerUserId, reactions) {
-  var normalizedTestimonialId = String(testimonialId || "").trim();
-  var normalizedViewerUserId = String(viewerUserId || "").trim();
-  var uniqueUserIds = {};
-
-  reactions.forEach(function (reaction) {
-    if (reaction.testimonialId === normalizedTestimonialId && reaction.userId) {
-      uniqueUserIds[reaction.userId] = true;
-    }
-  });
-
-  return {
-    testimonialId: normalizedTestimonialId,
-    reactionCount: Object.keys(uniqueUserIds).length,
-    reactedByCurrentUser: normalizedViewerUserId
-      ? uniqueUserIds[normalizedViewerUserId] === true
-      : false,
+    reactionCount: unique(rows.map((row) => row.userId)).length,
+    reactedByCurrentUser: Boolean(viewerUserId && rows.some((row) => row.userId === viewerUserId)),
   };
 }
 
-function countLikes_(likes, commentId) {
-  var uniqueUserIds = {};
+function getTestimonialReactions(testimonialIds, viewerUserId) {
+  return unique(testimonialIds)
+    .filter(Boolean)
+    .map((testimonialId) => getTestimonialReaction(testimonialId, viewerUserId));
+}
 
-  likes.forEach(function (like) {
-    if (like.commentId === commentId && like.userId) {
-      uniqueUserIds[like.userId] = true;
+function addTestimonialReaction(testimonialId, userId) {
+  requireText(testimonialId, "testimonialId wajib ada.");
+  requireText(userId, "userId wajib ada.");
+  addUniqueRelation(CONFIG.storeSheets.testimonialReactions, { testimonialId, userId });
+  return getTestimonialReaction(testimonialId, userId);
+}
+
+function removeTestimonialReaction(testimonialId, userId) {
+  requireText(testimonialId, "testimonialId wajib ada.");
+  requireText(userId, "userId wajib ada.");
+  const sheet = ensureStoreSheet(CONFIG.storeSheets.testimonialReactions);
+  deleteRowsWhere(sheet, (row) => row.testimonialId === testimonialId && row.userId === userId);
+  return getTestimonialReaction(testimonialId, userId);
+}
+
+function addUniqueRelation(sheetConfig, relation) {
+  const lock = LockService.getScriptLock();
+  lock.waitLock(5000);
+  try {
+    const sheet = ensureStoreSheet(sheetConfig);
+    const rows = readSheetRows(sheet);
+    const exists = rows.some((row) =>
+      Object.keys(relation).every((key) => row[key] === relation[key]),
+    );
+    if (!exists) {
+      appendObjectRow(sheet, { ...relation, createdAt: new Date().toISOString() });
     }
-  });
-
-  return Object.keys(uniqueUserIds).length;
-}
-
-function requirePrivateAccess_(payload) {
-  var apiKey = String(payload.apiKey || "");
-  var storedApiKey = PropertiesService.getScriptProperties().getProperty("APPS_SCRIPT_API_KEY");
-
-  if (!storedApiKey) {
-    throw new Error("APPS_SCRIPT_API_KEY belum diset di Script Properties.");
-  }
-
-  if (!apiKey || apiKey !== storedApiKey) {
-    throw new Error("Unauthorized");
+  } finally {
+    lock.releaseLock();
   }
 }
 
-function getSheetObjects_(sheetName) {
-  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(sheetName);
+function readSiteContent() {
+  return readRows(CONFIG.contentSheets.siteContent).reduce((sections, row) => {
+    const section = normalizeText(row.section);
+    const key = normalizeHeaderKey(row.key);
+    if (!section || !key) return sections;
+
+    sections[section] = sections[section] || {};
+    sections[section][key] = normalizeText(row.value);
+    return sections;
+  }, {});
+}
+
+function readRows(sheetName) {
+  const sheet = SpreadsheetApp.getActive().getSheetByName(sheetName);
   if (!sheet) return [];
-
-  var values = sheet.getDataRange().getValues();
-  if (!values || values.length < 2) return [];
-
-  var headers = values[0].map(function (header) {
-    return String(header).trim();
-  });
-
-  return values.slice(1).filter(function (row) {
-    return row.some(function (cell) {
-      return String(cell).trim() !== "";
-    });
-  }).map(function (row) {
-    var obj = {};
-    headers.forEach(function (header, index) {
-      obj[header] = row[index];
-    });
-    return obj;
-  });
+  return readSheetRows(sheet);
 }
 
-function sortedRows_(sheetName) {
-  return getSheetObjects_(sheetName).sort(function (a, b) {
-    return toNumber_(a.sortOrder) - toNumber_(b.sortOrder);
-  });
+function readSheetRows(sheet) {
+  const values = sheet.getDataRange().getValues();
+  if (values.length < 2) return [];
+
+  const headers = values[0].map((header) => normalizeHeaderKey(header));
+  return values
+    .slice(1)
+    .map((row) =>
+      headers.reduce((record, header, index) => {
+        if (header) record[header] = row[index];
+        return record;
+      }, {}),
+    )
+    .filter((row) => Object.values(row).some((value) => normalizeText(value)));
 }
 
-function firstRowObject_(sheetName) {
-  var rows = getSheetObjects_(sheetName);
-  return rows[0] || {};
-}
+function ensureStoreSheet(config) {
+  const spreadsheet = SpreadsheetApp.getActive();
+  let sheet = spreadsheet.getSheetByName(config.name);
 
-function firstValue_(sheetName, key) {
-  var row = firstRowObject_(sheetName);
-  return row[key] || "";
-}
+  if (!sheet) {
+    sheet = spreadsheet.insertSheet(config.name);
+    sheet.appendRow(config.headers);
+    return sheet;
+  }
 
-function getOrCreateSheet_(sheetName, headers) {
-  var ss = SpreadsheetApp.getActiveSpreadsheet();
-  var sheet = ss.getSheetByName(sheetName);
-  if (sheet) return sheet;
+  if (sheet.getLastRow() === 0) {
+    sheet.appendRow(config.headers);
+    return sheet;
+  }
 
-  sheet = ss.insertSheet(sheetName);
-  sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
+  const headers = sheet
+    .getRange(1, 1, 1, Math.max(sheet.getLastColumn(), config.headers.length))
+    .getValues()[0]
+    .map((header) => normalizeText(header));
+
+  const existingKeys = headers.map(normalizeHeaderKey);
+  const missingHeaders = config.headers.filter((header) => !existingKeys.includes(normalizeHeaderKey(header)));
+  if (missingHeaders.length > 0) {
+    sheet.getRange(1, headers.length + 1, 1, missingHeaders.length).setValues([missingHeaders]);
+  }
+
   return sheet;
 }
 
-function deleteMatchingRows_(sheetName, defaultHeaders, predicate) {
-  var sheet = getOrCreateSheet_(sheetName, defaultHeaders);
-  var values = sheet.getDataRange().getValues();
-  if (!values || values.length < 2) return 0;
-
-  var headers = values[0].map(function (header) {
-    return String(header).trim();
-  });
-  var deletedCount = 0;
-
-  for (var rowIndex = values.length - 1; rowIndex >= 1; rowIndex -= 1) {
-    var row = {};
-    headers.forEach(function (header, columnIndex) {
-      row[header] = values[rowIndex][columnIndex];
-    });
-
-    if (predicate(row)) {
-      sheet.deleteRow(rowIndex + 1);
-      deletedCount += 1;
-    }
-  }
-
-  return deletedCount;
+function appendObjectRow(sheet, object) {
+  const headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0].map(normalizeText);
+  sheet.appendRow(headers.map((header) => object[normalizeHeaderKey(header)] || ""));
 }
 
-function parseJsonBody_(e) {
+function upsertRowByKey(sheet, key, value, object) {
+  const headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0].map(normalizeText);
+  const rows = readSheetRows(sheet);
+  const index = rows.findIndex((row) => row[key] === value);
+  const values = headers.map((header) => object[normalizeHeaderKey(header)] || "");
+
+  if (index >= 0) {
+    sheet.getRange(index + 2, 1, 1, values.length).setValues([values]);
+  } else {
+    sheet.appendRow(values);
+  }
+}
+
+function deleteRowsWhere(sheet, predicate) {
+  const rows = readSheetRows(sheet);
+  for (let index = rows.length - 1; index >= 0; index -= 1) {
+    if (predicate(rows[index])) {
+      sheet.deleteRow(index + 2);
+    }
+  }
+}
+
+function normalizePackageDetailsIfNeeded(row) {
+  return normalizeContentRow(row);
+}
+
+function normalizePackageRow(row) {
+  return {
+    ...normalizeContentRow(row),
+    details: normalizeText(row.details)
+      .split("|")
+      .map((item) => item.trim())
+      .filter(Boolean),
+  };
+}
+
+function normalizeContentRow(row) {
+  return Object.entries(row).reduce((record, entry) => {
+    const key = entry[0];
+    const value = entry[1];
+    const normalized = normalizeContentValue(key, value);
+    if (normalized !== undefined) {
+      record[key] = normalized;
+    }
+    return record;
+  }, {});
+}
+
+function normalizeContentValue(key, value) {
+  if (["id", "serviceId", "reactionCount", "recommendationCount", "sortOrder"].includes(key)) {
+    const numberValue = Number(value);
+    return Number.isFinite(numberValue) && numberValue > 0 ? numberValue : undefined;
+  }
+
+  const text = normalizeText(value);
+  return text || undefined;
+}
+
+function parsePostPayload(e) {
   if (!e || !e.postData || !e.postData.contents) {
     return {};
   }
@@ -907,53 +537,41 @@ function parseJsonBody_(e) {
   return JSON.parse(e.postData.contents);
 }
 
-function validateRequiredText_(value, fieldName) {
-  if (!String(value || "").trim()) {
-    throw new Error(fieldName + " wajib diisi.");
+function assertAuthorized(apiKey) {
+  const expectedKey = PropertiesService.getScriptProperties().getProperty(CONFIG.apiKeyProperty);
+  if (!expectedKey) {
+    throw new Error("Script property APPS_SCRIPT_API_KEY belum diisi.");
+  }
+  if (apiKey !== expectedKey) {
+    throw new Error("Unauthorized");
   }
 }
 
-function validateEmail_(value) {
-  var email = String(value || "").trim();
-  if (!email || email.indexOf("@") === -1) {
-    throw new Error("Email tidak valid.");
+function requireText(value, message) {
+  const text = normalizeText(value);
+  if (!text) {
+    throw new Error(message);
   }
+  return text;
 }
 
-function validateName_(value) {
-  var name = String(value || "").trim();
-  if (name.length < 3) {
-    throw new Error("Nama minimal 3 karakter.");
-  }
-  if (name.length > 80) {
-    throw new Error("Nama maksimal 80 karakter.");
-  }
+function normalizeText(value) {
+  return String(value === null || value === undefined ? "" : value).trim();
 }
 
-function splitPipe_(value) {
-  return String(value || "")
-    .split("|")
-    .map(function (item) {
-      return item.trim();
-    })
-    .filter(Boolean);
+function normalizeHeaderKey(value) {
+  return snakeToCamel(normalizeText(value));
 }
 
-function toNumber_(value) {
-  var num = Number(value);
-  return isNaN(num) ? 0 : num;
+function snakeToCamel(value) {
+  return value.replace(/_([a-z0-9])/g, (_, char) => char.toUpperCase());
 }
 
-function getParam_(e, key) {
-  if (!e || !e.parameter) return "";
-  return e.parameter[key] || "";
+function unique(values) {
+  return Array.from(new Set(values.map(normalizeText).filter(Boolean)));
 }
 
-function normalizeText_(value) {
-  return String(value || "").trim().toLowerCase();
-}
-
-function jsonOutput_(payload) {
+function jsonResponse(payload) {
   return ContentService
     .createTextOutput(JSON.stringify(payload))
     .setMimeType(ContentService.MimeType.JSON);
