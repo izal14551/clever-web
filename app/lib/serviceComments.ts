@@ -52,8 +52,12 @@ export async function getServiceComments(
   );
 }
 
-export async function getAllServiceComments(): Promise<ServiceComment[]> {
-  const remoteComments = await fetchRemoteComments("getAllServiceComments");
+export async function getAllServiceComments(
+  viewerUserId?: string,
+): Promise<ServiceComment[]> {
+  const remoteComments = await fetchRemoteComments("getAllServiceComments", {
+    viewerUserId,
+  });
   if (remoteComments) {
     return sortComments(remoteComments);
   }
@@ -64,7 +68,7 @@ export async function getAllServiceComments(): Promise<ServiceComment[]> {
   return sortComments(
     Object.values(store)
       .flat()
-      .map((comment) => withLikeSummary(comment, likes)),
+      .map((comment) => withLikeSummary(comment, likes, viewerUserId)),
   );
 }
 
@@ -164,8 +168,7 @@ export async function removeServiceCommentLike(input: {
 
 function sortComments(comments: ServiceComment[]): ServiceComment[] {
   return comments.sort(
-    (a, b) =>
-      new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
   );
 }
 
@@ -230,7 +233,10 @@ async function addRemoteCommentLike(input: {
       return null;
     }
 
-    console.error("Gagal menyimpan like komentar service ke spreadsheet:", error);
+    console.error(
+      "Gagal menyimpan like komentar service ke spreadsheet:",
+      error,
+    );
     return null;
   }
 }
@@ -259,7 +265,10 @@ async function removeRemoteCommentLike(input: {
       return null;
     }
 
-    console.error("Gagal menghapus like komentar service dari spreadsheet:", error);
+    console.error(
+      "Gagal menghapus like komentar service dari spreadsheet:",
+      error,
+    );
     return null;
   }
 }
@@ -400,7 +409,8 @@ function normalizeServiceComment(comment: ServiceComment): ServiceComment {
   return {
     ...comment,
     likeCount:
-      typeof comment.likeCount === "number" && Number.isFinite(comment.likeCount)
+      typeof comment.likeCount === "number" &&
+      Number.isFinite(comment.likeCount)
         ? comment.likeCount
         : 0,
     likedByCurrentUser: comment.likedByCurrentUser === true,

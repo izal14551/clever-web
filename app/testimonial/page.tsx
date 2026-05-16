@@ -12,10 +12,10 @@ import type { TestimonialData } from "../types/landing";
 export const dynamic = "force-dynamic";
 
 export default async function TestimonialPage() {
-  const [session, services, storedComments] = await Promise.all([
-    getServerSession(authOptions),
+  const session = await getServerSession(authOptions);
+  const [services, storedComments] = await Promise.all([
     getServiceListData(),
-    getAllServiceComments(),
+    getAllServiceComments(session?.user?.id),
   ]);
   const serviceMap = new Map(
     services.map((service) => [String(service.id), service]),

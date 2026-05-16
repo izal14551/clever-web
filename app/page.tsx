@@ -22,12 +22,12 @@ import type { TestimonialData } from "./types/landing";
 export const dynamic = "force-dynamic";
 
 export default async function LandingPage() {
-  const [session, data, serviceItems, storedComments, serviceRecommendations] =
+  const session = await getServerSession(authOptions);
+  const [data, serviceItems, storedComments, serviceRecommendations] =
     await Promise.all([
-      getServerSession(authOptions),
       getLandingData(),
       getServiceListData(),
-      getAllServiceComments(),
+      getAllServiceComments(session?.user?.id),
       getAllServiceRecommendations(),
     ]);
 
