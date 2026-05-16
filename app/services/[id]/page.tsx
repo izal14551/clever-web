@@ -35,7 +35,7 @@ export default async function ServiceDetailPage({
     notFound();
   }
 
-  const serviceKey = String(service.id);
+  const serviceKey = service.slug || String(service.id);
   const [comments, recommendation] = await Promise.all([
     getServiceComments(serviceKey, session?.user?.id),
     getServiceRecommendation(serviceKey, session?.user?.id),
