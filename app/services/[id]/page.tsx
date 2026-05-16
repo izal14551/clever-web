@@ -67,7 +67,7 @@ export default async function ServiceDetailPage({
         ) : null}
       </section>
 
-      <section className="px-4 py-6 bg-gradient-to-b from-white to-[#fff8f0] border-b border-[#f1e5d8]">
+      <section className="px-4 py-6 bg-linear-to-b from-white to-[#fff8f0] border-b border-[#f1e5d8]">
         {service.category ? (
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#a68b6d]">
             {service.category}
@@ -165,7 +165,9 @@ function getRecommendedArticles(
     })
     .sort((a, b) => b.score - a.score);
 
-  const preferred = scored.filter((item) => item.score > 0).map((item) => item.article);
+  const preferred = scored
+    .filter((item) => item.score > 0)
+    .map((item) => item.article);
   const fallback = scored.map((item) => item.article);
 
   return (preferred.length > 0 ? preferred : fallback).slice(0, 2);

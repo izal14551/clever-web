@@ -32,15 +32,7 @@ export default async function LandingPage() {
       getAllServiceRecommendations(),
     ]);
 
-  const {
-    hero,
-    consultation,
-    services,
-    promos,
-    testimonials,
-    featuredTreatments,
-  } =
-    data;
+  const { hero, consultation, promos, testimonials, featuredTreatments } = data;
 
   const serviceMap = new Map(
     serviceItems.map((service) => [String(service.id), service]),
@@ -53,7 +45,8 @@ export default async function LandingPage() {
   const allFeedback: TestimonialData[] = [
     ...storedComments.map((comment) => {
       const service =
-        serviceMap.get(comment.serviceId) || serviceSlugMap.get(comment.serviceId);
+        serviceMap.get(comment.serviceId) ||
+        serviceSlugMap.get(comment.serviceId);
 
       return {
         id: `comment-${comment.id}`,
@@ -90,8 +83,7 @@ export default async function LandingPage() {
       ...testimonial,
       serviceSlug: testimonial.serviceSlug || service?.slug,
       persistedReactionCount: reaction?.reactionCount || 0,
-      reactionCount:
-        testimonial.reactionCount + (reaction?.reactionCount || 0),
+      reactionCount: testimonial.reactionCount + (reaction?.reactionCount || 0),
       reactedByCurrentUser: reaction?.reactedByCurrentUser || false,
     };
   });
@@ -152,14 +144,15 @@ export default async function LandingPage() {
         <ConsultationCard data={consultation} />
       </section>
 
-      <ServiceGrid services={services} collapsed />
+      <ServiceGrid services={serviceItems} collapsed />
 
       <PromoCarousel promos={promos} />
 
-
       <section className="px-6  bg-gradient-to-b from-[#ffffff] to-[##fffffe]  rounded-lg">
         <div className="flex justify-between items-center mb-4">
-          <h2 className="font-bold text-gray-800 text-lg">Ada Paketnya Juga loh!</h2>
+          <h2 className="font-bold text-gray-800 text-lg">
+            Ada Paketnya Juga loh!
+          </h2>
           <Link
             href="/services?category=Paket"
             className="text-[#a68b6d] text-[10px] font-semibold cursor-pointer hover:underline"
@@ -187,10 +180,8 @@ export default async function LandingPage() {
         </div>
       </section>
 
-      <FeaturedTreatments
-        treatments={displayedTreatments}
-      />
-      
+      <FeaturedTreatments treatments={displayedTreatments} />
+
       <TestimonialShowcase testimonials={feedbackWithReactionState} />
 
       <DashboardFooter />

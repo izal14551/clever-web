@@ -22,33 +22,7 @@ function extractMinutes(duration: string): number {
 }
 
 function deriveCategory(service: ServiceListItemData): string {
-  if (service.category?.trim()) {
-    return service.category.trim();
-  }
-
-  const text = `${service.title} ${service.description}`.toLowerCase();
-
-  if (
-    text.includes("bayi") ||
-    text.includes("baby") ||
-    text.includes("newborn")
-  ) {
-    return "Bayi";
-  }
-
-  if (text.includes("laktasi") || text.includes("menyusui")) {
-    return "Laktasi";
-  }
-
-  if (
-    text.includes("nifas") ||
-    text.includes("postpartum") ||
-    text.includes("ibu")
-  ) {
-    return "Ibu";
-  }
-
-  return "Perawatan";
+  return (service.category || "").trim() || "Lainnya";
 }
 
 function isPackageService(service: ServiceListItemData): boolean {
@@ -262,7 +236,7 @@ export function ServicesExplorer({
       {visibleServices.length > 0 ? (
         <ServiceList services={visibleServices} />
       ) : (
-        <section className="bg-gradient-to-b from-orange-50 to-orange-100/70 px-4 py-6">
+        <section className="bg-linear-to-b from-orange-50 to-orange-100/70 px-4 py-6">
           <div className="rounded-2xl border border-dashed border-orange-200 bg-white p-5 text-sm text-[#6f6255]">
             Belum ada layanan yang cocok dengan kategori, urutan, dan filter
             yang dipilih.

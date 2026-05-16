@@ -26,7 +26,9 @@ export function ServiceGrid({
 
   const categories = getServiceCategories(services);
   const shouldCollapse = collapsed && categories.length > 9;
-  const visibleCategories = shouldCollapse ? categories.slice(0, 8) : categories;
+  const visibleCategories = shouldCollapse
+    ? categories.slice(0, 8)
+    : categories;
 
   return (
     <section className={className}>
@@ -61,43 +63,18 @@ export function ServiceGrid({
 
 function getServiceCategories(services: ServiceGridItem[]): string[] {
   const categories = services
-    .map((service) => resolveServiceCategory(service) || getServiceLabel(service))
-    .map((category) => category.trim())
+    .map((service) => (service.category || "").trim())
     .filter(Boolean);
 
   return Array.from(new Set(categories));
 }
 
-function getServiceLabel(service: ServiceGridItem): string {
-  return service.label || service.title || "Layanan";
-}
-
-function resolveServiceCategory(service: ServiceGridItem): string {
-  if (service.category?.trim()) {
-    return service.category.trim();
-  }
-
-  const normalizedLabel = getServiceLabel(service)
-    .replace(/\s+/g, " ")
-    .trim()
-    .toLowerCase();
-
-  if (normalizedLabel.includes("paket baby")) return "Paket Baby Treatment";
-  if (normalizedLabel.includes("baby")) return "Baby Treatment";
-  if (normalizedLabel.includes("paket toddler")) return "Paket Toddler Treatment";
-  if (normalizedLabel.includes("toddler")) return "Toddler Treatment";
-  if (normalizedLabel.includes("paket kids")) return "Paket Kids Treatment";
-  if (normalizedLabel.includes("kids")) return "Kids Treatment";
-  if (normalizedLabel.includes("additional") || normalizedLabel.includes("lainnya")) {
-    return "Additional";
-  }
-
-  return "";
-}
-
 function ServiceItem({ label, href }: { label: string; href: string }) {
   return (
-    <Link href={href} className="flex flex-col items-center gap-2 group cursor-pointer">
+    <Link
+      href={href}
+      className="flex flex-col items-center gap-2 group cursor-pointer"
+    >
       <div className="flex h-14 w-14 items-center justify-center rounded-xl border border-[#eadbc9] bg-[#fffaf5] text-[#a68b6d] transition-colors duration-300 group-hover:bg-[#fff1e2]">
         <div className="h-8 w-8 rounded-full border border-[#dcc4a8] bg-[#fffdf9]"></div>
       </div>
