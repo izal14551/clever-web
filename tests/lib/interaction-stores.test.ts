@@ -110,4 +110,25 @@ describe("local interaction stores", () => {
       addTestimonialReaction({ testimonialId: "t1", userId: "u1" }),
     ).rejects.toThrow("Testimonial reaction storage is not configured.");
   });
+
+  it("does not fall back to local recommendation storage when a configured remote write fails", async () => {
+    vi.stubEnv("APPS_SCRIPT_URL", "https://example.com/apps-script");
+    vi.stubEnv("APPS_SCRIPT_API_KEY", "secret");
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue({
+        ok: false,
+        json: vi.fn().mockResolvedValue({
+          ok: false,
+          message: "Remote write failed",
+        }),
+      }),
+    );
+
+    await expect(
+      addServiceRecommendation({ serviceId: "service-1", userId: "u1" }),
+    ).rejects.toThrow("Remote write failed");
+    expect(readFile).not.toHaveBeenCalled();
+    expect(writeFile).not.toHaveBeenCalled();
+  });
 });
