@@ -2,6 +2,8 @@
 
 Template ini menstandarkan data spreadsheet agar siap dipakai aplikasi sekarang dan lebih mudah dimigrasikan ke relational DB nanti.
 
+Ini adalah template **resmi/aktif** untuk setup baru. Jika menemukan template lain di `docs/apps-script/`, anggap itu format lama/legacy.
+
 Template siap pakai tersedia sebagai satu workbook multi-sheet di `docs/spreadsheet-template.xlsx`.
 Upload file tersebut ke Google Sheets jika ingin langsung mendapatkan semua tab dalam satu file.
 
