@@ -10,6 +10,7 @@ import { formatCommentTimeAgo } from "../lib/commentTime";
 
 interface ServiceCommentsProps {
   serviceId: string;
+  serviceTitle: string;
   comments: ServiceComment[];
 }
 
@@ -25,6 +26,7 @@ type CommentCardItem = {
 
 export function ServiceComments({
   serviceId,
+  serviceTitle,
   comments,
 }: ServiceCommentsProps) {
   const pathname = usePathname();
@@ -307,9 +309,14 @@ export function ServiceComments({
                 Baru
               </span>
             </div>
-            <p className="mb-2 text-sm font-semibold text-[#6f6255]">
-              {item.title}
-            </p>
+            <div className="mb-2">
+              <p className="text-sm font-semibold text-[#6f6255]">
+                {item.title}
+              </p>
+              <p className="mt-1 text-xs text-[#9b8977]">
+                Untuk layanan: {serviceTitle}
+              </p>
+            </div>
             <p className="text-sm leading-7 text-[#5f4c39]">{item.message}</p>
             <div className="mt-3 flex justify-end">
               <button
