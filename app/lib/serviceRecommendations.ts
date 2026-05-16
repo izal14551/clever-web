@@ -195,7 +195,7 @@ async function addRemoteServiceRecommendation(input: {
     }
 
     console.error("Gagal menyimpan rekomendasi service ke spreadsheet:", error);
-    return null;
+    throw error;
   }
 }
 
@@ -226,7 +226,7 @@ async function removeRemoteServiceRecommendation(input: {
     }
 
     console.error("Gagal menghapus rekomendasi service dari spreadsheet:", error);
-    return null;
+    throw error;
   }
 }
 
@@ -235,7 +235,7 @@ async function postToAppsScript(
   options: { noStore: boolean },
 ): Promise<Record<string, unknown>> {
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 6000);
+  const timeout = setTimeout(() => controller.abort(), 15000);
 
   const res = await fetch(getAppsScriptUrl(), {
     method: "POST",
