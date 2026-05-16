@@ -103,7 +103,10 @@ export default async function LandingPage() {
       description: service.category || service.description,
       imageUrl: service.imageUrl,
       href: `/services/${service.slug || service.id}`,
-      recommendationCount: recommendationMap.get(String(service.id)) || 0,
+      recommendationCount:
+        recommendationMap.get(service.slug || "") ||
+        recommendationMap.get(String(service.id)) ||
+        0,
     }))
     .filter((service) => service.recommendationCount > 0)
     .sort((a, b) => b.recommendationCount - a.recommendationCount)
