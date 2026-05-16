@@ -9,12 +9,10 @@ import { ServiceActionButtons } from "../../components/ServiceActionButtons";
 import { ServiceComments } from "../../components/ServiceComments";
 import { ServiceRecommendationButton } from "../../components/ServiceRecommendationButton";
 import { authOptions } from "../../lib/auth";
-import { getLandingData } from "../../lib/landing";
 import { getArticleList } from "../../lib/blogger";
 import { getServiceComments } from "../../lib/serviceComments";
 import { getServiceRecommendation } from "../../lib/serviceRecommendations";
 import type { ArticleListItem } from "../../types/article";
-import type { TestimonialData } from "../../types/landing";
 
 interface ServiceDetailPageProps {
   params: Promise<{ id: string }>;
@@ -25,9 +23,8 @@ export default async function ServiceDetailPage({
 }: ServiceDetailPageProps) {
   const { id } = await params;
   const session = await getServerSession(authOptions);
-  const [service, landingData, articles] = await Promise.all([
+  const [service, articles] = await Promise.all([
     getServiceById(id),
-    getLandingData(),
     getArticleList(),
   ]);
 
@@ -41,12 +38,6 @@ export default async function ServiceDetailPage({
     getServiceRecommendation(serviceKey, session?.user?.id),
   ]);
 
-  const relatedTestimonials = getRelatedTestimonials(
-    service.id,
-    service.title,
-    service.category,
-    landingData.testimonials,
-  );
   const recommendedArticles = getRecommendedArticles(
     service.title,
     service.category,
@@ -101,7 +92,6 @@ export default async function ServiceDetailPage({
 
       <ServiceComments
         serviceId={serviceKey}
-        testimonials={relatedTestimonials}
         comments={comments}
       />
 
@@ -152,30 +142,6 @@ export default async function ServiceDetailPage({
       </div>
     </main>
   );
-}
-
-function getRelatedTestimonials(
-  serviceId: number,
-  serviceTitle: string,
-  serviceCategory: string | undefined,
-  testimonials: TestimonialData[],
-) {
-  const exactMatch = testimonials.filter(
-    (testimonial) => testimonial.serviceId === serviceId,
-  );
-
-  if (exactMatch.length > 0) {
-    return exactMatch.slice(0, 10);
-  }
-
-  const keywords = buildKeywords(serviceTitle, serviceCategory);
-
-  const matched = testimonials.filter((testimonial) => {
-    const haystack = `${testimonial.category} ${testimonial.title} ${testimonial.message}`.toLowerCase();
-    return keywords.some((keyword) => haystack.includes(keyword));
-  });
-
-  return matched.slice(0, 10);
 }
 
 function getRecommendedArticles(

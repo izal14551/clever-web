@@ -7,38 +7,24 @@ import { useSession } from "next-auth/react";
 import { ProgressLink as Link, useRouteProgress } from "./RouteProgress";
 import type { ServiceComment } from "../lib/serviceComments";
 import { formatCommentTimeAgo } from "../lib/commentTime";
-import type { TestimonialData } from "../types/landing";
 
 interface ServiceCommentsProps {
   serviceId: string;
-  testimonials: TestimonialData[];
   comments: ServiceComment[];
 }
 
-type CommentCardItem =
-  | {
-      id: string;
-      author: string;
-      timeAgo: string;
-      title: string;
-      message: string;
-      reactionCount: number;
-      source: "testimonial";
-    }
-  | {
-      id: string;
-      author: string;
-      timeAgo: string;
-      title: string;
-      message: string;
-      reactionCount: number;
-      likedByCurrentUser: boolean;
-      source: "comment";
-    };
+type CommentCardItem = {
+  id: string;
+  author: string;
+  timeAgo: string;
+  title: string;
+  message: string;
+  reactionCount: number;
+  likedByCurrentUser: boolean;
+};
 
 export function ServiceComments({
   serviceId,
-  testimonials,
   comments,
 }: ServiceCommentsProps) {
   const pathname = usePathname();
@@ -57,7 +43,7 @@ export function ServiceComments({
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const items = useMemo<CommentCardItem[]>(() => {
-    const userComments = localComments.map((comment) => ({
+    return localComments.map((comment) => ({
       id: comment.id,
       author: comment.author,
       timeAgo: formatCommentTimeAgo(comment.createdAt),
@@ -65,21 +51,8 @@ export function ServiceComments({
       message: comment.message,
       reactionCount: comment.likeCount,
       likedByCurrentUser: comment.likedByCurrentUser,
-      source: "comment" as const,
     }));
-
-    const testimonialItems = testimonials.map((testimonial) => ({
-      id: `testimonial-${testimonial.id}`,
-      author: testimonial.author,
-      timeAgo: testimonial.timeAgo,
-      title: testimonial.title,
-      message: testimonial.message,
-      reactionCount: testimonial.reactionCount,
-      source: "testimonial" as const,
-    }));
-
-    return [...userComments, ...testimonialItems];
-  }, [localComments, testimonials]);
+  }, [localComments]);
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -330,58 +303,47 @@ export function ServiceComments({
                   <p className="text-xs text-[#9b8977]">{item.timeAgo}</p>
                 </div>
               </div>
-              {item.source === "testimonial" ? (
-                <div className="flex shrink-0 items-center gap-1 text-[#d27a6a]">
-                  <Heart size={16} className="fill-red-500" />
-                  <span className="text-xs font-semibold">
-                    {item.reactionCount}
-                  </span>
-                </div>
-              ) : (
-                <span className="shrink-0 rounded-full bg-[#fff4e8] px-2.5 py-1 text-[11px] font-semibold text-[#a68b6d]">
-                  Baru
-                </span>
-              )}
+              <span className="shrink-0 rounded-full bg-[#fff4e8] px-2.5 py-1 text-[11px] font-semibold text-[#a68b6d]">
+                Baru
+              </span>
             </div>
             <p className="mb-2 text-sm font-semibold text-[#6f6255]">
               {item.title}
             </p>
             <p className="text-sm leading-7 text-[#5f4c39]">{item.message}</p>
-            {item.source === "comment" ? (
-              <div className="mt-3 flex justify-end">
-                <button
-                  type="button"
-                  onClick={() => handleLike(item.id)}
-                  disabled={likingCommentId === item.id}
-                  className={`inline-flex h-9 cursor-pointer items-center justify-center gap-1.5 rounded-md border px-3 text-xs font-semibold transition disabled:cursor-not-allowed disabled:opacity-70 ${
-                    item.likedByCurrentUser
-                      ? "border-[#f1c8c1] bg-[#fff2ef] text-[#c65f51] hover:border-[#d27a6a] hover:bg-[#ffe8e3]"
-                      : "border-[#eadbc9] bg-[#fffdf9] text-[#7b6b5b] hover:border-[#d27a6a] hover:text-[#c65f51]"
-                  }`}
-                  aria-pressed={item.likedByCurrentUser}
-                  aria-label={
-                    item.likedByCurrentUser
-                      ? "Batalkan bantuan untuk komentar ini"
-                      : "Bantu Mom lain dengan komentar ini"
+            <div className="mt-3 flex justify-end">
+              <button
+                type="button"
+                onClick={() => handleLike(item.id)}
+                disabled={likingCommentId === item.id}
+                className={`inline-flex h-9 cursor-pointer items-center justify-center gap-1.5 rounded-md border px-3 text-xs font-semibold transition disabled:cursor-not-allowed disabled:opacity-70 ${
+                  item.likedByCurrentUser
+                    ? "border-[#f1c8c1] bg-[#fff2ef] text-[#c65f51] hover:border-[#d27a6a] hover:bg-[#ffe8e3]"
+                    : "border-[#eadbc9] bg-[#fffdf9] text-[#7b6b5b] hover:border-[#d27a6a] hover:text-[#c65f51]"
+                }`}
+                aria-pressed={item.likedByCurrentUser}
+                aria-label={
+                  item.likedByCurrentUser
+                    ? "Batalkan bantuan untuk komentar ini"
+                    : "Bantu Mom lain dengan komentar ini"
+                }
+              >
+                <Heart
+                  size={15}
+                  className={
+                    item.likedByCurrentUser ? "fill-current" : undefined
                   }
-                >
-                  <Heart
-                    size={15}
-                    className={
-                      item.likedByCurrentUser ? "fill-current" : undefined
-                    }
-                  />
-                  <span>{item.reactionCount}</span>
-                  <span>
-                    {likingCommentId === item.id
-                      ? "Memproses"
-                      : item.likedByCurrentUser
-                        ? "Sudah Bantu"
-                        : "Bantu Mom lain"}
-                  </span>
-                </button>
-              </div>
-            ) : null}
+                />
+                <span>{item.reactionCount}</span>
+                <span>
+                  {likingCommentId === item.id
+                    ? "Memproses"
+                    : item.likedByCurrentUser
+                      ? "Sudah Bantu"
+                      : "Bantu Mom lain"}
+                </span>
+              </button>
+            </div>
           </article>
         ))}
       </div>
