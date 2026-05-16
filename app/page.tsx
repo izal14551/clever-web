@@ -12,9 +12,7 @@ import { FeaturedTreatments } from "./components/FeaturedTreatments";
 import { DashboardFooter } from "./components/DashboardFooter";
 import { BottomNav } from "./components/BottomNav";
 import { getLandingData } from "./lib/landing";
-import { formatCommentTimeAgo } from "./lib/commentTime";
 import { getServiceListData } from "./services/serviceData";
-import { getAllServiceComments } from "./lib/serviceComments";
 import { getAllServiceRecommendations } from "./lib/serviceRecommendations";
 import { authOptions } from "./lib/auth";
 import { getTestimonialReactions } from "./lib/testimonialReactions";
@@ -23,12 +21,11 @@ import type { TestimonialData } from "./types/landing";
 export const dynamic = "force-dynamic";
 
 export default async function LandingPage() {
-  const [session, data, serviceItems, storedComments, serviceRecommendations] =
+  const [session, data, serviceItems, serviceRecommendations] =
     await Promise.all([
       getServerSession(authOptions),
       getLandingData(),
       getServiceListData(),
-      getAllServiceComments(),
       getAllServiceRecommendations(),
     ]);
 
@@ -37,43 +34,14 @@ export default async function LandingPage() {
   const serviceMap = new Map(
     serviceItems.map((service) => [String(service.id), service]),
   );
-  const serviceSlugMap = new Map(
-    serviceItems
-      .filter((service) => service.slug)
-      .map((service) => [service.slug as string, service]),
-  );
-  const allFeedback: TestimonialData[] = [
-    ...storedComments.map((comment) => {
-      const service =
-        serviceMap.get(comment.serviceId) ||
-        serviceSlugMap.get(comment.serviceId);
-
-      return {
-        id: `comment-${comment.id}`,
-        serviceId: service?.id,
-        serviceSlug: service?.slug,
-        author: comment.author,
-        timeAgo: formatCommentTimeAgo(comment.createdAt),
-        category: service?.category || "Layanan CleverMom",
-        title: service?.title || "Komentar Mom",
-        message: comment.message,
-        reactionCount: comment.likeCount,
-        ctaLabel: "Bantu Mom lain",
-      };
-    }),
-    ...testimonials.map((testimonial) => ({
-      ...testimonial,
-      ctaLabel: "Bantu Mom lain",
-    })),
-  ];
   const feedbackReactions = await getTestimonialReactions(
-    allFeedback.map((testimonial) => String(testimonial.id)),
+    testimonials.map((testimonial) => String(testimonial.id)),
     session?.user?.id,
   );
   const feedbackReactionMap = new Map(
     feedbackReactions.map((reaction) => [reaction.testimonialId, reaction]),
   );
-  const feedbackWithReactionState = allFeedback.map((testimonial) => {
+  const feedbackWithReactionState = testimonials.map((testimonial) => {
     const reaction = feedbackReactionMap.get(String(testimonial.id));
     const service = testimonial.serviceId
       ? serviceMap.get(String(testimonial.serviceId))
@@ -82,6 +50,7 @@ export default async function LandingPage() {
     return {
       ...testimonial,
       serviceSlug: testimonial.serviceSlug || service?.slug,
+      ctaLabel: "Bantu Mom lain",
       persistedReactionCount: reaction?.reactionCount || 0,
       reactionCount: testimonial.reactionCount + (reaction?.reactionCount || 0),
       reactedByCurrentUser: reaction?.reactedByCurrentUser || false,
