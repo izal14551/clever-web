@@ -28,7 +28,7 @@ export function ServiceList({ services, itemsPerPage = 5 }: ServiceListProps) {
 
   return (
     <section className="bg-white py-2">
-      <div className="overflow-hidden border border-orange-100/80">
+      <div className="overflow-hidden border border-orange-100/80 pb-5">
         {displayedServices.map((service) => (
           <Link
             key={service.id}
@@ -68,7 +68,7 @@ export function ServiceList({ services, itemsPerPage = 5 }: ServiceListProps) {
       </div>
 
       {totalPages > 1 && (
-        <div className="flex items-center justify-between px-4 py-4 bg-orange-50/30 border-t border-orange-100">
+        <div className="fixed bottom-[60px] left-1/2 -translate-x-1/2 z-40 w-full max-w-md bg-white/95 backdrop-blur border-t border-orange-100 px-4 py-3 flex items-center justify-between shadow-[0_-8px_24px_rgba(166,139,109,0.06)]">
           <button
             type="button"
             disabled={currentPage === 1}

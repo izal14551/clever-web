@@ -126,6 +126,7 @@ function normalizePromos(source?: PromoData[]): PromoData[] {
         id,
         slug: normalizeSlug(item.slug, title || `promo-${id}`, `promo-${id}`),
         title: title || undefined,
+        description: toStringValue(item.description) || undefined,
         imageUrl: getDirectImageUrl(toStringValue(item.imageUrl)) || undefined,
         link: toStringValue(item.link) || undefined,
         sortOrder: normalizeSortOrder(item.sortOrder, index + 1),

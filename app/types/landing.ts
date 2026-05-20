@@ -37,6 +37,7 @@ export interface PromoData {
   slug?: string;
   imageUrl?: string;
   title?: string;
+  description?: string;
   link?: string;
   sortOrder?: number;
 }
