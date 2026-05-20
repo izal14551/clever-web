@@ -101,7 +101,7 @@ function ServiceItem({
           <img
             src={iconUrl}
             alt={label.replace(/\n/g, " ")}
-            className="h-8 w-8 object-contain transition-transform duration-300 group-hover:scale-110"
+            className="h-10 w-10 object-contain transition-transform duration-300 group-hover:scale-110"
           />
         ) : (
           <div className="h-8 w-8 rounded-full border border-[#dcc4a8] bg-[#fffdf9]"></div>
@@ -113,4 +113,3 @@ function ServiceItem({
     </Link>
   );
 }
-
