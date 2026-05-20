@@ -96,12 +96,12 @@ function ServiceItem({
       href={href}
       className="flex flex-col items-center gap-2 group cursor-pointer"
     >
-      <div className="flex h-14 w-14 items-center justify-center rounded-xl border border-[#eadbc9] bg-[#fffaf5] text-[#a68b6d] transition-colors duration-300 group-hover:bg-[#fff1e2] overflow-hidden">
+      <div className="flex h-14 w-14 items-center justify-center rounded-full border border-[#eadbc9] bg-[#fffaf5] text-[#a68b6d] transition-colors duration-300 group-hover:bg-[#fff1e2] overflow-hidden">
         {iconUrl ? (
           <img
             src={iconUrl}
             alt={label.replace(/\n/g, " ")}
-            className="h-10 w-10 object-contain transition-transform duration-300 group-hover:scale-110"
+            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-110"
           />
         ) : (
           <div className="h-8 w-8 rounded-full border border-[#dcc4a8] bg-[#fffdf9]"></div>
