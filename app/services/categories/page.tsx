@@ -2,10 +2,11 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { BottomNav } from "@/app/components/BottomNav";
 import { ServiceGrid } from "@/app/components/ServiceGrid";
-import { getServiceListData } from "@/app/services/serviceData";
+import { getLandingData } from "@/app/lib/landing";
 
 export default async function ServiceCategoriesPage() {
-  const services = await getServiceListData();
+  const data = await getLandingData();
+  const services = data.services;
 
   return (
     <main className="max-w-md mx-auto min-h-screen bg-[#fffdf9] pb-24 font-sans shadow-md">

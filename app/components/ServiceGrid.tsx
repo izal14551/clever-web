@@ -4,9 +4,9 @@ import { ProgressLink as Link } from "./RouteProgress";
 interface ServiceGridItem {
   id: number;
   slug?: string;
-  label?: string;
-  title?: string;
+  label: string;
   category?: string;
+  iconUrl?: string;
 }
 
 interface ServiceGridProps {
@@ -24,11 +24,11 @@ export function ServiceGrid({
 }: ServiceGridProps) {
   if (!services) return null;
 
-  const categories = getServiceCategories(services);
-  const shouldCollapse = collapsed && categories.length > 9;
+  const uniqueCategories = getUniqueCategories(services);
+  const shouldCollapse = collapsed && uniqueCategories.length > 9;
   const visibleCategories = shouldCollapse
-    ? categories.slice(0, 8)
-    : categories;
+    ? uniqueCategories.slice(0, 8)
+    : uniqueCategories;
 
   return (
     <section className={className}>
@@ -36,13 +36,17 @@ export function ServiceGrid({
         Butuh Layanan Apa Hari Ini?
       </h2>
       <div className="grid grid-cols-3 gap-y-10 gap-x-2 text-center">
-        {visibleCategories.map((category) => (
-          <ServiceItem
-            key={category}
-            label={category}
-            href={`/services?category=${encodeURIComponent(category)}`}
-          />
-        ))}
+        {visibleCategories.map((item) => {
+          const categoryName = (item.category || item.label || "").trim();
+          return (
+            <ServiceItem
+              key={item.id}
+              label={item.label}
+              iconUrl={item.iconUrl}
+              href={`/services?category=${encodeURIComponent(categoryName)}`}
+            />
+          );
+        })}
         {shouldCollapse ? (
           <Link
             href={showMoreHref}
@@ -61,24 +65,47 @@ export function ServiceGrid({
   );
 }
 
-function getServiceCategories(services: ServiceGridItem[]): string[] {
-  const categories = services
-    .map((service) => (service.category || "").trim())
-    .filter(
-      (category) => category && !category.toLowerCase().includes("paket"),
-    );
+function getUniqueCategories(services: ServiceGridItem[]): ServiceGridItem[] {
+  const seen = new Set<string>();
+  return services.filter((service) => {
+    const categoryName = (service.category || service.label || "").trim();
+    if (!categoryName) return false;
 
-  return Array.from(new Set(categories));
+    // Saring kategori yang memiliki kata "paket"
+    if (categoryName.toLowerCase().includes("paket")) return false;
+
+    if (seen.has(categoryName.toLowerCase())) {
+      return false;
+    }
+    seen.add(categoryName.toLowerCase());
+    return true;
+  });
 }
 
-function ServiceItem({ label, href }: { label: string; href: string }) {
+function ServiceItem({
+  label,
+  iconUrl,
+  href,
+}: {
+  label: string;
+  iconUrl?: string;
+  href: string;
+}) {
   return (
     <Link
       href={href}
       className="flex flex-col items-center gap-2 group cursor-pointer"
     >
-      <div className="flex h-14 w-14 items-center justify-center rounded-xl border border-[#eadbc9] bg-[#fffaf5] text-[#a68b6d] transition-colors duration-300 group-hover:bg-[#fff1e2]">
-        <div className="h-8 w-8 rounded-full border border-[#dcc4a8] bg-[#fffdf9]"></div>
+      <div className="flex h-14 w-14 items-center justify-center rounded-xl border border-[#eadbc9] bg-[#fffaf5] text-[#a68b6d] transition-colors duration-300 group-hover:bg-[#fff1e2] overflow-hidden">
+        {iconUrl ? (
+          <img
+            src={iconUrl}
+            alt={label.replace(/\n/g, " ")}
+            className="h-8 w-8 object-contain transition-transform duration-300 group-hover:scale-110"
+          />
+        ) : (
+          <div className="h-8 w-8 rounded-full border border-[#dcc4a8] bg-[#fffdf9]"></div>
+        )}
       </div>
       <span className="text-md whitespace-pre-wrap px-1 font-medium leading-tight text-[#6f6255]">
         {label}
@@ -86,3 +113,4 @@ function ServiceItem({ label, href }: { label: string; href: string }) {
     </Link>
   );
 }
+
