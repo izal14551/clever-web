@@ -51,8 +51,8 @@ export default async function TestimonialPage() {
     <main className="relative mx-auto min-h-screen max-w-md bg-white pb-24 font-sans shadow-md">
       <ProfileSubpageHeader title="Testimonial Mom" backHref="/" />
 
-      <section className="bg-gradient-to-b from-[#fffaf5] to-[#f8ecde] px-6 pb-8 pt-6">
-        <div className="relative rounded-[28px] border border-[#ecd8c3] bg-[linear-gradient(180deg,_#fffefb_0%,_#fff4e8_55%,_#f8e4cd_100%)] p-5 shadow-[0_14px_34px_rgba(166,139,109,0.14)]">
+      <section className="bg-linear-to-b from-[#fffaf5] to-[#f8ecde] px-6 pb-8 pt-6">
+        <div className="relative rounded-[28px] border border-[#ecd8c3] bg-[linear-gradient(180deg,#fffefb_0%,#fff4e8_55%,#f8e4cd_100%)] p-5 shadow-[0_14px_34px_rgba(166,139,109,0.14)]">
           <Quote
             size={148}
             className="pointer-events-none absolute right-2 top-2 z-0 text-[#f2ddc5]"

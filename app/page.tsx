@@ -31,7 +31,7 @@ export default async function LandingPage() {
       getAllServiceRecommendations(),
     ]);
 
-  const { hero, consultation, promos, featuredTreatments } = data;
+  const { hero, consultation, services, promos, featuredTreatments } = data;
 
   const serviceMap = new Map(
     serviceItems.map((service) => [String(service.id), service]),
@@ -122,7 +122,7 @@ export default async function LandingPage() {
         <ConsultationCard data={consultation} />
       </section>
 
-      <ServiceGrid services={serviceItems} collapsed />
+      <ServiceGrid services={services} collapsed />
 
       <PromoCarousel promos={promos} />
 

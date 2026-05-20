@@ -114,7 +114,11 @@ function routeAction(action, payload) {
         ),
       };
     case "getAllServiceComments":
-      return { comments: getAllServiceComments() };
+      return {
+        comments: getAllServiceComments(
+          normalizeText(payload.viewerUserId),
+        ),
+      };
     case "addServiceComment":
       return { comment: addServiceComment(payload.comment || payload) };
     case "addServiceCommentLike":
@@ -231,7 +235,7 @@ function getServiceComments(serviceId, viewerUserId) {
   return comments.map((comment) => withCommentLikeSummary(comment, viewerUserId));
 }
 
-function getAllServiceComments() {
+function getAllServiceComments(viewerUserId) {
   const sheet = ensureStoreSheet(CONFIG.storeSheets.serviceComments);
   const comments = readSheetRows(sheet)
     .filter((row) => row.id && row.serviceId && row.message)
@@ -243,7 +247,7 @@ function getAllServiceComments() {
       createdAt: normalizeText(row.createdAt),
       userId: normalizeText(row.userId),
       authorMode: normalizeText(row.authorMode),
-    }));
+    }, viewerUserId));
 
   return comments.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 }
