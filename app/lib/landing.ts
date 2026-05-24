@@ -70,6 +70,11 @@ const CATEGORY_FALLBACK_IMAGES: Record<string, string> = {
   "baby treatment": "/icon_treatment/Baby_Treatment.png",
   "toddler treatment": "/icon_treatment/Toddler_Treatment.png",
   "kids treatment": "/icon_treatment/Kids_Treatment.png",
+  "pregnancy treatment": "/icon_treatment/Pregnancy_Treatment.png",
+  "konselor laktasi": "/icon_treatment/Konselor_Laktasi.png",
+  "postpartum treatment": "/icon_treatment/Postpartum_Treatment.png",
+  "newborn care": "/icon_treatment/Newborn_Care.png",
+  "serenity mom and care": "/icon_treatment/Serenity_Mom_and_Care.png",
 };
 
 function getCategoryFallbackImage(categoryName?: string): string | undefined {
