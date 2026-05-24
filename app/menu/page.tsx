@@ -161,12 +161,12 @@ export default async function MenuPage() {
         <div className="bg-white rounded-2xl border border-orange-100 p-4 shadow-sm">
           <div className="flex justify-between items-center text-sm">
             <span className="text-gray-500">Tingkat member</span>
-            <span className="font-semibold text-[#1f1f1f]">-</span>
+            <span className="font-semibold text-[#1f1f1f]">{data.summary.memberLevel}</span>
           </div>
           <div className="h-px bg-gray-100 my-3" />
           <div className="flex justify-between items-center text-sm">
             <span className="text-gray-500">Point kamu</span>
-            <span className="font-semibold text-[#1f1f1f]">-</span>
+            <span className="font-semibold text-[#1f1f1f]">{data.summary.points}</span>
           </div>
         </div>
       </section>
