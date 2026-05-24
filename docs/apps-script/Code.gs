@@ -30,9 +30,13 @@ const CONFIG = {
     siteContent: "site_content",
   },
   storeSheets: {
+    users: {
+      name: "users",
+      headers: ["id", "email", "name", "image", "last_login_at", "updated_at"],
+    },
     members: {
       name: "members",
-      headers: ["user_id", "email", "name", "image", "last_login_at", "updated_at"],
+      headers: ["id", "user_id", "level", "point"],
     },
     serviceComments: {
       name: "service_comments",
@@ -106,6 +110,10 @@ function routeAction(action, payload) {
       return { member: upsertMember(payload) };
     case "updateMemberName":
       return { member: updateMemberName(payload) };
+    case "getMemberSummary":
+      return getMemberSummary(
+        normalizeText(payload.userId) || normalizeText(payload.id)
+      );
     case "getServiceComments":
       return {
         comments: getServiceComments(
@@ -192,42 +200,73 @@ function routeAction(action, payload) {
 }
 
 function upsertMember(payload) {
-  const userId = requireText(payload.userId, "userId wajib ada.");
+  const userId = requireText(payload.userId || payload.id, "userId wajib ada.");
   const email = normalizeText(payload.email);
   const now = new Date().toISOString();
-  const sheet = ensureStoreSheet(CONFIG.storeSheets.members);
-  const rows = readSheetRows(sheet);
-  const existing = rows.find((row) => row.userId === userId);
-  const member = {
-    userId,
+
+  // 1. Upsert data ke sheet "users"
+  const userSheet = ensureStoreSheet(CONFIG.storeSheets.users);
+  const userRows = readSheetRows(userSheet);
+  const existingUser = userRows.find((row) => row.id === userId);
+  const userObj = {
+    id: userId,
     email,
     name: normalizeText(payload.name),
     image: normalizeText(payload.image),
     lastLoginAt: normalizeText(payload.lastLoginAt) || now,
-    updatedAt: existing ? existing.updatedAt || now : now,
+    updatedAt: existingUser ? existingUser.updatedAt || now : now,
   };
+  upsertRowByKey(userSheet, "id", userId, userObj);
 
-  upsertRowByKey(sheet, "userId", userId, member);
-  return member;
+  // 2. Check & inisialisasi membership di sheet "members"
+  const memberSheet = ensureStoreSheet(CONFIG.storeSheets.members);
+  const memberRows = readSheetRows(memberSheet);
+  const existingMember = memberRows.find((row) => row.userId === userId);
+  if (!existingMember) {
+    const newMember = {
+      id: Utilities.getUuid(),
+      userId: userId,
+      level: "-",
+      point: 120, // default point
+    };
+    appendObjectRow(memberSheet, newMember);
+  }
+
+  return userObj;
 }
 
 function updateMemberName(payload) {
-  const userId = requireText(payload.userId, "userId wajib ada.");
+  const userId = requireText(payload.userId || payload.id, "userId wajib ada.");
   const now = new Date().toISOString();
-  const sheet = ensureStoreSheet(CONFIG.storeSheets.members);
-  const rows = readSheetRows(sheet);
-  const existing = rows.find((row) => row.userId === userId) || {};
-  const member = {
-    userId,
-    email: normalizeText(payload.email) || existing.email,
+  const userSheet = ensureStoreSheet(CONFIG.storeSheets.users);
+  const userRows = readSheetRows(userSheet);
+  const existingUser = userRows.find((row) => row.id === userId) || {};
+  
+  const userObj = {
+    id: userId,
+    email: normalizeText(payload.email) || existingUser.email,
     name: requireText(payload.name, "name wajib ada."),
-    image: existing.image || "",
-    lastLoginAt: existing.lastLoginAt || now,
+    image: existingUser.image || "",
+    lastLoginAt: existingUser.lastLoginAt || now,
     updatedAt: normalizeText(payload.updatedAt) || now,
   };
 
-  upsertRowByKey(sheet, "userId", userId, member);
-  return member;
+  upsertRowByKey(userSheet, "id", userId, userObj);
+  return userObj;
+}
+
+function getMemberSummary(userId) {
+  requireText(userId, "userId wajib ada.");
+  const memberSheet = ensureStoreSheet(CONFIG.storeSheets.members);
+  const memberRows = readSheetRows(memberSheet);
+  const member = memberRows.find((row) => row.userId === userId);
+
+  return {
+    summary: {
+      memberLevel: member ? normalizeText(member.level) || "-" : "-",
+      points: member ? Number(member.point) || 0 : 0
+    }
+  };
 }
 
 function getServiceComments(serviceId, viewerUserId) {
