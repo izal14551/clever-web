@@ -154,7 +154,7 @@ export default async function PromoDetailPage({
       </header>
 
       {/* Gambar Cover Promo */}
-      <section className="relative w-full aspect-[16/9] bg-[#f9f4ed] overflow-hidden">
+      <section className="relative h-64 w-full bg-[#f9f4ed] overflow-hidden">
         {promo.imageUrl ? (
           <img
             src={promo.imageUrl}

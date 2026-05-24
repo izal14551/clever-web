@@ -15,21 +15,36 @@ export const mockLandingData: LandingPageData = {
     whatsappNumber: "6281932618816",
   },
   services: [
-    { id: 1, slug: "baby-treatment", label: "Baby\nTreatment", category: "Baby Treatment" },
+    {
+      id: 1,
+      slug: "baby-treatment",
+      label: "Baby\nTreatment",
+      category: "Baby Treatment",
+    },
     {
       id: 2,
       slug: "paket-baby-treatment",
       label: "Paket Baby\nTreatment",
       category: "Paket Baby Treatment",
     },
-    { id: 3, slug: "toddler-treatment", label: "Toddler\nTreatment", category: "Toddler Treatment" },
+    {
+      id: 3,
+      slug: "toddler-treatment",
+      label: "Toddler\nTreatment",
+      category: "Toddler Treatment",
+    },
     {
       id: 4,
       slug: "paket-toddler-treatment",
       label: "Paket Toddler\nTreatment",
       category: "Paket Toddler Treatment",
     },
-    { id: 5, slug: "kids-treatment", label: "Kids\nTreatment", category: "Kids Treatment" },
+    {
+      id: 5,
+      slug: "kids-treatment",
+      label: "Kids\nTreatment",
+      category: "Kids Treatment",
+    },
     {
       id: 6,
       slug: "paket-kids-treatment",
@@ -38,7 +53,38 @@ export const mockLandingData: LandingPageData = {
     },
     { id: 7, slug: "additional", label: "Additional", category: "Additional" },
   ],
-  promos: [{ id: 1 }, { id: 2 }, { id: 3 }, { id: 4 }],
+  promos: [
+    {
+      id: 1,
+      slug: "diskon-baby-massage-imun-booster",
+      title: "Diskon 20% Baby Massage Imun Booster",
+      description:
+        "Manjakan si kecil dengan sentuhan lembut terapis bidan profesional CleverMom. Dapatkan diskon 20% untuk paket pijat bayi dan imun booster yang dirancang khusus untuk meningkatkan sistem kekebalan tubuh buah hati Mom di musim pancaroba ini.",
+      imageUrl:
+        "https://images.unsplash.com/photo-1516627145497-ae6968895b74?auto=format&fit=crop&w=800&q=80",
+    },
+    {
+      id: 2,
+      slug: "gratis-haircut-paket-serenity",
+      title: "Gratis Haircut untuk Pembelian Paket Serenity",
+      imageUrl:
+        "https://images.unsplash.com/photo-1519689680058-324335c77ebe?auto=format&fit=crop&w=800&q=80",
+    },
+    {
+      id: 3,
+      slug: "special-toddler-spa-combo",
+      title: "Special Toddler Spa Combo & Aromatherapy",
+      imageUrl:
+        "https://images.unsplash.com/photo-1609220136736-443140cffec6?auto=format&fit=crop&w=800&q=80",
+    },
+    {
+      id: 4,
+      slug: "hemat-on-call-bidan-half-day",
+      title: "Hemat Rp 50.000 On-Call Bidan Half Day",
+      imageUrl:
+        "https://images.unsplash.com/photo-1584824486509-112e4181ff6b?auto=format&fit=crop&w=800&q=80",
+    },
+  ],
   packages: [
     {
       id: 1,

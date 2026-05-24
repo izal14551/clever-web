@@ -23,9 +23,6 @@ export default async function ArtikelPage() {
           </Link>
           <div>
             <h1 className="text-xl font-bold">Artikel Clevermom</h1>
-            <p className="text-xs text-white/80">
-              Customer dapat melihat daftar artikel terbaru.
-            </p>
           </div>
         </div>
       </header>
