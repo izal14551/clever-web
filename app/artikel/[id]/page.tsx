@@ -3,6 +3,7 @@ import { ArrowLeft } from "lucide-react";
 import { notFound } from "next/navigation";
 import { BottomNav } from "@/app/components/BottomNav";
 import { getArticleBySlugOrId } from "@/app/lib/blogger";
+import { ArticleActionButtons } from "@/app/components/ArticleActionButtons";
 
 interface ArticleDetailPageProps {
   params: Promise<{ id: string }>;
@@ -27,9 +28,12 @@ export default async function ArticleDetailPage({
   }
 
   return (
-    <main className="mx-auto min-h-screen max-w-md bg-white pb-24 font-sans shadow-md">
+    <main className="mx-auto min-h-screen max-w-md bg-white pb-36 font-sans shadow-md relative">
       <header className="sticky top-0 z-30 flex h-14 items-center border-b border-gray-100 bg-white px-4">
-        <Link href="/artikel" className="inline-flex items-center text-gray-600">
+        <Link
+          href="/artikel"
+          className="inline-flex items-center text-gray-600"
+        >
           <ArrowLeft size={20} />
         </Link>
       </header>
@@ -66,7 +70,12 @@ export default async function ArticleDetailPage({
         />
       </section>
 
-      <BottomNav />
+      <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md z-50">
+        <div className="bg-white/95 border-t border-[#eadbc9] px-3 py-2 backdrop-blur">
+          <ArticleActionButtons articleTitle={article.title} />
+        </div>
+        <BottomNav fixed={false} />
+      </div>
     </main>
   );
 }
