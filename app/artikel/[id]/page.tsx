@@ -36,6 +36,11 @@ export default async function ArticleDetailPage({
         >
           <ArrowLeft size={20} />
         </Link>
+        <div className="ml-4">
+          <h1 className="text-lg font-bold text-[#1f1f1f] line-clamp-1">
+            Detail Artikel
+          </h1>
+        </div>
       </header>
 
       <section className="bg-[#fffaf5] px-5 pb-6 pt-5">
