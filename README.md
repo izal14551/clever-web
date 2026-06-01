@@ -1,93 +1,259 @@
-# Clevermom Web Gen 2
+# Clevermom Web
 
+Project ini menggunakan Next.js App Router, `next-auth` untuk Google OAuth, Apps Script Google Sheet API untuk beberapa data dinamis, dan Blogger API untuk artikel.
 
+## Setup Project
 
-## Getting started
+### Install dependency
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
-
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
-
-## Add your files
-
-* [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-* [Add files using the command line](https://docs.gitlab.com/topics/git/add_files/#add-files-to-a-git-repository) or push an existing Git repository with the following command:
-
-```
-cd existing_repo
-git remote add origin https://gitlab.com/clevermom.id/clevermom-web-gen-2.git
-git branch -M main
-git push -uf origin main
+```bash
+npm install
 ```
 
-## Integrate with your tools
+### Buat environment file
 
-* [Set up project integrations](https://gitlab.com/clevermom.id/clevermom-web-gen-2/-/settings/integrations)
+Copy `.env.example` menjadi `.env.local`, lalu isi nilainya:
 
-## Collaborate with your team
+```env
+GOOGLE_CLIENT_ID=your-google-client-id
+GOOGLE_CLIENT_SECRET=your-google-client-secret
+NEXTAUTH_URL=http://localhost:3000
+NEXTAUTH_SECRET=replace-with-a-random-secret
+BLOGGER_BLOG_ID=your-blogger-blog-id
+BLOGGER_API_KEY=your-blogger-api-key
+APPS_SCRIPT_URL=your-apps-script-url
+```
 
-* [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-* [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-* [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-* [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-* [Set auto-merge](https://docs.gitlab.com/user/project/merge_requests/auto_merge/)
+Tips generate secret:
 
-## Test and Deploy
+```bash
+openssl rand -base64 32
+```
 
-Use the built-in continuous integration in GitLab.
+### Setup Google OAuth Client
 
-* [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/)
-* [Analyze your code for known vulnerabilities with Static Application Security Testing (SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-* [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-* [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-* [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
+1. Buka Google Cloud Console.
+2. Buat atau pilih project.
+3. Buka `APIs & Services` -> `OAuth consent screen`.
+4. Konfigurasikan app name, support email, dan developer contact email.
+5. Buat `OAuth Client ID` dengan tipe `Web application`.
+6. Tambahkan URL berikut:
+   - Authorized JavaScript origins: `http://localhost:3000`
+   - Authorized redirect URIs: `http://localhost:3000/api/auth/callback/google`
+7. Ambil `Client ID` dan `Client Secret`, lalu isi ke `.env.local`.
 
-***
+### Jalankan aplikasi
 
-# Editing this README
+```bash
+npm run dev
+```
 
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thanks to [makeareadme.com](https://www.makeareadme.com/) for this template.
+Buka `http://localhost:3000`.
 
-## Suggestions for a good README
+## Ringkasan Arsitektur Data
 
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
+- Homepage, layanan, promo, profile summary, dan beberapa halaman informasi mengambil data dari Apps Script Google Sheet API.
+- Artikel list dan artikel detail mengambil data dari Blogger API.
+- Google OAuth ditangani oleh NextAuth.
 
-## Name
-Choose a self-explaining name for your project.
+## Status Implementasi Fitur
 
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
+### 1. Homepage
 
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
+Status: `Sebagian selesai`
 
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
+Yang sudah tersedia:
+- Search bar
+- Banner / hero section
+- Service menu icon
+- Promo section
+- Testimonial section
+- Footer
+- Bottom navigation bar
 
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
+Catatan:
+- Data utama homepage sudah menggunakan Apps Script Google Sheet API.
+- Bagian `most popular service swipe card` belum menjadi blok khusus yang eksplisit.
+- Beberapa CTA seperti `Lihat selengkapnya` masih perlu dipastikan route finalnya.
 
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
+### 2. Service List Page
 
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
+Status: `Selesai`
 
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
+Keterangan:
+- Customer sudah dapat melihat daftar layanan.
+- Data sudah diambil secara dinamis dari Apps Script Google Sheet API.
 
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
+### 3. Detail Service Page
 
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
+Status: `Selesai`
 
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
+Keterangan:
+- Customer sudah dapat melihat detail layanan.
+- Data sudah diambil secara dinamis dari Apps Script Google Sheet API.
 
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
+### 4. Order Service via WhatsApp
 
-## License
-For open source projects, say how it is licensed.
+Status: `Sebagian selesai`
 
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+Keterangan:
+- Tombol WhatsApp untuk pemesanan sudah tersedia di halaman detail layanan.
+- Nomor WhatsApp masih hardcoded dan belum sepenuhnya dinamis dari Apps Script.
+
+### 5. Share Service Link
+
+Status: `Belum sesuai requirement`
+
+Keterangan:
+- Saat ini fitur share masih menggunakan Web Share API atau fallback copy link.
+- Belum tersedia tombol share spesifik ke:
+  - WhatsApp
+  - Facebook
+  - Instagram
+  - TikTok
+
+### 6. Login via Google OAuth
+
+Status: `Selesai`
+
+Keterangan:
+- Konfigurasi Google Provider di NextAuth sudah tersedia.
+- Route auth dan tombol login sudah tersedia.
+- Integrasi ke Google Cloud Platform masih perlu dikonfigurasi penuh di environment dan OAuth Client.
+
+### 7. Profile Page
+
+Status: `Selesai`
+
+Keterangan:
+- Customer sudah dapat melihat profile page.
+- Data summary profile sudah diambil dari Apps Script Google Sheet API.
+
+### 8. Search Page
+
+Status: `Selesai`
+
+Keterangan:
+- Customer sudah dapat membuka halaman pencarian dari homepage.
+- Halaman search sudah menampilkan:
+  - recent searches
+  - keyword suggestions
+  - rekomendasi konten
+  - hasil pencarian
+
+Catatan:
+- Search menggunakan gabungan data Apps Script, Blogger API, dan data turunan internal.
+
+### 9. Search Result Page
+
+Status: `Sebagian selesai`
+
+Keterangan:
+- Hasil pencarian sudah tampil di halaman `/search`.
+- Belum dipisahkan menjadi route hasil pencarian khusus jika requirement membutuhkan halaman result terpisah.
+
+### 10. Tentang CleverMom Page
+
+Status: `Selesai`
+
+Keterangan:
+- Halaman tentang CleverMom sudah tersedia.
+- Data sudah diambil secara dinamis dari Apps Script Google Sheet API.
+
+### 11. Syarat dan Ketentuan Page
+
+Status: `Belum selesai`
+
+Keterangan:
+- Halaman sudah tersedia.
+- Konten masih hardcoded.
+- Belum menggunakan Apps Script Google Sheet API.
+
+### 12. Bantuan Page
+
+Status: `Belum selesai`
+
+Keterangan:
+- Halaman sudah tersedia.
+- Konten bantuan utama masih hardcoded.
+- Hanya kontak WhatsApp yang memanfaatkan data landing.
+- Belum sepenuhnya dinamis dari Apps Script Google Sheet API.
+
+### 13. Promo Page
+
+Status: `Selesai`
+
+Keterangan:
+- Customer sudah dapat melihat daftar promo.
+- Data promo sudah menggunakan Apps Script Google Sheet API.
+
+### 14. Layanan Selengkapnya
+
+Status: `Sebagian selesai`
+
+Keterangan:
+- Struktur halaman layanan sudah tersedia.
+- Beberapa tombol `lihat selengkapnya` di homepage belum seluruhnya dipastikan terhubung sesuai requirement final.
+
+### 15. List Artikel
+
+Status: `Selesai`
+
+Keterangan:
+- Customer sudah dapat melihat daftar artikel.
+- Data menggunakan API dari Blogger platform.
+
+### 16. Read Artikel
+
+Status: `Selesai`
+
+Keterangan:
+- Customer sudah dapat membaca detail artikel.
+- Data menggunakan API dari Blogger platform.
+
+## Ringkasan Status
+
+### Selesai
+
+- Service list
+- Service detail
+- Profile page
+- Tentang CleverMom
+- Promo page
+- List artikel
+- Detail artikel
+- Search page dasar
+
+### Sebagian selesai
+
+- Homepage
+- Order via WhatsApp
+- Google OAuth
+- Search result flow
+- Layanan selengkapnya
+
+### Belum selesai atau belum sesuai requirement
+
+- Share ke platform sosial spesifik
+- Bantuan dinamis dari Apps Script
+- Syarat dan ketentuan dinamis dari Apps Script
+
+## Prioritas Implementasi Berikutnya
+
+1. Menyelesaikan integrasi Google OAuth ke Google Cloud Platform.
+2. Menjadikan nomor WhatsApp order sebagai data dinamis.
+3. Membuat halaman Bantuan dinamis dari Apps Script.
+4. Membuat halaman Syarat & Ketentuan dinamis dari Apps Script.
+5. Menambahkan share service ke WhatsApp, Facebook, Instagram, dan TikTok.
+6. Merapikan blok homepage `most popular service` dan CTA `lihat selengkapnya`.
+
+## Referensi Lokasi Implementasi
+
+- Auth config: `app/lib/auth.ts`
+- NextAuth route: `app/api/auth/[...nextauth]/route.ts`
+- Login page: `app/login/page.tsx`
+- Landing data loader: `app/lib/landing.ts`
+- Services data loader: `app/services/serviceData.ts`
+- About data loader: `app/lib/about.ts`
+- Artikel source: `app/lib/blogger.ts`
+

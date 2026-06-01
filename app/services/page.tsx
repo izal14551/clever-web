@@ -1,0 +1,34 @@
+﻿import { ChevronLeft } from "lucide-react";
+import { BottomNav } from "../components/BottomNav";
+import { ProgressLink as Link } from "../components/RouteProgress";
+import { ServicesExplorer } from "../components/ServicesExplorer";
+import { getServiceListData } from "./serviceData";
+
+interface ServicesPageProps {
+  searchParams?: Promise<{
+    category?: string;
+  }>;
+}
+
+export default async function ServicesPage({ searchParams }: ServicesPageProps) {
+  const services = await getServiceListData();
+  const params = searchParams ? await searchParams : undefined;
+  const initialCategory = params?.category;
+
+  return (
+    <main className="max-w-md mx-auto bg-white min-h-screen pb-24 font-sans shadow-md relative">
+      <header className="bg-gradient-to-r from-[#9c8466] to-[#b59a79] text-white px-4 py-4 sticky top-0 z-30">
+        <div className="flex items-center gap-3">
+          <Link href="/" className="inline-flex items-center justify-center">
+            <ChevronLeft size={20} />
+          </Link>
+          <h1 className="font-bold text-xl">Butuh Layanan Apa Hari Ini?</h1>
+        </div>
+      </header>
+
+      <ServicesExplorer services={services} initialCategory={initialCategory} />
+
+      <BottomNav />
+    </main>
+  );
+}
