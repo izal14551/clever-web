@@ -14,13 +14,19 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: "https",
-        hostname: "lh3.googleusercontent.com", // Jika memakai gambar dr Google Photos/Drive langsung
+        hostname: "lh3.googleusercontent.com",
       },
       {
         protocol: "https",
-        hostname: "**", // ⚠️ (Opsional) Mengizinkan SEMUA URL https (Gunakan dengan hati-hati)
+        hostname: "**",
       },
     ],
+  },
+  experimental: {
+    staleTimes: {
+      dynamic: 60,
+      static: 300,
+    },
   },
 };
 
