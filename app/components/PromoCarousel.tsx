@@ -29,7 +29,7 @@ export function PromoCarousel({ promos }: PromoCarouselProps) {
         <h2 className="font-bold text-gray-800 text-lg">Ada Promo Nih!</h2>
       </div>
       <div className="relative px-6">
-        <div className="bg-gray-200 h-40 w-full rounded-2xl flex items-center justify-center overflow-hidden relative shadow-inner">
+        <div className="bg-gray-200 w-full aspect-[16/9] rounded-2xl flex items-center justify-center overflow-hidden relative shadow-inner">
           {currentPromo ? (
             <Link
               href={`/promo/${currentPromo.slug || currentPromo.id}`}
