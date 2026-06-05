@@ -62,8 +62,9 @@ export async function getServiceById(
 ): Promise<ServiceListItemData | null> {
   const services = await getServiceListData();
   return (
-    services.find((service) => String(service.id) === id || service.slug === id) ||
-    null
+    services.find(
+      (service) => String(service.id) === id || service.slug === id,
+    ) || null
   );
 }
 
@@ -94,11 +95,19 @@ function normalizeServiceItem(
     "-";
 
   const imageUrl =
-    getDirectImageUrl(toStringValue(item.imageUrl) || toStringValue(item.iconUrl)) ||
-    undefined;
+    getDirectImageUrl(
+      toStringValue(item.imageUrl) || toStringValue(item.iconUrl),
+    ) || undefined;
 
   const id = normalizeNumericId(item.id, index + 1);
   const legacySlug = toPositiveInteger(item.id) ? "" : toStringValue(item.id);
+
+  const recommendationCount =
+    toPositiveInteger(item.recommendationCount) ||
+    toPositiveInteger(item.recommendations) ||
+    toPositiveInteger(item.likes) ||
+    toPositiveInteger(item.initialRecommendations) ||
+    0;
 
   return {
     id,
@@ -116,6 +125,7 @@ function normalizeServiceItem(
     description,
     duration,
     imageUrl,
+    recommendationCount,
     sortOrder: normalizeSortOrder(item.sortOrder, index + 1),
   };
 }
@@ -125,17 +135,19 @@ function normalizeServiceSlugs(
 ): ServiceListItemData[] {
   const slugCounts = new Map<string, number>();
 
-  return services.map((service) => {
-    const baseSlug =
-      service.slug || createSlug(service.title, `service-${service.id}`);
-    const count = slugCounts.get(baseSlug) || 0;
-    slugCounts.set(baseSlug, count + 1);
+  return services
+    .map((service) => {
+      const baseSlug =
+        service.slug || createSlug(service.title, `service-${service.id}`);
+      const count = slugCounts.get(baseSlug) || 0;
+      slugCounts.set(baseSlug, count + 1);
 
-    return {
-      ...service,
-      slug: count === 0 ? baseSlug : `${baseSlug}-${count + 1}`,
-    };
-  }).sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0));
+      return {
+        ...service,
+        slug: count === 0 ? baseSlug : `${baseSlug}-${count + 1}`,
+      };
+    })
+    .sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0));
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
