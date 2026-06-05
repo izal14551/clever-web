@@ -10,6 +10,7 @@ export const mockServiceListData: ServiceListItemData[] = [
     duration: "30 Menit",
     imageUrl:
       "https://images.unsplash.com/photo-1516627145497-ae6968895b74?auto=format&fit=crop&w=800&q=80",
+    recommendationCount: 25,
   },
   {
     id: 3,
@@ -20,6 +21,7 @@ export const mockServiceListData: ServiceListItemData[] = [
     duration: "30 Menit",
     imageUrl:
       "https://images.unsplash.com/photo-1516589091380-5d8e87df6999?auto=format&fit=crop&w=800&q=80",
+    recommendationCount: 12,
   },
   {
     id: 4,
@@ -30,6 +32,7 @@ export const mockServiceListData: ServiceListItemData[] = [
     duration: "30 Menit",
     imageUrl:
       "https://images.unsplash.com/photo-1609220136736-443140cffec6?auto=format&fit=crop&w=800&q=80",
+    recommendationCount: 18,
   },
   {
     id: 5,
@@ -38,6 +41,7 @@ export const mockServiceListData: ServiceListItemData[] = [
     description:
       "Layanan potong rambut bayi dan anak dengan teknik yang aman, lembut, dan dilakukan oleh tenaga berpengalaman.",
     duration: "30 Menit",
+    recommendationCount: 4,
   },
   {
     id: 6,
@@ -46,6 +50,7 @@ export const mockServiceListData: ServiceListItemData[] = [
     description:
       "Kombinasi aktivitas renang dan gym untuk membantu kekuatan otot, koordinasi, keseimbangan, dan stimulasi sensorik bayi.",
     duration: "30 Menit",
+    recommendationCount: 9,
   },
   {
     id: 7,
