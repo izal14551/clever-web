@@ -56,7 +56,7 @@ export default async function ServiceDetailPage({
         </Link>
       </header>
 
-      <section className="h-48 overflow-hidden bg-[#efe5d8]">
+      <section className="relative w-full aspect-[15/11] bg-[#efe5d8] overflow-hidden">
         {service.imageUrl ? (
           <img
             src={service.imageUrl}
