@@ -36,7 +36,7 @@ export function ServiceList({ services, itemsPerPage = 5 }: ServiceListProps) {
             className="block p-4 border-b border-orange-100 last:border-b-0 hover:bg-orange-50/40 transition-colors"
           >
             <div className="flex items-center gap-3">
-              <div className="w-[150px] h-[110px] rounded-md bg-orange-100 overflow-hidden shrink-0">
+              <div className="w-[150px] aspect-[15/11] rounded-md bg-orange-100 overflow-hidden shrink-0">
                 {service.imageUrl ? (
                   <img
                     src={service.imageUrl}
