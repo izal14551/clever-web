@@ -1,0 +1,78 @@
+"use client";
+
+import { usePathname } from "next/navigation";
+import { Home, Grid, Newspaper, BadgePercent, User } from "lucide-react";
+import { ProgressLink as Link } from "./RouteProgress";
+
+interface BottomNavProps {
+  fixed?: boolean;
+}
+
+export function BottomNav({ fixed = true }: BottomNavProps) {
+  const currentPathname = usePathname() || "";
+  const navClassName = fixed
+    ? "fixed bottom-0 left-1/2 -translate-x-1/2 z-50"
+    : "relative z-10";
+
+  return (
+    <nav
+      className={`${navClassName} w-full max-w-md bg-white border-t border-[#eadbc9] px-6 py-3 flex justify-between items-center`}
+    >
+      <NavItem icon={<Home size={22} />} label="Home" href="/" active={currentPathname === "/"} />
+      <NavItem
+        icon={<Grid size={22} />}
+        label="Layanan"
+        href="/services"
+        active={currentPathname.startsWith("/services")}
+      />
+      <NavItem
+        icon={<Newspaper size={22} />}
+        label="Artikel"
+        href="/artikel"
+        active={currentPathname.startsWith("/artikel")}
+      />
+      <NavItem
+        icon={<BadgePercent size={22} />}
+        label="Promo"
+        href="/promo"
+        active={currentPathname.startsWith("/promo")}
+      />
+      <NavItem
+        icon={<User size={22} />}
+        label="Akun Saya"
+        href="/menu"
+        active={currentPathname.startsWith("/menu")}
+      />
+    </nav>
+  );
+}
+
+function NavItem({
+  icon,
+  label,
+  href,
+  active = false,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  href: string;
+  active?: boolean;
+}) {
+  const className = `flex flex-col items-center gap-1 transition-colors ${active ? "text-[#a68b6d]" : "text-gray-400 hover:text-gray-600"}`;
+
+  if (href === "#") {
+    return (
+      <div className={`${className} cursor-not-allowed opacity-80`}>
+        {icon}
+        <span className="text-[10px] font-medium">{label}</span>
+      </div>
+    );
+  }
+
+  return (
+    <Link href={href} className={`${className} cursor-pointer`}>
+      {icon}
+      <span className="text-[10px] font-medium">{label}</span>
+    </Link>
+  );
+}
