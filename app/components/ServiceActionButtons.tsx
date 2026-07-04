@@ -54,7 +54,7 @@ export function ServiceActionButtons({
     }
   };
 
-  const WA_NUMBER = whatsappNumber || "6281932618816";
+  const WA_NUMBER = whatsappNumber || "6282277773548";
   const waMessage = `Halo Clevermom, saya tertarik untuk memesan layanan *${serviceTitle}*.`;
   const waLink = `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(waMessage)}`;
 
