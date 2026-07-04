@@ -5,6 +5,7 @@ import type {
   PackageData,
   PromoData,
   ServiceData,
+  SocialLinkData,
   TestimonialData,
   TreatmentData,
 } from "@/app/types/landing";
@@ -40,7 +41,10 @@ export async function getLandingData(): Promise<LandingPageData> {
       return mockLandingData;
     }
 
-    const fetchedData: Partial<LandingPageData> = await res.json();
+    interface AppsScriptPayload extends Partial<LandingPageData> {
+      social?: Record<string, string>;
+    }
+    const fetchedData: AppsScriptPayload = await res.json();
 
     return {
       hero: {
@@ -54,6 +58,9 @@ export async function getLandingData(): Promise<LandingPageData> {
         ...mockLandingData.consultation,
         ...(fetchedData.consultation || {}),
       },
+      socials: (fetchedData.social ||
+        fetchedData.socials ||
+        {}) as SocialLinkData,
       services: normalizeServices(fetchedData.services),
       promos: normalizePromos(fetchedData.promos),
       packages: normalizePackages(fetchedData.packages),

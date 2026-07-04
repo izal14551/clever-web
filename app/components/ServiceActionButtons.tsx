@@ -4,10 +4,12 @@ import { Share2, MessageCircle } from "lucide-react";
 
 interface ServiceActionButtonsProps {
   serviceTitle: string;
+  whatsappNumber?: string;
 }
 
 export function ServiceActionButtons({
   serviceTitle,
+  whatsappNumber,
 }: ServiceActionButtonsProps) {
   const handleShare = async () => {
     const shareData = {
@@ -52,8 +54,7 @@ export function ServiceActionButtons({
     }
   };
 
-  // Anda dapat mengganti nomor ini dengan nomor WhatsApp yang dituju
-  const WA_NUMBER = "6281234567890";
+  const WA_NUMBER = whatsappNumber || "6281932618816";
   const waMessage = `Halo Clevermom, saya tertarik untuk memesan layanan *${serviceTitle}*.`;
   const waLink = `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(waMessage)}`;
 

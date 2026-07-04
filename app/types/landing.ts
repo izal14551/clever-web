@@ -82,12 +82,24 @@ export interface TestimonialData {
   sortOrder?: number;
 }
 
+export interface SocialLinkData {
+  facebook?: string;
+  instagram?: string;
+  youtube?: string;
+  tiktok?: string;
+  linkedin?: string;
+  telegram?: string;
+  community?: string;
+}
+
 export interface LandingPageData {
   hero: HeroData;
   consultation: ConsultationData;
+  socials: SocialLinkData;
   services: ServiceData[];
   promos: PromoData[];
   packages: PackageData[];
   testimonials: TestimonialData[];
   featuredTreatments: TreatmentData[];
 }
+
