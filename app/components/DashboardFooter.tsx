@@ -10,6 +10,8 @@ import {
   Youtube,
 } from "lucide-react";
 import { ProgressLink as Link } from "./RouteProgress";
+import type { SocialLinkData } from "@/app/types/landing";
+import { mockLandingData } from "@/app/data/mockLandingData";
 
 const footerLinks = [
   { label: "Tentang CleverMom", href: "/menu/about" },
@@ -17,17 +19,32 @@ const footerLinks = [
   { label: "Pusat Bantuan", href: "/menu/bantuan" },
 ];
 
-const socialLinks = [
-  { label: "Facebook", href: "#", icon: Facebook },
-  { label: "Instagram", href: "#", icon: Instagram },
-  { label: "YouTube", href: "#", icon: Youtube },
-  { label: "TikTok", href: "#", icon: Music2 },
-  { label: "LinkedIn", href: "#", icon: Linkedin },
-  { label: "Telegram", href: "#", icon: Send },
-  { label: "Community", href: "#", icon: MessageCircleHeart },
+const SOCIAL_CONFIGS = [
+  { key: "facebook" as const, label: "Facebook", icon: Facebook },
+  { key: "instagram" as const, label: "Instagram", icon: Instagram },
+  { key: "youtube" as const, label: "YouTube", icon: Youtube },
+  { key: "tiktok" as const, label: "TikTok", icon: Music2 },
+  { key: "linkedin" as const, label: "LinkedIn", icon: Linkedin },
+  { key: "telegram" as const, label: "Telegram", icon: Send },
+  { key: "community" as const, label: "Community", icon: MessageCircleHeart },
 ];
 
-export function DashboardFooter() {
+interface DashboardFooterProps {
+  socials?: SocialLinkData;
+}
+
+export function DashboardFooter({ socials }: DashboardFooterProps) {
+  const resolvedSocials = socials || mockLandingData.socials;
+  const activeSocials = SOCIAL_CONFIGS.map((config) => {
+    const href = resolvedSocials?.[config.key];
+    return {
+      label: config.label,
+      href,
+      icon: config.icon,
+      isValid: href && href !== "#" && href.trim() !== "",
+    };
+  }).filter((item) => item.isValid);
+
   return (
     <footer className="border-t border-[#efe3d5] bg-[#fffaf5] px-6 pb-13 pt-8 text-center">
       <p className="mx-auto max-w-[320px] text-sm leading-7 text-[#6f6255]">
@@ -51,7 +68,7 @@ export function DashboardFooter() {
       </div>
 
       <div className="mt-7 flex flex-wrap items-center justify-center gap-3">
-        {socialLinks.map((item) => {
+        {activeSocials.map((item) => {
           const Icon = item.icon;
 
           return (
@@ -59,6 +76,8 @@ export function DashboardFooter() {
               key={item.label}
               href={item.href}
               aria-label={item.label}
+              target="_blank"
+              rel="noopener noreferrer"
               className="flex h-11 w-11 items-center justify-center rounded-full bg-[#f2ebe3] text-[#6f6255] transition-colors hover:bg-[#e7d9c7] hover:text-[#8e7357]"
             >
               <Icon size={20} strokeWidth={2} />

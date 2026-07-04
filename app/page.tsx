@@ -162,7 +162,7 @@ export default async function LandingPage() {
 
       <TestimonialShowcase testimonials={feedbackWithReactionState} />
 
-      <DashboardFooter />
+      <DashboardFooter socials={data.socials} />
 
       <BottomNav />
     </main>

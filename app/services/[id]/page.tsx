@@ -12,6 +12,7 @@ import { authOptions } from "../../lib/auth";
 import { getArticleList } from "../../lib/blogger";
 import { getServiceComments } from "../../lib/serviceComments";
 import { getServiceRecommendation } from "../../lib/serviceRecommendations";
+import { getLandingData } from "../../lib/landing";
 import type { ArticleListItem } from "../../types/article";
 
 interface ServiceDetailPageProps {
@@ -23,9 +24,10 @@ export default async function ServiceDetailPage({
 }: ServiceDetailPageProps) {
   const { id } = await params;
   const session = await getServerSession(authOptions);
-  const [service, articles] = await Promise.all([
+  const [service, articles, landingData] = await Promise.all([
     getServiceById(id),
     getArticleList(),
+    getLandingData(),
   ]);
 
   if (!service) {
@@ -138,7 +140,10 @@ export default async function ServiceDetailPage({
 
       <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md z-50">
         <div className="bg-white/95 border-t border-[#eadbc9] px-3 py-2 backdrop-blur">
-          <ServiceActionButtons serviceTitle={service.title} />
+          <ServiceActionButtons
+            serviceTitle={service.title}
+            whatsappNumber={landingData?.consultation?.whatsappNumber}
+          />
         </div>
         <BottomNav fixed={false} />
       </div>

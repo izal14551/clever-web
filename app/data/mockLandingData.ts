@@ -166,4 +166,14 @@ export const mockLandingData: LandingPageData = {
       description: "Deskripsi singkat treatment...",
     },
   ],
+  socials: {
+    facebook: "https://facebook.com/clevermom",
+    instagram: "https://instagram.com/clevermom.id",
+    youtube: "https://youtube.com/clevermom",
+    tiktok: "https://tiktok.com/@clevermom.id",
+    linkedin: "https://linkedin.com/company/clevermom",
+    telegram: "https://t.me/clevermom",
+    community: "https://chat.whatsapp.com/clevermom",
+  },
 };
+
