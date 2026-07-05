@@ -1,4 +1,4 @@
-﻿﻿﻿import { ChevronLeft } from "lucide-react";
+﻿import { ChevronLeft } from "lucide-react";
 import { BottomNav } from "../components/BottomNav";
 import { ProgressLink as Link } from "../components/RouteProgress";
 import { ServicesExplorer } from "../components/ServicesExplorer";
@@ -10,7 +10,9 @@ interface ServicesPageProps {
   }>;
 }
 
-export default async function ServicesPage({ searchParams }: ServicesPageProps) {
+export default async function ServicesPage({
+  searchParams,
+}: ServicesPageProps) {
   const services = await getServiceListData();
   const params = searchParams ? await searchParams : undefined;
   const initialCategory = params?.category;

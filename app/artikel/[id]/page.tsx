@@ -43,7 +43,7 @@ export default async function ArticleDetailPage({
         </div>
       </header>
 
-      <section className="bg-[#fffaf5] px-5 pb-6 pt-5">
+      <section className="bg-[#fffaf5] px-5 pb-5 pt-5">
         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#a68b6d]">
           {formatDate(article.publishedAt)}
         </p>
@@ -57,18 +57,7 @@ export default async function ArticleDetailPage({
         ) : null}
       </section>
 
-      {article.imageUrl ? (
-        <section className="h-52 overflow-hidden bg-[#f4ede4]">
-          <img
-            src={article.imageUrl}
-            alt={article.title}
-            className="h-full w-full object-cover"
-            referrerPolicy="no-referrer"
-          />
-        </section>
-      ) : null}
-
-      <section className="px-5 py-6">
+      <section className="px-5  pb-6">
         <div
           className="article-content text-sm leading-relaxed text-gray-700"
           dangerouslySetInnerHTML={{ __html: article.contentHtml }}

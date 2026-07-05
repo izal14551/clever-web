@@ -31,7 +31,7 @@ export default async function LandingPage() {
       getAllServiceRecommendations(),
     ]);
 
-  const { hero, consultation, services, promos, featuredTreatments } = data;
+  const { hero, consultation, services, promos } = data;
 
   const serviceMap = new Map(
     serviceItems.map((service) => [String(service.id), service]),
@@ -80,17 +80,14 @@ export default async function LandingPage() {
       imageUrl: service.imageUrl,
       href: `/services/${service.slug || service.id}`,
       recommendationCount:
-        recommendationMap.get(service.slug || "") ||
-        recommendationMap.get(String(service.id)) ||
-        0,
+        (service.recommendationCount || 0) +
+        (recommendationMap.get(service.slug || "") ||
+          recommendationMap.get(String(service.id)) ||
+          0),
     }))
-    .filter((service) => service.recommendationCount > 0)
     .sort((a, b) => b.recommendationCount - a.recommendationCount)
     .slice(0, 5);
-  const displayedTreatments =
-    favoriteTreatments.length > 0
-      ? favoriteTreatments
-      : featuredTreatments.slice(0, 5);
+  const displayedTreatments = favoriteTreatments;
   const packageServices = serviceItems
     .filter((service) => service.category?.toLowerCase().includes("paket"))
     .map((service) => ({
@@ -102,49 +99,6 @@ export default async function LandingPage() {
       duration: service.duration,
       imageUrl: service.imageUrl,
     }));
-
-  const serviceMap = new Map(
-    serviceItems.map((service) => [service.id, service]),
-  );
-  const allFeedback: TestimonialData[] = [
-    ...storedComments.map((comment) => {
-      const service = serviceMap.get(comment.serviceId);
-
-      return {
-        id: `comment-${comment.id}`,
-        serviceId: comment.serviceId,
-        author: comment.author,
-        timeAgo: formatCommentTimeAgo(comment.createdAt),
-        category: service?.category || "Layanan CleverMom",
-        title: service?.title || "Komentar Mom",
-        message: comment.message,
-        reactionCount: comment.likeCount,
-        ctaLabel: "Setuju",
-      };
-    }),
-    ...testimonials.map((testimonial) => ({
-      ...testimonial,
-      ctaLabel: "Setuju",
-    })),
-  ];
-  const recommendationMap = new Map(
-    serviceRecommendations.map((recommendation) => [
-      recommendation.serviceId,
-      recommendation.recommendationCount,
-    ]),
-  );
-  const favoriteTreatments = serviceItems
-    .map((service) => ({
-      id: service.id,
-      slug: service.slug,
-      name: service.title,
-      description: service.category || service.description,
-      imageUrl: service.imageUrl,
-      href: `/services/${service.slug || service.id}`,
-      recommendationCount: recommendationMap.get(service.id) || 0,
-    }))
-    .sort((a, b) => b.recommendationCount - a.recommendationCount)
-    .slice(0, 5);
 
   return (
     <main className="max-w-md mx-auto bg-white min-h-screen pb-10 font-sans shadow-md relative">
