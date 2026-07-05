@@ -190,67 +190,6 @@ export function ServiceComments({
     }
   };
 
-  const handleLike = async (commentId: string) => {
-    if (sessionStatus !== "authenticated") {
-      setStatus({
-        type: "error",
-        message: "Silakan login terlebih dahulu untuk memberi like.",
-      });
-      return;
-    }
-
-    const targetComment = localComments.find(
-      (comment) => comment.id === commentId,
-    );
-    if (!targetComment || targetComment.likedByCurrentUser) {
-      return;
-    }
-
-    setLikingCommentId(commentId);
-    setStatus({ type: "idle", message: "" });
-
-    try {
-      const response = await fetch("/api/service-comments/like", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ commentId }),
-      });
-      const payload: unknown = await response.json();
-
-      if (!response.ok || !isLikePayload(payload)) {
-        const errorMessage =
-          isMessagePayload(payload) && payload.message
-            ? payload.message
-            : "Like belum bisa disimpan.";
-        throw new Error(errorMessage);
-      }
-
-      setLocalComments((current) =>
-        current.map((comment) =>
-          comment.id === payload.like.commentId
-            ? {
-                ...comment,
-                likeCount: payload.like.likeCount,
-                likedByCurrentUser: payload.like.likedByCurrentUser,
-              }
-            : comment,
-        ),
-      );
-    } catch (error) {
-      setStatus({
-        type: "error",
-        message:
-          error instanceof Error
-            ? error.message
-            : "Like belum bisa disimpan.",
-      });
-    } finally {
-      setLikingCommentId(null);
-    }
-  };
-
   return (
     <section className="bg-[#fff7ee] px-4 py-5 border-b border-[#f1e5d8]">
       <div className="mb-4 flex items-end justify-between gap-3">
