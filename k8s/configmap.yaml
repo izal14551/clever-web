@@ -1,9 +1,0 @@
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: clever-web-config
-  namespace: clevermom
-data:
-  NEXTAUTH_URL: "https://your-domain.example.com"
-  BLOGGER_BLOG_ID: "your-blogger-blog-id"
-  APPS_SCRIPT_URL: "your-apps-script-url"

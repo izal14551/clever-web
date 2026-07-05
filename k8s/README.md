@@ -5,8 +5,7 @@ Manifest ini disiapkan untuk deploy aplikasi `clever-web` ke Kubernetes.
 ## Isi folder
 
 - `namespace.yaml`: namespace aplikasi
-- `configmap.yaml`: konfigurasi non-secret
-- `secret.example.yaml`: template secret yang perlu diisi
+- `secret.example.yaml`: template secret dan konfigurasi yang perlu diisi
 - `deployment.yaml`: deployment aplikasi Next.js
 - `service.yaml`: service internal cluster
 - `ingress.yaml`: ingress publik
@@ -16,12 +15,8 @@ Manifest ini disiapkan untuk deploy aplikasi `clever-web` ke Kubernetes.
 
 1. Ganti `your-registry/clever-web:latest` di `deployment.yaml` dengan image aplikasi yang valid.
 2. Ganti host `clevermom.example.com` di `ingress.yaml` dengan domain production.
-3. Isi nilai placeholder di `configmap.yaml` untuk environment deploy:
-   - `NEXTAUTH_URL`
-   - `BLOGGER_BLOG_ID`
-   - `APPS_SCRIPT_URL`
-4. Isi semua nilai placeholder di `secret.example.yaml`.
-5. Jika namespace berbeda, sesuaikan `namespace.yaml` dan referensinya.
+3. Salin `secret.example.yaml` menjadi `secret.yaml` dan isi semua nilai variabel di dalamnya (kredensial sensitif dan konfigurasi umum).
+4. Jika namespace berbeda, sesuaikan `namespace.yaml` dan referensinya.
 
 ## Apply
 

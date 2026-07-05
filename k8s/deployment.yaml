@@ -22,8 +22,6 @@ spec:
             - name: http
               containerPort: 3000
           envFrom:
-            - configMapRef:
-                name: clever-web-config
             - secretRef:
                 name: clever-web-secret
           startupProbe:
