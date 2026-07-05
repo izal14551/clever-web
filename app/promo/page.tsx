@@ -34,12 +34,12 @@ export default async function PromoPage() {
                 href={`/promo/${promo.slug || promo.id}`}
                 className="block group"
               >
-                <div className="flex h-48 items-center justify-center bg-[#f9f4ed] overflow-hidden">
+                <div className="w-full aspect-[16/9] flex items-center justify-center bg-[#f9f4ed] overflow-hidden">
                   {promo.imageUrl ? (
                     <img
                       src={promo.imageUrl}
                       alt={promo.title || `Promo ${index + 1}`}
-                      className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                       referrerPolicy="no-referrer"
                     />
                   ) : (

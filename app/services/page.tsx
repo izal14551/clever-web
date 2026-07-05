@@ -10,7 +10,9 @@ interface ServicesPageProps {
   }>;
 }
 
-export default async function ServicesPage({ searchParams }: ServicesPageProps) {
+export default async function ServicesPage({
+  searchParams,
+}: ServicesPageProps) {
   const services = await getServiceListData();
   const params = searchParams ? await searchParams : undefined;
   const initialCategory = params?.category;

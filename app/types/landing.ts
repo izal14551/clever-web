@@ -29,6 +29,7 @@ export interface ServiceListItemData {
   description: string;
   duration: string;
   imageUrl?: string;
+  recommendationCount?: number;
   sortOrder?: number;
 }
 
@@ -101,4 +102,3 @@ export interface LandingPageData {
   testimonials: TestimonialData[];
   featuredTreatments: TreatmentData[];
 }
-

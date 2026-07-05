@@ -31,7 +31,7 @@ export default async function LandingPage() {
       getAllServiceRecommendations(),
     ]);
 
-  const { hero, consultation, services, promos, featuredTreatments } = data;
+  const { hero, consultation, services, promos } = data;
 
   const serviceMap = new Map(
     serviceItems.map((service) => [String(service.id), service]),
@@ -80,17 +80,14 @@ export default async function LandingPage() {
       imageUrl: service.imageUrl,
       href: `/services/${service.slug || service.id}`,
       recommendationCount:
-        recommendationMap.get(service.slug || "") ||
-        recommendationMap.get(String(service.id)) ||
-        0,
+        (service.recommendationCount || 0) +
+        (recommendationMap.get(service.slug || "") ||
+          recommendationMap.get(String(service.id)) ||
+          0),
     }))
-    .filter((service) => service.recommendationCount > 0)
     .sort((a, b) => b.recommendationCount - a.recommendationCount)
     .slice(0, 5);
-  const displayedTreatments =
-    favoriteTreatments.length > 0
-      ? favoriteTreatments
-      : featuredTreatments.slice(0, 5);
+  const displayedTreatments = favoriteTreatments;
   const packageServices = serviceItems
     .filter((service) => service.category?.toLowerCase().includes("paket"))
     .map((service) => ({
